@@ -3,7 +3,7 @@
     --primary:#044709;
     --primary-variant: #4CAF50;
     --secondary:#75B432;
-    --secondary-variant: #C5E1A5;
+    --secondary-variant: #E7FFCE;
     --background: #FFFFFF;
     --surface: #F6F8ED;
     --light-gray: #F8F8F8;
@@ -32,6 +32,31 @@ button {
     font-family: 'Montserrat', sans-serif;
     border: none;
     outline: none;
+}
+
+
+/** LAYOUT SETTINGS **/
+.app-wrapper {
+    display: flex;
+    min-height: 100vh;
+    padding: 0px;
+    margin: 0px;
+}
+
+.main-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+}
+
+.header {
+    width: 100%;
+}
+
+.main-content {
+    flex: 1;
+    padding: 1.5rem;
 }
 
 
@@ -145,43 +170,65 @@ button {
 }
 
 
-/* */
-
-
-
-
-/* Layout */
-.app-wrapper {
+/* Header Settings */
+.header {
     display: flex;
-    min-height: 100vh;
-    padding: 0px;
-    margin: 0px;
+    justify-content: space-between; 
+    align-items: center;            
+    width: 100%;
 }
 
-.main-wrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 1.5rem;
-}
-
-.main-content {
-    flex: 1;
-    padding: 1.5rem;
-}
-
-/* Buttons */
-.btn:focus,
-.btn:active {
-    box-shadow: none !important;
-}
-
-.topbar-left{
-    color: var(--text-dark);
-}
-
-.topbar-right{
+.header h2, .header h3{
     color: var(--primary);
 }
 
+.header-left {
+    display: flex;
+    align-items: center;
+}
 
+.header-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.solid-v {
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-right-color: var(--text-dark);
+    height: 30px;
+}
+
+.tab-display,
+.user {
+    margin: 0;
+}
+
+.notif-section {
+    font-size: 1.2em;
+}
+
+.notif-bttn {
+    display: flex;
+    gap: 0.3em;
+    flex-direction: row;
+    font-size: 1em;
+    width: 100%;
+    font-weight: 500;
+    background-color: var(--background);
+    color: var(--text-dark);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.user {
+    background-color: var(--secondary-variant);
+    color: var(--primary);
+    padding: 0.8em;
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+}
