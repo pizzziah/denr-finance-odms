@@ -12,9 +12,6 @@
         </div>
         <div class="card">
             <div class="card-body">
-                <h4>Total Amount Processed</h4>
-                <h6><i>₱100,000.00</i></h6>
-                <h3?>₱5,428,920.55</h3>
             </div>
         </div>
 
