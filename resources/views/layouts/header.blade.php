@@ -15,10 +15,32 @@
             </button>
         </div>
         <hr style="border-right-width: 1px; border-right-style: solid; border-right-color: var(--text-dark); height: 30px;">
-        <!-- TO-DO: update once database is ok Auth::user()->name }}</h2>-->
-        <h5 class="p-3 fw-bold" 
-            style="color: var(--primary); background-color: var(--secondary-variant); border: 1px solid var(--primary); border-radius: 8px; border: 1px solid var(--primary);">
-            Accounting Department
-        </h5>
+        
+        
+        {{-- ADMIN --}}
+        @if(Auth::user()->role === 'admin')
+            <h5 class="p-3 fw-bold" 
+                style="color: var(--primary); background-color: var(--secondary-variant); border: 1px solid var(--primary); border-radius: 8px; border: 1px solid var(--primary);">
+                System Admin
+            </h5>
+        @endif
+
+        {{-- ACCOUNTING --}}
+        @if(Auth::user()->role === 'accountant')
+            <h5 class="p-3 fw-bold" 
+                style="color: var(--primary); background-color: var(--secondary-variant); border: 1px solid var(--primary); border-radius: 8px; border: 1px solid var(--primary);">
+                Accounting Department
+            </h5>
+        @endif
+        
+        {{-- BUDGET --}}
+        @if(Auth::user()->role === 'budget')
+            <h5 class="p-3 fw-bold" 
+                style="color: var(--primary); background-color: var(--secondary-variant); border: 1px solid var(--primary); border-radius: 8px; border: 1px solid var(--primary);">
+                Budget Department
+            </h5>
+        @endif        
+
+        
     </div>
 </header>
