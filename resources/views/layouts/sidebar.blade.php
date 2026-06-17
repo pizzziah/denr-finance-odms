@@ -27,7 +27,7 @@
         @endif
 
         {{-- ACCOUNTING --}}
-        @if(Auth::user()->role === 'accountant')
+        @if(in_array(Auth::user()->role, ['accountant', 'bookkeeper']))
             <a href="{{ route('accounting.dashboard') }}" class="sidebar-link">
                 <i class="bi bi-columns-gap"></i>
                 Dashboard
