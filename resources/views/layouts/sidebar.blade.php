@@ -15,7 +15,7 @@
 
     <nav class="d-flex flex-column gap-3 mb-4">
         {{-- ADMIN --}}
-        @if(Auth::user()->role === 'admin')
+        @if(Auth::user()->role === 'Admin')
 
             <a href="{{ route('admin.dashboard') }}"
             class="sidebar-link">
@@ -32,7 +32,7 @@
         @endif
 
         {{-- ACCOUNTING --}}
-        @if(in_array(Auth::user()->role, ['accountant', 'bookkeeper']))
+        @if(in_array(Auth::user()->role, ['Accountant', 'Book Keeper']))
             <a href="{{ route('accounting.dashboard') }}" class="sidebar-link">
                 <i class="bi bi-columns-gap"></i>
                 Dashboard
@@ -55,7 +55,7 @@
         @endif
 
         {{-- BUDGET --}}
-        @if(Auth::user()->role === 'budget')
+        @if(Auth::user()->role === 'Budget')
             <a href="{{ route('budget.dashboard') }}"
             class="sidebar-link">
                 <i class="bi bi-columns-gap"></i>

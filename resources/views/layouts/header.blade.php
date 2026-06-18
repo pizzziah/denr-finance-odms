@@ -1,4 +1,5 @@
-<header class="d-flex justify-content-between align-items-center ">
+<header class="d-flex justify-content-between align-items-center shadow-sm pt-4 px-4 pb-3"
+    style="background-color: var(--background);">
     <div class="d-flex align-items-center gap-3">
         <h3 class="fw-bold" style="color: var(--primary);">
             {{ $pageTitle ?? 'Dashboard' }}
@@ -16,7 +17,7 @@
         <hr style="border-right-width: 1px; border-right-style: solid; border-right-color: var(--text-dark); height: 30px;">
         
         {{-- ADMIN --}}
-        @if(Auth::user()->role === 'admin')
+        @if(Auth::user()->role === 'Admin')
             <h5 class="p-3 fw-bold" 
                 style="color: #0B879D;; background-color: #EFF9FA; border: 1px solid #0B879D; border-radius: 8px;">
                 System Admin
@@ -24,7 +25,7 @@
         @endif
 
         {{-- ACCOUNTING --}}
-        @if(in_array(Auth::user()->role, ['accountant', 'bookkeeper']))
+        @if(in_array(Auth::user()->role, ['Accountant', 'Book Keeper']))
             <h5 class="p-3 fw-bold" 
                 style="color: var(--primary); background-color: var(--secondary-variant); border: 1px solid var(--primary); border-radius: 8px;">
                 Accounting Department
@@ -32,7 +33,7 @@
         @endif
         
         {{-- BUDGET --}}
-        @if(Auth::user()->role === 'budget')
+        @if(Auth::user()->role === 'Budget')
             <h5 class="p-3 fw-bold" 
                 style="color: var(--secondary); background-color: var(--secondary-variant); border: 1px solid var(--secondary); border-radius: 8px; ">
                 Budget Department
