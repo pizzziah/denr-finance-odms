@@ -7,5 +7,5 @@
 @endsection
 
 @php
-    $pageTitle = 'Quarter Summary';
+    $pageTitle = 'Quarterly Summary';
 @endphp
