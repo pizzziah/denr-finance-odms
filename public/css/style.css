@@ -8,6 +8,7 @@
     --surface: #F6F8ED;
     --light-gray: #F8F8F8;
     --text-dark: #212121;
+    --error: #BE0000;
 }
 
 body {
@@ -15,7 +16,7 @@ body {
 }
 
 
-/* Typography Settings*/
+/* TYPOGRAPHY SETTINGS*/
 body {
     font-family: 'Montserrat', sans-serif;
     background-color: var(--background);
@@ -46,7 +47,6 @@ button {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 1.5rem;
 }
 
 .header {
@@ -55,7 +55,8 @@ button {
 
 .main-content {
     flex: 1;
-    padding: 1.5rem;
+    padding: 2em;
+    padding-top: 1.5em;
 }
 
 
@@ -78,4 +79,72 @@ button {
 .sidebar-link.active{
     background:var(--primary);
     color:white;
+}
+
+
+/** TABLE SETTINGS */
+.table thead th {
+    background-color: var(--primary) !important;
+    color: var(--background) !important;
+    text-align: center;
+}
+
+.table td {
+    text-align: center;
+}
+
+table th:first-child {
+  border-top-left-radius: 8px;
+}
+
+table th:last-child {
+  border-top-right-radius: 8px;
+}
+
+
+/** BUTTONS **/
+.primary-bttn {
+    gap: 1em;
+    background-color: var(--primary); 
+    color: var(--background);
+}
+
+.secondary-bttn {
+    gap: 1em;
+    background-color: var(--secondary-variant); 
+    color: var(--primary);
+    border: solid 1px var(--primary);
+}
+
+.header-bttn {
+    gap: 1em;
+    font-weight: bold;
+    background-color: var(--secondary-variant); 
+    border: solid 1px var(--primary);
+    color: var(--primary);
+}
+
+.success-bttn {
+    gap: 1em;
+    background-color: var(--secondary-variant); 
+    border: solid 1px var(--primary);
+    color: var(--primary);
+}
+
+.alert-bttn {
+    background-color: #ffe3e3; 
+    border: solid 1px var(--error);
+    color: var(--error);
+}
+
+.edit-bttn{
+    background-color: #FFEECC; 
+    border: solid 1px #9D6B0B;
+    color: #9D6B0B;
+}
+
+.lock-bttn{
+    background-color: #ffe3e3; 
+    border: solid 1px var(--error);
+    color: var(--error);
 }
