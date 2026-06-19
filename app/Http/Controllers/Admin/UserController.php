@@ -102,4 +102,25 @@ class UserController extends Controller
                     : 'User deactivated successfully.'
             );
     }
+
+    /**
+     * Permanently delete a user.
+     */
+    public function forceDelete(string $id)
+    {
+        $user = User::findOrFail($id);
+
+        // Safety guard: Don't allow deleting yourself or System Administrators
+        if (auth()->id() == $user->id || $user->department === 'System Administration' || $user->department === 'Admin') {
+            return redirect()
+                ->route('admin.users')
+                ->with('error', 'Action denied. This account cannot be permanently deleted.');
+        }
+
+        $user->delete();
+
+        return redirect()
+            ->route('admin.users')
+            ->with('success', 'User has been permanently deleted.');
+    }
 }

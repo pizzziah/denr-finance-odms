@@ -73,6 +73,7 @@
               </span>
             @endif
           </td>
+
           <td>
             <div class="d-flex gap-2 justify-content-center align-items-center">
               <x-button variant="edit" as="a"
@@ -82,21 +83,55 @@
               </x-button>
 
               @if(auth()->id() != $user->id && $user->department !== 'System Administration' && $user->department !== 'Admin')
-                <form action="{{ route('admin.users.destroy', $user->id) }}"
-                  method="POST">
+                
+                <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="m-0">
                   @csrf
                   @method('DELETE')
 
                   @if($user->is_active === 'active')
-                    <x-button variant="alert" type="submit" class="px-2">
+                    <x-button variant="lock" type="submit" class="px-2" title="Deactivate User">
                       <i class="bi bi-person-fill-lock"></i>
                     </x-button>
                   @else
-                    <x-button variant="success" type="submit" class="px-2">
+                    <x-button variant="success" type="submit" class="px-2" title="Reactivate User">
                       <i class="bi bi-person-fill-check"></i>
                     </x-button>
                   @endif
                 </form>
+
+                <x-button variant="alert" type="button" class="px-2" 
+                          data-bs-toggle="modal" 
+                          data-bs-target="#deleteUserModal{{ $user->id }}" 
+                          title="Permanently Delete">
+                  <i class="bi bi-trash3"></i>
+                </x-button>
+
+                <div class="modal fade" id="deleteUserModal{{ $user->id }}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content text-start">
+                      <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title fw-bold m-0"><i class="bi bi-exclamation-triangle-fill me-2"></i> Confirm Permanent Deletion</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body text-dark py-3">
+                        <p class="mb-1">Are you absolutely sure you want to permanently delete this user account?</p>
+                        <strong class="text-danger">{{ $user->email }}</strong>
+                        <div class="alert alert-warning mt-3 mb-0 py-2 small">
+                          <i class="bi bi-info-circle-fill me-1"></i> This action is irreversible and will erase the account completely.
+                        </div>
+                      </div>
+                      <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <form action="{{ route('admin.users.forceDelete', $user->id) }}" method="POST" class="m-0">
+                          @csrf
+                          @method('DELETE')
+                          <button type="submit" class="btn btn-danger btn-sm fw-bold">Permanently Delete</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
               @endif
             </div>
           </td>

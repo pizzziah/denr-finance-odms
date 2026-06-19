@@ -34,5 +34,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('admin.users.update');
         Route::delete('/users/{id}', [UserController::class, 'destroy'])
             ->name('admin.users.destroy');
+        Route::delete('/users/{id}/force-delete', [UserController::class, 'forceDelete'])
+            ->name('admin.users.forceDelete');   
     }); 
 });
