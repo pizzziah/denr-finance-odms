@@ -16,60 +16,51 @@
     <nav class="d-flex flex-column gap-3 mb-4">
         {{-- ADMIN --}}
 
-        @if(Auth::user()->role === 'admin')
-            <a href="{{ route('admin.dashboard') }}"
-            class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                <i class="bi bi-columns-gap"></i>
-                Dashboard
-            </a>
+        @if(auth()->user()->role === 'admin')
+            <x-sidebar-link
+                route="admin.dashboard"
+                icon="bi bi-columns-gap"
+                label="Dashboard" />
 
-            <a href="{{ route('admin.users') }}"
-            class="sidebar-link {{ request()->routeIs('admin.users') ? 'active' : '' }}">
-                <i class="bi bi-people-fill"></i>
-                Users
-            </a>
+            <x-sidebar-link
+                route="admin.users"
+                icon="bi bi-people-fill"
+                label="Users" />
         @endif
 
         {{-- ACCOUNTING --}}
         @if(in_array(Auth::user()->role, ['accountant', 'bookkeeper']))
-            <a href="{{ route('accounting.dashboard') }}"
-            class="sidebar-link {{ request()->routeIs('accounting.dashboard') ? 'active' : '' }}">
-                <i class="bi bi-columns-gap"></i>
-                Dashboard
-            </a>
+            <x-sidebar-link
+                route="accounting.dashboard"
+                icon="bi bi-columns-gap"
+                label="Dashboard" />
 
-            <a href="{{ route('accounting.logbook') }}"
-            class="sidebar-link {{ request()->routeIs('accounting.logbook') ? 'active' : '' }}">
-                <i class="bi bi-file-earmark-spreadsheet"></i>
-                Log Book
-            </a>
+            <x-sidebar-link
+                route="accounting.logbook"
+                icon="bi bi-file-earmark-spreadsheet"
+                label="Log Book" />
 
-            <a href="{{ route('accounting.quarterly-summary') }}"
-            class="sidebar-link {{ request()->routeIs('accounting.quarterly-summary') ? 'active' : '' }}">
-                <i class="bi bi-pie-chart"></i>
-                Quarterly Summary
-            </a>
-
-            <a href="{{ route('accounting.cashier-status') }}"
-            class="sidebar-link {{ request()->routeIs('accounting.cashier-status') ? 'active' : '' }}">
-                <i class="bi bi-wallet-fill"></i>
-                Cashier Status
-            </a>
+            <x-sidebar-link
+                route="accounting.quarterly-summary"
+                icon="bi bi-pie-chart"
+                label="Quarterly Summary" />
+            <x-sidebar-link
+                route="accounting.cashier-status"
+                icon="bi bi-wallet-fill"
+                label="Cashier Status" />
         @endif
 
         {{-- BUDGET --}}
-        @if(Auth::user()->role === 'budget')
-            <a href="{{ route('budget.dashboard') }}"
-            class="sidebar-link {{ request()->routeIs('budget.dashboard') ? 'active' : '' }}">
-                <i class="bi bi-columns-gap"></i>
-                Dashboard
-            </a>
+        @if(auth()->user()->role === 'budget')
+        <x-sidebar-link
+            route="budget.dashboard"
+            icon="bi bi-columns-gap"
+            label="Dashboard" />
 
-            <a href="{{ route('budget.logbook') }}"
-            class="sidebar-link {{ request()->routeIs('budget.logbook') ? 'active' : '' }}">
-                <i class="bi bi-file-earmark-spreadsheet"></i>
-                Log Book
-            </a>
+        <x-sidebar-link
+            route="budget.logbook"
+            icon="bi bi-file-earmark-spreadsheet"
+            label="Log Book" />
         @endif
     </nav>
 
