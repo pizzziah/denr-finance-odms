@@ -14,7 +14,7 @@ $styles = [
     'success' => 'background-color: var(--secondary-variant); border: 1px solid var(--primary); color: var(--primary);',
     'alert' => 'background-color: #ffe3e3; border: 1px solid var(--error); color: var(--error);',
     'edit' => 'background-color: #FFEECC; border: 1px solid #9D6B0B; color: #9D6B0B;',
-    'lock' => 'background-color: #ffe3e3; border: 1px solid var(--error); color: var(--error);',
+    'lock' => 'background-color: #BCC3F6; border: 1px solid #271ECE; color: #271ECE;',
 ];
 
 $style = $styles[$variant] ?? $styles['primary'];
