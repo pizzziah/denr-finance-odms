@@ -17,6 +17,7 @@
           <div class="mb-3">
             <label class="fw-bold">Password</label>
             <input type="password" name="password" class="form-control" placeholder="********" required>
+            <small class="text-muted"><i>Password should contain at least 8 characters.</small>
           </div>   
 
           <div class="mb-3">
@@ -38,12 +39,10 @@
         </div>
         
         <div class="modal-footer">
-          <button type="button" class="btn secondary-bttn" data-bs-dismiss="modal">
+          <x-button type="button" variant="secondary" data-bs-dismiss="modal">
             Cancel
-          </button>
-          <button type="submit" class="btn primary-bttn">
-            Save
-          </button>
+          </x-button>
+          <x-button type="submit" variant="primary">Save</x-button>
         </div>
       </form>
     </div>
@@ -55,22 +54,41 @@
     const department = document.getElementById('department');
     const role = document.getElementById('role');
 
-    department.addEventListener('change', function () {
+    function loadRoles() {
       role.innerHTML = '';
-        if (this.value === 'System Administration') {
-          role.innerHTML =
-            '<option value="admin" selected>Admin</option>';
-          role.disabled = true;
-        } else if (this.value === 'Budget') {
-            role.innerHTML =
-              '<option value="budget" selected>Budget</option>';
-            role.disabled = true;
-        } else if (this.value === 'Accounting') {
-            role.innerHTML = `
-              <option value="accountant">Accountant</option>
-              <option value="bookkeeper">Book Keeper</option>`;
-            role.disabled = false;
-        }
-    });
+      
+      const existingHidden = document.getElementById('hidden-role');
+      if (existingHidden) existingHidden.remove();
+
+      if (department.value === 'System Administration') {
+        role.innerHTML = '<option value="admin" selected>Admin</option>';
+        role.disabled = true;
+        createHiddenInput('admin');
+
+      } else if (department.value === 'Budget') {
+        role.innerHTML = '<option value="budget" selected>Budget</option>';
+        role.disabled = true;
+        createHiddenInput('budget');
+
+      } else if (department.value === 'Accounting') {
+        role.innerHTML = `
+          <option value="">Select Role</option>
+          <option value="accountant">Accountant</option>
+          <option value="bookkeeper">Book Keeper</option>`;
+        role.disabled = false;
+      }
+    }
+
+    function createHiddenInput(value) {
+      const hiddenInput = document.createElement('input');
+      hiddenInput.type = 'hidden';
+      hiddenInput.name = 'role';
+      hiddenInput.id = 'hidden-role';
+      hiddenInput.value = value;
+      role.form.appendChild(hiddenInput);
+    }
+
+    loadRoles(); 
+    department.addEventListener('change', loadRoles);
   });
 </script>
