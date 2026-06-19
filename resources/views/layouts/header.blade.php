@@ -1,4 +1,4 @@
-<header class="d-flex justify-content-between align-items-center shadow-sm pt-4 px-4 pb-3"
+<header class="d-flex w-100 justify-content-between align-items-center shadow-sm pt-4 px-4 pb-3"
     style="background-color: var(--background);">
     <div class="d-flex align-items-center gap-3">
         <h3 class="fw-bold" style="color: var(--primary);">
@@ -17,7 +17,7 @@
         <hr style="border-right-width: 1px; border-right-style: solid; border-right-color: var(--text-dark); height: 30px;">
         
         {{-- ADMIN --}}
-        @if(Auth::user()->role === 'admin')
+        @if(auth()->user()->role === 'admin')
             <h5 class="p-3 fw-bold" 
                 style="color: #0B879D;; background-color: #EFF9FA; border: 1px solid #0B879D; border-radius: 8px;">
                 System Admin
@@ -33,7 +33,7 @@
         @endif
         
         {{-- BUDGET --}}
-        @if(Auth::user()->role === 'budget')
+        @if(auth()->user()->role === 'budget')
             <h5 class="p-3 fw-bold" 
                 style="color: var(--secondary); background-color: var(--secondary-variant); border: 1px solid var(--secondary); border-radius: 8px; ">
                 Budget Department
