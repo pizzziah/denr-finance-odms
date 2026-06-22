@@ -22,13 +22,10 @@
     align-items:center;
     justify-content:center;
     padding:.75rem 1.25rem;
-
     border:1px solid var(--primary);
-    border-radius:8px;
-
+    border-radius:20px;
     color:var(--primary);
     background:var(--secondary-variant);
-
     text-decoration:none;
     transition:.2s;
 }
