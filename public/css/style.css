@@ -31,25 +31,20 @@ button {
 
 /** TABLE SETTINGS */
 .table thead th {
-    background-color: var(--primary) !important;
-    color: var(--background) !important;
+    background-color: var(--primary);
+    color: var(--background);
     text-align: center;
     vertical-align: middle;
     font-family: 'Inter', sans-serif;
     font-size: small;
+    padding: 0.2em;
+    border-color: var(--background);
 }
 
-.table td {
+.table td, tr {
     text-align: center;
     vertical-align: middle;
     font-family: 'Inter', sans-serif;
     font-size: small;
-}
-
-table th:first-child {
-  border-top-left-radius: 8px;
-}
-
-table th:last-child {
-  border-top-right-radius: 8px;
+    border-color: #bebebe;
 }
