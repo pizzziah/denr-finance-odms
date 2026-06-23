@@ -32,8 +32,8 @@
         </select>
 
         <div class="input-group input-group-sm" style="min-width: 260px;">
-          <input type="text" name="search" class="form-control fs-6 p-1" style="border-color: var(--text-dark)" placeholder="Search email..." value="{{ request('search') }}">
-          <button class="btn" type="submit" style="border-color: var(--text-dark)">
+          <input type="text" name="search" class="form-control fs-6 p-1" style="border-color: #bebebe" placeholder="Search email..." value="{{ request('search') }}">
+          <button class="btn" type="submit" style="border-color: #bebebe">
             <i class="bi bi-search"></i>
           </button>
           @if(request('search') || request('department'))
