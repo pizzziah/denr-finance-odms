@@ -4,283 +4,209 @@
 
 @section('content')
 
-<div class="container mt-5">
+<div class="container m-0 mt-4 p-0">
 
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+    @include('layouts.subtab')
+  </div>
 
-        @include('layouts.subtab')
+  {{-- CARD --}}
+  <div class="card p-3 pb-0 m-0" style="min-height:70vh; width: 80vw">
 
-        <div class="d-flex gap-2">
+    {{-- HEADER --}}
+    <div class="px-3 pt-3 pb-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
 
-            {{-- SEARCH --}}
-            <form method="GET"
-                  action="{{ route('accounting.logbook') }}"
-                  class="d-flex gap-2 align-items-center">
+      {{-- SEARCH + FILTER --}}
+      <form action="{{ route('accounting.logbook') }}"
+            method="GET"
+            class="d-flex align-items-center gap-2 flex-wrap flex-md-nowrap m-0">
 
-                <input
-                    type="text"
-                    name="search"
-                    class="form-control"
-                    placeholder="Search DV, Payee, Office..."
-                    value="{{ request('search') }}">
+        {{-- preserve filters --}}
+        <input type="hidden" name="month" value="{{ request('month','all') }}">
+        <input type="hidden" name="status" value="{{ request('status','all') }}">
+        <input type="hidden" name="sort" value="{{ request('sort','latest') }}">
 
-                {{-- Preserve Filters --}}
-                <input type="hidden"
-                       name="month"
-                       value="{{ request('month', 'all') }}">
+        {{-- FILTER BUTTON --}}
+        <button type="button"
+                class="btn p-1"
+                data-bs-toggle="modal"
+                data-bs-target="#filterModal"
+                style="min-width: 100px; border:1px solid #bebebe;">
+          <small><i class="bi bi-funnel"></i> Filter</small>
+        </button>
 
-                <input type="hidden"
-                       name="status"
-                       value="{{ request('status', 'all') }}">
+        {{-- SEARCH --}}
+        <div class="input-group input-group-sm" style="min-width:260px;">
+          <input type="text"
+                 name="search"
+                 class="form-control p-1"
+                 placeholder="Search DV, OBR, Payee..."
+                 value="{{ request('search') }}">
 
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-search"></i>
-                </button>
+          <button class="btn btn-outline-secondary" type="submit">
+            <i class="bi bi-search"></i>
+          </button>
 
-            </form>
-
-            {{-- FILTER BUTTON --}}
-            <button class="btn btn-outline-secondary"
-                    data-bs-toggle="modal"
-                    data-bs-target="#filterModal">
-
-                <i class="bi bi-funnel"></i> Filter
-
-            </button>
-
+          @if(request('search') || request('month') || request('status') !== 'all')
+            <a href="{{ route('accounting.logbook') }}"
+               class="btn btn-outline-danger"
+               title="Clear Filters">
+              <i class="bi bi-x-circle"></i>
+            </a>
+          @endif
         </div>
 
+      </form>
     </div>
 
-    <div class="card shadow-sm">
+    {{-- TABLE --}}
+    <div class="card-body">
 
-        <div class="card-body">
+      <div class="table-responsive" style="max-height:60vh; overflow:auto;">
 
-            <div class="table-responsive"
-                 style="max-height:70vh; overflow:auto;">
+        <table class="table table-sm table-bordered table-hover align-middle">
 
-                <table class="table table-sm table-bordered table-hover table-striped align-middle">
+          <thead class="table-dark sticky-top">
+            <tr>
+              <th>Date Received</th>
+              <th>Date Processed</th>
+              <th>OBR No.</th>
+              <th>DV No.</th>
+              <th>Payee</th>
+              <th>Particulars</th>
+              <th>UACS Code</th>
+              <th>Debit</th>
+              <th>Credit</th>
+              <th>Status</th>
+              <th>Date Signed</th>
+              <th>Date Forwarded</th>
+            </tr>
+          </thead>
 
-                    <thead class="table-dark sticky-top">
-                        <tr>
-                            <th>Date Received</th>
-                            <th>Date Processed</th>
-                            <th>OBR Date</th>
-                            <th>OBR No.</th>
-                            <th>DV No.</th>
-                            <th>Payee</th>
-                            <th>Particulars</th>
-                            <th>UACS Code</th>
-                            <th>Debit</th>
-                            <th>Credit</th>
-                            <th>Tax %</th>
-                            <th>Status</th>
-                            <th>Date Signed</th>
-                            <th>Date Forwarded</th>
-                        </tr>
-                    </thead>
+          <tbody>
 
-                    <tbody>
+            @forelse($records as $record)
+              <tr>
+                <td>{{ $record->date_received ?? '-' }}</td>
+                <td>{{ $record->date_processed ?? '-' }}</td>
+                <td><strong>{{ $record->obr_no ?? '-' }}</strong></td>
+                <td>{{ $record->dv_no ?? '-' }}</td>
+                <td>{{ $record->payee ?? '-' }}</td>
+                <td>{{ $record->particulars ?? '-' }}</td>
+                <td>{{ $record->uacs_code ?? '-' }}</td>
 
-                    @forelse($records as $record)
+                <td>
+                  ₱{{ number_format((float) str_replace(',', '', $record->debit ?? 0), 2) }}
+                </td>
 
-                        <tr>
-                            <td>{{ $record->date_received ?? '-' }}</td>
-                            <td>{{ $record->date_processed ?? '-' }}</td>
-                            <td>{{ $record->obr_date ?? '-' }}</td>
-                            <td>{{ $record->obr_no ?? '-' }}</td>
-                            <td>{{ $record->dv_no ?? '-' }}</td>
-                            <td>{{ $record->payee ?? '-' }}</td>
-                            <td>{{ $record->particulars ?? '-' }}</td>
-                            <td>{{ $record->uacs_code ?? '-' }}</td>
+                <td>
+                  ₱{{ number_format((float) str_replace(',', '', $record->credit ?? 0), 2) }}
+                </td>
 
-                            <td>
-                                ₱{{ number_format((float) str_replace(',', '', $record->debit ?? 0), 2) }}
-                            </td>
+                <td>{{ $record->status ?? '-' }}</td>
+                <td>{{ $record->date_signed ?? '-' }}</td>
+                <td>{{ $record->date_forwarded ?? '-' }}</td>
+              </tr>
+            @empty
+              <tr>
+                <td colspan="12" class="text-center text-muted py-3">
+                  No records found.
+                </td>
+              </tr>
+            @endforelse
 
-                            <td>
-                                ₱{{ number_format((float) str_replace(',', '', $record->credit ?? 0), 2) }}
-                            </td>
+          </tbody>
 
-                            <td>{{ $record->tax_percent ?? '-' }}</td>
-                            <td>{{ $record->status ?? '-' }}</td>
-                            <td>{{ $record->date_signed ?? '-' }}</td>
-                            <td>{{ $record->date_forwarded ?? '-' }}</td>
-                        </tr>
+        </table>
 
-                    @empty
-
-                        <tr>
-                            <td colspan="14" class="text-center">
-                                No records found.
-                            </td>
-                        </tr>
-
-                    @endforelse
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-
+      </div>
     </div>
 
+  </div>
 </div>
 
 {{-- FILTER MODAL --}}
 <div class="modal fade" id="filterModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
 
-            <form method="GET"
-                  action="{{ route('accounting.logbook') }}">
+      <form method="GET" action="{{ route('accounting.logbook') }}">
 
-                {{-- Preserve Search --}}
-                <input type="hidden"
-                       name="search"
-                       value="{{ request('search') }}">
+        <input type="hidden" name="search" value="{{ request('search') }}">
 
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        Filter Logbook
-                    </h5>
+        <div class="modal-header">
+          <h5 class="modal-title">Filter Logbook</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
 
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal">
-                    </button>
-                </div>
+        <div class="modal-body">
 
-                <div class="modal-body">
+          {{-- MONTH --}}
+          <div class="mb-3">
+            <label class="form-label">Month</label>
+            <select name="month" class="form-select">
 
-                    {{-- MONTH --}}
-                    <div class="mb-3">
+              <option value="all" @selected(request('month','all')=='all')>All</option>
+              <option value="1" @selected(request('month')=='1')>January</option>
+              <option value="2" @selected(request('month')=='2')>February</option>
+              <option value="3" @selected(request('month')=='3')>March</option>
+              <option value="4" @selected(request('month')=='4')>April</option>
+              <option value="5" @selected(request('month')=='5')>May</option>
+              <option value="6" @selected(request('month')=='6')>June</option>
+              <option value="7" @selected(request('month')=='7')>July</option>
+              <option value="8" @selected(request('month')=='8')>August</option>
+              <option value="9" @selected(request('month')=='9')>September</option>
+              <option value="10" @selected(request('month')=='10')>October</option>
+              <option value="11" @selected(request('month')=='11')>November</option>
+              <option value="12" @selected(request('month')=='12')>December</option>
 
-                        <label class="form-label">
-                            Month
-                        </label>
+            </select>
+          </div>
 
-                        <select name="month"
-                                class="form-select">
+          {{-- STATUS --}}
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
 
-                            <option value="all"
-                                @selected(request('month','all')=='all')>
-                                All Months
-                            </option>
+              <option value="all" @selected(request('status','all')=='all')>All</option>
+              <option value="Pending" @selected(request('status')=='Pending')>Pending</option>
+              <option value="Processing" @selected(request('status')=='Processing')>Processing</option>
+              <option value="Completed" @selected(request('status')=='Completed')>Completed</option>
 
-                            <option value="january"
-                                @selected(request('month')=='january')>
-                                January
-                            </option>
+            </select>
+          </div>
 
-                            <option value="february"
-                                @selected(request('month')=='february')>
-                                February
-                            </option>
+          {{-- SORT --}}
+          <div class="mb-3">
+            <label class="form-label">Sort</label>
+            <select name="sort" class="form-select">
 
-                            <option value="march"
-                                @selected(request('month')=='march')>
-                                March
-                            </option>
+              <option value="latest" @selected(request('sort','latest')=='latest')>
+                Latest
+              </option>
 
-                            <option value="april"
-                                @selected(request('month')=='april')>
-                                April
-                            </option>
+              <option value="obr_asc" @selected(request('sort')=='obr_asc')>
+                OBR No (Asc)
+              </option>
 
-                            <option value="may"
-                                @selected(request('month')=='may')>
-                                May
-                            </option>
+              <option value="obr_desc" @selected(request('sort')=='obr_desc')>
+                OBR No (Desc)
+              </option>
 
-                            <option value="june"
-                                @selected(request('month')=='june')>
-                                June
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                    {{-- STATUS --}}
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Status
-                        </label>
-
-                        <select name="status"
-                                class="form-select">
-
-                            <option value="all"
-                                @selected(request('status','all')=='all')>
-                                All Status
-                            </option>
-
-                            <option value="Pending"
-                                @selected(request('status')=='Pending')>
-                                Pending
-                            </option>
-
-                            <option value="Processing"
-                                @selected(request('status')=='Processing')>
-                                Processing
-                            </option>
-
-                            <option value="Completed"
-                                @selected(request('status')=='Completed')>
-                                Completed
-                            </option>
-
-                        </select>
-
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Sort</label>
-
-                        <select name="sort" class="form-select">
-
-                            <option value="latest" {{ request('sort','latest')=='latest' ? 'selected' : '' }}>
-                                Latest Date Processed
-                            </option>
-
-                            <option value="obr_asc" {{ request('sort')=='obr_asc' ? 'selected' : '' }}>
-                                DV No. (ascend)
-                            </option>
-
-                            <option value="obr_desc" {{ request('sort')=='obr_desc' ? 'selected' : '' }}>
-                                DV No. (descend)
-                            </option>
-
-                        </select>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-
-                    <a href="{{ route('accounting.logbook') }}"
-                       class="btn btn-secondary">
-                        Reset
-                    </a>
-
-                    <button type="submit"
-                            class="btn btn-success">
-                        Apply Filters
-                    </button>
-
-                </div>
-
-            </form>
+            </select>
+          </div>
 
         </div>
+
+        <div class="modal-footer">
+          <a href="{{ route('accounting.logbook') }}" class="btn btn-secondary">Reset</a>
+          <button type="submit" class="btn btn-success">Apply</button>
+        </div>
+
+      </form>
+
     </div>
+  </div>
 </div>
 
 @endsection
-
-@php
-$pageTitle = 'Logbook';
-@endphp
