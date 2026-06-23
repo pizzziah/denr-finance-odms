@@ -20,7 +20,7 @@
         @if(auth()->user()->role === 'admin')
             <h5 class="p-3 fw-bold" 
                 style="color: #0B879D;; background-color: #EFF9FA; border: 1px solid #0B879D; border-radius: 8px;">
-                System Admin
+                System Administrator
             </h5>
         @endif
 
