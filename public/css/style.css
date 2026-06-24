@@ -23,10 +23,16 @@ body {
     background-color: #ffffffa9; 
 }
 
-a {
-    text-decoration: none !important;
+a { 
+    text-decoration: none !important; 
 }
 
+button { 
+    font-family: 'Montserrat', sans-serif; 
+    border: none; 
+    outline: none; }
+
+/** GLASS CARDS */
 .glass-card {
     background: rgba(255, 255, 255, 0.589) !important;
     backdrop-filter: blur(16px);
@@ -37,11 +43,47 @@ a {
         inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
-button {
-    font-family: 'Montserrat', sans-serif;
-    border: none;
-    outline: none;
+.glass-card-green:hover,
+.glass-card:hover {
+    transform: translateY(-3px);
+    transition: all 0.3s ease;
 }
+
+.glass-card-green {
+    background: linear-gradient(
+        135deg,
+        rgba(4, 71, 9, 0.75),
+        rgba(76, 175, 80, 0.45)
+    ) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: none;
+    box-shadow:
+        0 8px 32px rgba(4, 71, 9, 0.18),
+        inset 0 1px 1px rgba(255, 255, 255, 0.25),
+        inset 0 -1px 1px rgba(255, 255, 255, 0.08);
+    color: var(--background);
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-card-green::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255, 255, 255, 0.12),
+        transparent
+    );
+    transform: rotate(-20deg);
+    pointer-events: none;
+}
+
 
 /** TABLE SETTINGS */
 .table thead th {
@@ -61,4 +103,40 @@ button {
     font-family: 'Inter', sans-serif;
     font-size: small;
     border-color: #bebebe;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+
+    grid-template-areas:
+        "a a a b"
+        "c d e b"
+        "f f f g"
+        "h h h g";
+}
+
+.card-a { grid-area: a; }
+.card-b { grid-area: b; }
+.card-c { grid-area: c; }
+.card-d { grid-area: d; }
+.card-e { grid-area: e; }
+.card-f { grid-area: f; }
+.card-g { grid-area: g; }
+.card-h { grid-area: h; }
+
+@media (max-width: 992px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "a"
+            "b"
+            "c"
+            "d"
+            "e"
+            "f"
+            "g"
+            "h";
+    }
 }
