@@ -6,15 +6,18 @@
 
 <div class="container m-0 mt-4 p-0">
 
+  {{-- TOP BAR --}}
   <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
     @include('layouts.subtab')
   </div>
 
   {{-- CARD --}}
-  <div class="card p-3 pb-0 m-0" style="min-height:70vh; width: 80vw">
+  <div class="card p-3 pb-0 m-0" style="min-height:70vh; width:80vw">
 
-    {{-- HEADER --}}
+    {{-- HEADER CONTROLS --}}
     <div class="px-3 pt-3 pb-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+
+      <h5 class="m-0 fw-bold">Accounting Log Book</h5>
 
       {{-- SEARCH + FILTER --}}
       <form action="{{ route('accounting.logbook') }}"
@@ -31,26 +34,31 @@
                 class="btn p-1"
                 data-bs-toggle="modal"
                 data-bs-target="#filterModal"
-                style="min-width: 100px; border:1px solid #bebebe;">
-          <small><i class="bi bi-funnel"></i> Filter</small>
+                style="min-width:100px;border-color:#bebebe;">
+          <small>
+            <i class="bi bi-funnel"></i> Filter
+          </small>
         </button>
 
-        {{-- SEARCH --}}
+        {{-- SEARCH INPUT --}}
         <div class="input-group input-group-sm" style="min-width:260px;">
           <input type="text"
                  name="search"
                  class="form-control p-1"
                  placeholder="Search DV, OBR, Payee..."
-                 value="{{ request('search') }}">
+                 value="{{ request('search') }}"
+                 style="border-color:#bebebe;">
 
-          <button class="btn btn-outline-secondary" type="submit">
+          <button class="btn" type="submit" style="border-color:#bebebe;">
             <i class="bi bi-search"></i>
           </button>
 
-          @if(request('search') || request('month') || request('status') !== 'all')
+          {{-- RESET --}}
+          @if(request('search') || request('month') !== 'all' || request('status') !== 'all' || request('sort') !== 'latest')
             <a href="{{ route('accounting.logbook') }}"
-               class="btn btn-outline-danger"
-               title="Clear Filters">
+               class="btn"
+               title="Clear Filters"
+               style="border-color:var(--error)">
               <i class="bi bi-x-circle"></i>
             </a>
           @endif
@@ -61,15 +69,15 @@
 
     {{-- TABLE --}}
     <div class="card-body">
-
       <div class="table-responsive" style="max-height:60vh; overflow:auto;">
 
-        <table class="table table-sm table-bordered table-hover align-middle">
+        <table class="table table-bordered table-hover table-sm align-middle">
 
           <thead class="table-dark sticky-top">
             <tr>
               <th>Date Received</th>
               <th>Date Processed</th>
+              <th>OBR Date</th>
               <th>OBR No.</th>
               <th>DV No.</th>
               <th>Payee</th>
@@ -77,6 +85,7 @@
               <th>UACS Code</th>
               <th>Debit</th>
               <th>Credit</th>
+              <th>Tax %</th>
               <th>Status</th>
               <th>Date Signed</th>
               <th>Date Forwarded</th>
@@ -89,8 +98,9 @@
               <tr>
                 <td>{{ $record->date_received ?? '-' }}</td>
                 <td>{{ $record->date_processed ?? '-' }}</td>
+                <td>{{ $record->obr_date ?? '-' }}</td>
                 <td><strong>{{ $record->obr_no ?? '-' }}</strong></td>
-                <td>{{ $record->dv_no ?? '-' }}</td>
+                <td><strong>{{ $record->dv_no ?? '-' }}</strong></td>
                 <td>{{ $record->payee ?? '-' }}</td>
                 <td>{{ $record->particulars ?? '-' }}</td>
                 <td>{{ $record->uacs_code ?? '-' }}</td>
@@ -103,25 +113,24 @@
                   ₱{{ number_format((float) str_replace(',', '', $record->credit ?? 0), 2) }}
                 </td>
 
+                <td>{{ $record->tax_percent ?? '-' }}</td>
                 <td>{{ $record->status ?? '-' }}</td>
                 <td>{{ $record->date_signed ?? '-' }}</td>
                 <td>{{ $record->date_forwarded ?? '-' }}</td>
               </tr>
             @empty
               <tr>
-                <td colspan="12" class="text-center text-muted py-3">
-                  No records found.
+                <td colspan="14" class="text-center text-muted py-3">
+                  No records found matching parameters.
                 </td>
               </tr>
             @endforelse
 
           </tbody>
-
         </table>
 
       </div>
     </div>
-
   </div>
 </div>
 
@@ -132,10 +141,11 @@
 
       <form method="GET" action="{{ route('accounting.logbook') }}">
 
+        {{-- preserve search --}}
         <input type="hidden" name="search" value="{{ request('search') }}">
 
         <div class="modal-header">
-          <h5 class="modal-title">Filter Logbook</h5>
+          <h5 class="modal-title fw-bold">Filter Accounting Logbook</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
 
@@ -145,21 +155,13 @@
           <div class="mb-3">
             <label class="form-label">Month</label>
             <select name="month" class="form-select">
-
-              <option value="all" @selected(request('month','all')=='all')>All</option>
-              <option value="1" @selected(request('month')=='1')>January</option>
-              <option value="2" @selected(request('month')=='2')>February</option>
-              <option value="3" @selected(request('month')=='3')>March</option>
-              <option value="4" @selected(request('month')=='4')>April</option>
-              <option value="5" @selected(request('month')=='5')>May</option>
-              <option value="6" @selected(request('month')=='6')>June</option>
-              <option value="7" @selected(request('month')=='7')>July</option>
-              <option value="8" @selected(request('month')=='8')>August</option>
-              <option value="9" @selected(request('month')=='9')>September</option>
-              <option value="10" @selected(request('month')=='10')>October</option>
-              <option value="11" @selected(request('month')=='11')>November</option>
-              <option value="12" @selected(request('month')=='12')>December</option>
-
+              <option value="all" @selected(request('month','all')=='all')>All Months</option>
+              <option value="january" @selected(request('month')=='january')>January</option>
+              <option value="february" @selected(request('month')=='february')>February</option>
+              <option value="march" @selected(request('month')=='march')>March</option>
+              <option value="april" @selected(request('month')=='april')>April</option>
+              <option value="may" @selected(request('month')=='may')>May</option>
+              <option value="june" @selected(request('month')=='june')>June</option>
             </select>
           </div>
 
@@ -167,12 +169,10 @@
           <div class="mb-3">
             <label class="form-label">Status</label>
             <select name="status" class="form-select">
-
-              <option value="all" @selected(request('status','all')=='all')>All</option>
+              <option value="all" @selected(request('status','all')=='all')>All Status</option>
               <option value="Pending" @selected(request('status')=='Pending')>Pending</option>
               <option value="Processing" @selected(request('status')=='Processing')>Processing</option>
               <option value="Completed" @selected(request('status')=='Completed')>Completed</option>
-
             </select>
           </div>
 
@@ -180,27 +180,27 @@
           <div class="mb-3">
             <label class="form-label">Sort</label>
             <select name="sort" class="form-select">
-
               <option value="latest" @selected(request('sort','latest')=='latest')>
-                Latest
+                Latest Date Processed
               </option>
-
               <option value="obr_asc" @selected(request('sort')=='obr_asc')>
-                OBR No (Asc)
+                DV No. (Asc)
               </option>
-
               <option value="obr_desc" @selected(request('sort')=='obr_desc')>
-                OBR No (Desc)
+                DV No. (Desc)
               </option>
-
             </select>
           </div>
 
         </div>
 
         <div class="modal-footer">
-          <a href="{{ route('accounting.logbook') }}" class="btn btn-secondary">Reset</a>
-          <button type="submit" class="btn btn-success">Apply</button>
+          <a href="{{ route('accounting.logbook') }}" class="btn btn-secondary">
+            Reset
+          </a>
+          <button type="submit" class="btn btn-success">
+            Apply Filters
+          </button>
         </div>
 
       </form>
