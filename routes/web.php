@@ -20,6 +20,17 @@ Route::middleware(['auth'])->group(function () {
   Route::prefix('budget')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('budget.dashboard');
     Route::get('/logbook', [BudgetLogbookController::class, 'logbook'])->name('budget.logbook');
+        Route::get('/logbook/{ors_no}/show',
+        [BudgetLogbookController::class, 'show'])
+        ->name('budget.logbook.show');
+
+    Route::put('/logbook/{ors_no}/update',
+        [BudgetLogbookController::class, 'update'])
+        ->name('budget.logbook.update');
+
+    Route::delete('/logbook/{ors_no}/destroy',
+        [BudgetLogbookController::class, 'destroy'])
+        ->name('budget.logbook.destroy');
   });
 
   /* -----------

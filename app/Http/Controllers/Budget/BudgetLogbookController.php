@@ -188,4 +188,41 @@ class BudgetLogbookController extends Controller
 
         return view('budget.logbook',compact('records','year','month','status','search', 'sort'));
     }
+
+    public function show($ors_no)
+    {
+        $record = DB::table('odms_budget')
+            ->where('ors_no', $ors_no)
+            ->first();
+
+        return response()->json($record);
+    }
+
+    public function update(Request $request, $ors_no)
+    {
+        $request->validate([
+            'status' => 'required'
+        ]);
+
+        DB::table('odms_budget')
+            ->where('ors_no', $ors_no)
+            ->update([
+                'status' => $request->status,
+            ]);
+
+        return redirect()
+            ->route('budget.logbook')
+            ->with('success', 'Record updated successfully.');
+    }
+
+    public function destroy($ors_no)
+    {
+        DB::table('odms_budget')
+            ->where('ors_no', $ors_no)
+            ->delete();
+
+        return redirect()
+            ->route('budget.logbook')
+            ->with('success', 'Record deleted successfully.');
+    }
 }

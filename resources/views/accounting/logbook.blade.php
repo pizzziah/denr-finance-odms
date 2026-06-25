@@ -222,7 +222,6 @@
           </div>
         </div>
         
-  {{-- ACTION MODAL --}}
         <div class="modal-footer">
           <a href="{{ route('accounting.logbook') }}" class="btn btn-secondary">
             Reset
@@ -235,6 +234,8 @@
     </div>
   </div>
 </div>
+
+  {{-- ACTION MODAL --}}
 <div class="modal fade" id="actionModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
