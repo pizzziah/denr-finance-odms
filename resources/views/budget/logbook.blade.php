@@ -114,7 +114,7 @@
                 <td>{{ $record->total_time ?? '-' }}</td>
                 <td>{{ $record->final_remarks ?? '-' }}</td>
                 <td>
-                      @if(!empty($record->ors_no))
+                      @if(!empty($record->payee))
                       <div class="d-flex gap-1">
                           <button type="button"
                                   class="btn btn-sm btn-outline-info action-btn"
@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 body.innerHTML = `
                     <form id="editForm"
                           method="POST"
-                          action="/accounting/logbook/${ors}/update">
+                          action="/accounting/logbook/${payee}/update">
 
                         @csrf
                         @method('PUT')
@@ -329,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 footer.innerHTML = `
                     <form method="POST"
-                          action="/accounting/logbook/${ors}/destroy">
+                          action="/accounting/logbook/${payee}/destroy">
                         @csrf
                         @method('DELETE')
                         <button class="btn btn-danger">

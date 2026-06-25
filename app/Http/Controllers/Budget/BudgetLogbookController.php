@@ -189,23 +189,23 @@ class BudgetLogbookController extends Controller
         return view('budget.logbook',compact('records','year','month','status','search', 'sort'));
     }
 
-    public function show($ors_no)
+    public function show($payee)
     {
         $record = DB::table('odms_budget')
-            ->where('ors_no', $ors_no)
+            ->where('payee', $payee)
             ->first();
 
         return response()->json($record);
     }
 
-    public function update(Request $request, $ors_no)
+    public function update(Request $request, $payee)
     {
         $request->validate([
             'status' => 'required'
         ]);
 
         DB::table('odms_budget')
-            ->where('ors_no', $ors_no)
+            ->where('payee', $payee)
             ->update([
                 'status' => $request->status,
             ]);
@@ -215,10 +215,10 @@ class BudgetLogbookController extends Controller
             ->with('success', 'Record updated successfully.');
     }
 
-    public function destroy($ors_no)
+    public function destroy($payee)
     {
         DB::table('odms_budget')
-            ->where('ors_no', $ors_no)
+            ->where('payee', $payee)
             ->delete();
 
         return redirect()
