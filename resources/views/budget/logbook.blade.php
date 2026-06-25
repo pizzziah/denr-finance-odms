@@ -2,7 +2,7 @@
 
 @section('content')
 
-<div class="container m-0 mt-4 p-0 ">
+<div class="container-fluid mt-3 px-0">
   <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
     @include('layouts.subtab')
   </div>
@@ -68,6 +68,7 @@
               <th rowspan="2" style="min-width:100px;">Total Time in Budget</th>
               <th rowspan="2" style="min-width:100px;">Total Time</th>
               <th rowspan="2">Final Remark</th>
+              <th rowspan="2">Action</th>
             </tr>
 
             {{-- SECOND HEADER ROW --}}
@@ -112,10 +113,45 @@
                 <td>{{ $record->total_time_budget ?? '-' }}</td>
                 <td>{{ $record->total_time ?? '-' }}</td>
                 <td>{{ $record->final_remarks ?? '-' }}</td>
+                <td>
+                      @if(!empty($record->ors_no))
+                      <div class="d-flex gap-1">
+                          <button type="button"
+                                  class="btn btn-sm btn-outline-info action-btn"
+                                  data-action="view"
+                                  data-ors="{{ $record->ors_no }}"
+                                  data-payee="{{ $record->payee }}"
+                                  data-status="{{ $record->status }}"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#actionModal">
+                              <i class="bi bi-eye"></i>
+                          </button>
+                          <button type="button"
+                                  class="btn btn-sm btn-outline-primary action-btn"
+                                  data-action="edit"
+                                  data-ors="{{ $record->ors_no }}"
+                                  data-status="{{ $record->status }}"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#actionModal">
+                              <i class="bi bi-pencil"></i>
+                          </button>
+                          <button type="button"
+                                  class="btn btn-sm btn-outline-danger action-btn"
+                                  data-action="delete"
+                                  data-ors="{{ $record->ors_no }}"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#actionModal">
+                              <i class="bi bi-trash"></i>
+                          </button>
+                      </div>
+                      @else
+                          <span class="text-muted">No DV No.</span>
+                      @endif
+                  </td>
               </tr>
             @empty
               <tr>
-                <td colspan="19" class="text-center text-muted py-3">No records found matching parameters.</td>
+                <td colspan="20" class="text-center text-muted py-3">No records found matching parameters.</td>
               </tr>
             @endforelse
           </tbody>
@@ -207,6 +243,105 @@
 
 </div>
 
+{{-- ACTION MODAL --}}
+<div class="modal fade" id="actionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="actionTitle"></h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                </button>
+            </div>
+            <div class="modal-body" id="actionBody">
+            </div>
+            <div class="modal-footer" id="actionFooter">
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ACTION SCRIPT --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.action-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            let action = this.dataset.action;
+            let ors = this.dataset.ors;
+            let payee = this.dataset.payee ?? '';
+            let status = this.dataset.status ?? '';
+            let title = document.getElementById('actionTitle');
+            let body = document.getElementById('actionBody');
+            let footer = document.getElementById('actionFooter');
+
+            if(action === 'view'){
+                title.innerHTML = 'View Transaction';
+                body.innerHTML = `
+                    <p><strong>ORS No:</strong> ${ors}</p>
+                    <p><strong>Payee:</strong> ${payee}</p>
+                    <p><strong>Status:</strong> ${status}</p>
+                `;
+
+                footer.innerHTML = `
+                    <button class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Close
+                    </button>
+                `;
+            }
+
+            if(action === 'edit'){
+
+                title.innerHTML = 'Edit Status';
+
+                body.innerHTML = `
+                    <form id="editForm"
+                          method="POST"
+                          action="/accounting/logbook/${ors}/update">
+
+                        @csrf
+                        @method('PUT')
+
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="Pending">Pending</option>
+                            <option value="Processing">Processing</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </form>
+                `;
+
+                footer.innerHTML = `
+                    <button form="editForm"
+                            class="btn btn-success">
+                        Save
+                    </button>
+                `;
+            }
+
+            if(action === 'delete'){
+                title.innerHTML = 'Delete Transaction';
+                body.innerHTML = `
+                    Are you sure you want to delete
+                    <strong>${ors}</strong>?
+                `;
+
+                footer.innerHTML = `
+                    <form method="POST"
+                          action="/accounting/logbook/${ors}/destroy">
+                        @csrf
+                        @method('DELETE')
+                        <button class="btn btn-danger">
+                            Delete
+                        </button>
+                    </form>
+                `;
+            }
+        });
+    });
+});
+</script>
 @endsection
 
 @php

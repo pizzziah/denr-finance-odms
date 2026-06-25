@@ -54,4 +54,45 @@ class AccountingLogbookController extends Controller
 
         return view('accounting.logbook', compact('records','month','status','search','sort'));
     }
+        public function show($dv_no)
+        {
+            $records = DB::table('odms_accounting')
+                ->where('dv_no', $dv_no)
+                ->get();
+
+            return view('accounting.show', compact('records', 'dv_no'));
+        }
+
+        public function edit($dv_no)
+        {
+            $records = DB::table('odms_accounting')
+                ->where('dv_no', $dv_no)
+                ->get();
+
+            return view('accounting.edit', compact('records', 'dv_no'));
+        }
+
+        public function update(Request $request, $dv_no)
+        {
+            DB::table('odms_accounting')
+                ->where('dv_no', $dv_no)
+                ->update([
+                    'status' => $request->status,
+                ]);
+
+            return redirect()
+                ->route('accounting.logbook')
+                ->with('success', 'Transaction updated successfully.');
+        }
+
+        public function destroy($dv_no)
+        {
+            DB::table('odms_accounting')
+                ->where('dv_no', $dv_no)
+                ->delete();
+
+            return redirect()
+                ->route('accounting.logbook')
+                ->with('success', 'Transaction deleted successfully.');
+        }
 }
