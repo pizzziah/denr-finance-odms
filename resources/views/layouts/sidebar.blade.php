@@ -1,9 +1,9 @@
 <aside id="sidebar" class="sidebar d-flex flex-column p-3 vh-100 border-end">
   {{-- TOGGLE BUTTON --}}
   <div class="d-flex sidebar-brand justify-content-end">
-    <button id="sidebarToggle" class="btn btn-sm w-100 text-end d-flex justify-content-center align-items-center">
-      <i class="bi bi-toggle-off fs-3 ms-auto me-0 sidebar-text"></i>
-      <i class="bi bi-toggle-on fs-3 mx-auto d-none collapsed-icon"></i>
+    <button id="sidebarToggle" class="btn btn-sm w-100 text-end d-flex justify-content-center align-items-center mb-2">
+      <i class="bi bi-layout-sidebar fs-4 ms-auto me-0 sidebar-text"></i>
+      <i class="bi bi-layout-sidebar-inset-reverse fs-4 mx-auto d-none collapsed-icon"></i>
     </button>
   </div>
 
