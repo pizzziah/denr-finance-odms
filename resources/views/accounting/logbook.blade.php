@@ -82,6 +82,7 @@
               <th>DV No.</th>
               <th>Payee</th>
               <th>Particulars</th>
+              <th>Particulars Remark</th>
               <th>UACS Code</th>
               <th>Debit</th>
               <th>Credit</th>
@@ -103,6 +104,7 @@
                 <td><strong>{{ $record->dv_no ?? '-' }}</strong></td>
                 <td>{{ $record->payee ?? '-' }}</td>
                 <td>{{ $record->particulars ?? '-' }}</td>
+                <td>{{ $record->particulars_remark ?? '-' }}</td>
                 <td>{{ $record->uacs_code ?? '-' }}</td>
 
                 <td>
