@@ -30,7 +30,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/logbook', [AccountingLogbookController::class, 'logbook'])->name('accounting.logbook');
     Route::view('/quarterly-summary', 'accounting.quarterly-summary')->name('accounting.quarterly-summary');
     Route::view('/cashier-status', 'accounting.cashier-status')->name('accounting.cashier-status');
-    Route::get('/accounting/logbook/{dv_no}/edit', [AccountingLogbookController::class, 'edit'])->name('accounting.logbook.edit');
+    Route::get('/accounting/logbook/{dv_no}/show',
+        [AccountingLogbookController::class, 'show'])
+        ->name('accounting.logbook.show');
+
+    Route::get('/accounting/logbook/{dv_no}/edit',
+        [AccountingLogbookController::class, 'edit'])
+        ->name('accounting.logbook.edit');
+
+    Route::put('/accounting/logbook/{dv_no}/update',
+        [AccountingLogbookController::class, 'update'])
+        ->name('accounting.logbook.update');
+
+    Route::delete('/accounting/logbook/{dv_no}/destroy',
+        [AccountingLogbookController::class, 'destroy'])
+        ->name('accounting.logbook.destroy');
   });
 
   /* -----------

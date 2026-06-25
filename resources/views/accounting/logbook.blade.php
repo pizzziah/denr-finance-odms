@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="container m-0 mt-4 p-0">
+<div class="container-fluid mt-3 px-0">
 
   {{-- TOP BAR --}}
   <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -90,6 +90,7 @@
               <th>Status</th>
               <th>Date Signed</th>
               <th>Date Forwarded</th>
+              <th>Action</th>
             </tr>
           </thead>
 
@@ -119,10 +120,53 @@
                 <td>{{ $record->status ?? '-' }}</td>
                 <td>{{ $record->date_signed ?? '-' }}</td>
                 <td>{{ $record->date_forwarded ?? '-' }}</td>
+                <td>
+                      @if(!empty($record->dv_no))
+
+                          <div class="d-flex gap-1">
+
+                              {{-- VIEW --}}
+                              <a href="{{ route('accounting.logbook.show', ['dv_no' => $record->dv_no]) }}"
+                                class="btn btn-sm btn-outline-info"
+                                title="View">
+                                  <i class="bi bi-eye"></i>
+                              </a>
+
+                              {{-- EDIT --}}
+                              <a href="{{ route('accounting.logbook.edit', ['dv_no' => $record->dv_no]) }}"
+                                class="btn btn-sm btn-outline-primary"
+                                title="Edit">
+                                  <i class="bi bi-pencil"></i>
+                              </a>
+
+                              {{-- DELETE --}}
+                              <form action="{{ route('accounting.logbook.destroy', ['dv_no' => $record->dv_no]) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('Delete this transaction?')">
+
+                                  @csrf
+                                  @method('DELETE')
+
+                                  <button type="submit"
+                                          class="btn btn-sm btn-outline-danger"
+                                          title="Delete">
+                                      <i class="bi bi-trash"></i>
+                                  </button>
+
+                              </form>
+
+                          </div>
+
+                      @else
+
+                          <span class="text-muted">No DV No.</span>
+
+                      @endif
+                  </td>
               </tr>
             @empty
               <tr>
-                <td colspan="14" class="text-center text-muted py-3">
+                <td colspan="16" class="text-center text-muted py-3">
                   No records found matching parameters.
                 </td>
               </tr>
