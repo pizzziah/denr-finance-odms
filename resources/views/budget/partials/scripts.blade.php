@@ -226,8 +226,71 @@ function openBudgetDetails(ors){
                     ₱${Number(row.amount).toLocaleString()}
                 </div>
 
-                <!-- Continue with Returned, Forwarded,
-                     Remarks, Total Time, Final Remarks... -->
+               <div class="col-md-4 mt-3">
+                    <strong>Date Returned</strong><br>
+                    ${row.date_returned_1 ?? '-'}
+                </div>
+
+                <div class="col-md-4 mt-3">
+                    <strong>Returned Remarks</strong><br>
+                    ${row.remarks_1 ?? '-'}
+                </div>
+
+                <div class="col-md-4 mt-3">
+                    <strong>Date Received Again</strong><br>
+                    ${row.date_received_1 ?? '-'}
+                </div>
+
+                <hr class="my-4">
+
+                <div class="col-md-4 mt-3">
+                    <strong>Date Forwarded</strong><br>
+                    ${row.date_forwarded_1 ?? '-'}
+                </div>
+
+                <div class="col-md-4 mt-3">
+                    <strong>Date ORS Received</strong><br>
+                    ${row.date_ors_received ?? '-'}
+                </div>
+
+                <div class="col-md-4 mt-3">
+                    <strong>Forwarded Remarks</strong><br>
+                    ${row.remarks_2 ?? '-'}
+                </div>
+
+                <hr class="my-4">
+
+                <div class="col-md-4 mt-3">
+                    <strong>Returned by Accounting</strong><br>
+                    ${row.date_returned_2 ?? '-'}
+                </div>
+
+                <div class="col-md-4 mt-3">
+                    <strong>Date Received from Accounting</strong><br>
+                    ${row.date_received_2 ?? '-'}
+                </div>
+
+                <div class="col-md-4 mt-3">
+                    <strong>Date Forwarded to Accounting</strong><br>
+                    ${row.date_forwarded_accounting ?? '-'}
+                </div>
+
+                <hr class="my-4">
+
+                <div class="col-md-4 mt-3">
+                    <strong>Total Time in Budget</strong><br>
+                    ${row.total_time_budget ?? '-'}
+                </div>
+
+                <div class="col-md-4 mt-3">
+                    <strong>Total Time</strong><br>
+                    ${row.total_time ?? '-'}
+                </div>
+
+                <div class="col-md-4 mt-3">
+                    <strong>Final Remarks</strong><br>
+                    ${row.final_remarks ?? '-'}
+                </div>
 
             </div>
             `;
