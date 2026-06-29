@@ -22,10 +22,8 @@ class AccountingLogbookController extends Controller
             $query->where('status', $status);
         }
 
-        if ($month !== 'all') {
-            $query->whereRaw("
-                MONTH(STR_TO_DATE(date_received, '%c/%e/%Y %H:%i:%s')) = ?
-            ", [(int)$month]);
+        if ($month !== 'all' && !empty($month)) {
+            $query->whereMonth('date_received', $month);
         }
 
         // ================= SEARCH =================
