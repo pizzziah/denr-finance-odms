@@ -345,15 +345,14 @@
         </div>
     </div>
 </div>
-<!-- DETAILS MODAL -->
+
+{{-- DETAILS MODAL --}}
 <div class="modal fade" id="detailsModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
 
             <div class="modal-header">
-                <h5 class="modal-title">
-                    Accounting Details
-                </h5>
+                <h4 class="fw-bold">View Record</h4>
 
                 <button class="btn-close"
                         data-bs-dismiss="modal"></button>
@@ -361,16 +360,22 @@
 
             <div class="modal-body" id="detailsBody">
 
-                <div class="text-center py-5">
-                    <div class="spinner-border text-success"></div>
-                </div>
+                <!-- AJAX content goes here -->
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button class="btn btn-success"
+                        data-bs-dismiss="modal">
+                    Close
+                </button>
 
             </div>
 
         </div>
     </div>
 </div>
-
 
 {{-- ACTION SCRIPT --}}
 <script>
@@ -504,90 +509,184 @@ function openDetails(dv) {
             let rows = data.details;
 
             let html = `
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <div class="row">
 
-                            <div class="col-md-6">
-                                <strong>DV No.</strong><br>
-                                ${summary.dv_no}
-                            </div>
+            <div class="container-fluid">
 
-                            <div class="col-md-6">
-                                <strong>Status</strong><br>
-                                ${summary.status}
-                            </div>
+            <hr>
 
-                            <div class="col-md-12 mt-2">
-                                <strong>Payee</strong><br>
-                                ${summary.payee}
-                            </div>
+            <div class="row">
 
-                            <div class="col-md-4 mt-3">
-                                <strong>Total Entries</strong><br>
-                                ${summary.entries}
-                            </div>
-
-                            <div class="col-md-4 mt-3">
-                                <strong>Total Debit</strong><br>
-                                ₱${Number(summary.total_debit).toLocaleString(undefined,{
-                                    minimumFractionDigits:2,
-                                    maximumFractionDigits:2
-                                })}
-                            </div>
-
-                            <div class="col-md-4 mt-3">
-                                <strong>Total Credit</strong><br>
-                                ₱${Number(summary.total_credit).toLocaleString(undefined,{
-                                    minimumFractionDigits:2,
-                                    maximumFractionDigits:2
-                                })}
-                            </div>
-
-                        </div>
-                    </div>
+                <div class="col-2 fw-bold fs-4">
+                    Record<br>Information
                 </div>
 
-                <table class="table table-bordered table-striped">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>UACS</th>
-                            <th>Debit</th>
-                            <th>Credit</th>
-                            <th>Remarks</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                <div class="col-10">
+
+                    <div class="row">
+
+                        <div class="col-md-3">
+                            <strong>Date Received</strong><br>
+                            ${rows[0].date_received ?? '-'}
+                        </div>
+
+                        <div class="col-md-3">
+                            <strong>OBR Date</strong><br>
+                            ${rows[0].obr_date ?? '-'}
+                        </div>
+
+                        <div class="col-md-6">
+                            <strong>Payee</strong><br>
+                            ${summary.payee}
+                        </div>
+
+                        <div class="col-md-3 mt-3">
+                            <strong>OBR No.</strong><br>
+                            ${rows[0].obr_no}
+                        </div>
+
+                        <div class="col-md-9 mt-3">
+                            <strong>Particulars</strong><br>
+                            ${rows[0].particulars}
+                        </div>
+
+                        <div class="col-md-12 mt-3">
+                            <strong>Particular Remark</strong><br>
+                            ${rows[0].particulars_remark ?? '-'}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <hr>
+
+            <div class="row">
+
+            <div class="col-2 fw-bold fs-4">
+            Accounting<br>Processing
+            </div>
+
+            <div class="col-10">
             `;
 
             rows.forEach(row => {
 
-                html += `
-                    <tr>
-                        <td>${row.uac_codes ?? '-'}</td>
+            html += `
 
-                        <td class="text-end">
-                            ₱${Number(row.debit ?? 0).toLocaleString(undefined,{
-                                minimumFractionDigits:2,
-                                maximumFractionDigits:2
-                            })}
-                        </td>
+            <div class="border-bottom pb-3 mb-3">
 
-                        <td class="text-end">
-                            ₱${Number(row.credit ?? 0).toLocaleString(undefined,{
-                                minimumFractionDigits:2,
-                                maximumFractionDigits:2
-                            })}
-                        </td>
+            <div class="row">
 
-                        <td>${row.particulars_remark ?? '-'}</td>
-                    </tr>
-                `;
+            <div class="col-md-3">
+            <strong>Date Processed</strong><br>
+            ${row.date_processed ?? '-'}
+            </div>
+
+            <div class="col-md-2">
+            <strong>DV No.</strong><br>
+            ${row.dv_no}
+            </div>
+
+            <div class="col-md-3">
+            <strong>UACS Code</strong><br>
+            ${row.uac_codes ?? '-'}
+            </div>
+
+            <div class="col-md-4">
+            <strong>Debit</strong><br>
+            ₱${Number(row.debit ?? 0).toLocaleString(undefined,{
+            minimumFractionDigits:2
+            })}
+            </div>
+
+            <div class="col-md-4 mt-3">
+            <strong>Credit</strong><br>
+            ₱${Number(row.credit ?? 0).toLocaleString(undefined,{
+            minimumFractionDigits:2
+            })}
+            </div>
+
+            <div class="col-md-4 mt-3">
+            <strong>% Tax</strong><br>
+            ${row.tax_percentage ?? '-'}
+            </div>
+
+            <div class="col-md-4 mt-3">
+            <strong>Tax Remarks</strong><br>
+            ${row.tax_remarks ?? '-'}
+            </div>
+
+            </div>
+
+            </div>
+
+            `;
+
             });
 
             html += `
                     </tbody>
                 </table>
+            `;
+            html += `
+
+            <hr>
+
+            <div class="row mb-4">
+
+                <div class="col-3">
+                    <h5 class="fw-bold">Signature</h5>
+                </div>
+
+                <div class="col-9">
+
+                    <div class="row">
+
+                        <div class="col-md-4">
+                            <strong>Signed</strong><br>
+                            ${rows[0].signed_by_accountant ?? '-'}
+                        </div>
+
+                        <div class="col-md-4">
+                            <strong>Date Signed</strong><br>
+                            ${rows[0].date_signed ?? '-'}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <hr>
+
+            <div class="row">
+
+                <div class="col-3">
+                    <h5 class="fw-bold">Routing & Status</h5>
+                </div>
+
+                <div class="col-9">
+
+                    <div class="row">
+
+                        <div class="col-md-4">
+                            <strong>Status</strong><br>
+                            ${summary.status}
+                        </div>
+
+                        <div class="col-md-4">
+                            <strong>Date Forwarded</strong><br>
+                            ${rows[0].date_forwarded ?? '-'}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
             `;
 
             document.getElementById('detailsBody').innerHTML = html;

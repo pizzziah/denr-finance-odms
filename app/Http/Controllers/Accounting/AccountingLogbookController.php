@@ -117,21 +117,22 @@ class AccountingLogbookController extends Controller
             ->where('dv_no', $dv_no)
             ->get();
 
-        $summary = [
-            'dv_no' => $dv_no,
-            'payee' => $records->first()->payee ?? '',
-            'status' => $records->first()->status ?? '',
-            'entries' => $records->count(),
-            'total_debit' => $records->sum(function ($r) {
-                return (float) str_replace(',', '', $r->debit ?? 0);
-            }),
-            'total_credit' => $records->sum(function ($r) {
-                return (float) str_replace(',', '', $r->credit ?? 0);
-            }),
-        ];
-
         return response()->json([
-            'summary' => $summary,
+            'summary' => [
+                'dv_no'            => $dv_no,
+                'date_received'    => optional($records->first())->date_received,
+                'date_processed'   => optional($records->first())->date_processed,
+                'obr_date'         => optional($records->first())->obr_date,
+                'obr_no'           => optional($records->first())->obr_no,
+                'payee'            => optional($records->first())->payee,
+                'particulars'      => optional($records->first())->particulars,
+                'remarks'          => optional($records->first())->particulars_remark,
+                'status'           => optional($records->first())->status,
+                'signed'           => optional($records->first())->signed_by_accountant,
+                'date_signed'      => optional($records->first())->date_signed,
+                'date_forwarded'   => optional($records->first())->date_forwarded,
+            ],
+
             'details' => $records
         ]);
     }
