@@ -1,15 +1,17 @@
 @extends('layouts.app')
 
+@section('title', 'Log Book')
+
 @section('content')
 
-<div class="container-fluid mt-3 px-0">
-  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+<div class="container-fluid mt-3 px-0" style="min-width: 0; overflow-x: hidden;" >
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     @include('layouts.subtab')
   </div>
 
-  {{-- CARD CONTAINER --}}
-  <div class="card p-3 pb-0 m-0" style="min-height:70vh; width: 80vw">
-    <div class="px-3 pt-3 pb-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+  {{-- 1ST CARD --}}
+  <div class="card p-3 mb-3 m-0 w-100" >
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
       <x-button variant="header" data-bs-toggle="modal" data-bs-target="#addRecordModal">
         <i class="bi bi-file-earmark-plus"></i>
         Add Record
@@ -23,7 +25,7 @@
         <input type="hidden" name="sort" value="{{ request('sort', 'latest') }}">
 
         <button type="button" class="btn p-1" data-bs-toggle="modal" data-bs-target="#filterModal" style="min-width: 100px; border-color: #bebebe;">
-          <small><i class="bi bi-funnel" class=""></i> Filter</small>
+          <small><i class="bi bi-funnel"></i> Filter</small>
         </button>
 
         <div class="input-group input-group-sm" style="min-width: 260px;">
@@ -39,12 +41,15 @@
         </div>
       </form>
     </div>
+  </div>
 
-    {{-- CARD BODY & DATA TABLE --}}
-    <div class="card-body">
-      <div class="table-responsive" style="max-height:60vh; overflow:auto;">
-        <table class="table table-bordered table-hover align-middle">
-          <thead class="sticky-top">
+  {{-- 2ND CARD --}}
+  <div class="card m-0 w-100" style="min-height: 60vh; display: grid; min-width: 0;">
+    <div class="card-body p-3" style="min-width: 0;">
+      
+      <div class="table-responsive" style="max-height: 55vh; overflow-y: auto; overflow-x: auto; -webkit-overflow-scrolling: touch;">
+        <table class="table table-bordered table-hover align-middle m-0">
+          <thead class="sticky-top bg-white" style="z-index: 5;">
             {{-- FIRST HEADER ROW --}}
             <tr class="header-main">
               <th rowspan="2" style="min-width:80px;">ORS No.</th>
@@ -68,7 +73,7 @@
               <th rowspan="2" style="min-width:100px;">Total Time in Budget</th>
               <th rowspan="2" style="min-width:100px;">Total Time</th>
               <th rowspan="2">Final Remark</th>
-              <th rowspan="2">Action</th>
+              <th rowspan="2" style="min-width: 150px;">Action</th>
             </tr>
 
             {{-- SECOND HEADER ROW --}}
@@ -88,178 +93,110 @@
               <th style="background-color: #EBFEFF; color: #0B879D">Date Received</th>
             </tr>
           </thead>
-          
-          <tbody>
-            @forelse($records as $record)
-              <tr>
-                <td style="color: var(--primary); background-color:var(--secondary-variant)"><strong>{{ $record->ors_no ?? '-' }}</strong></td>
-                <td>{{ $record->date_received ?? '-' }}</td>
-                <td>{{ $record->issuing_office ?? '-' }}</td>
-                <td><strong>{{ $record->payee ?? '-' }}</strong></td>
-                <td><strong>{{ $record->particulars ?? '-' }}</strong></td>
-                <td>{{ $record->classification ?? '-' }}</td>
-                <td>{{ $record->particulars_remark ?? '-' }}</td>
-                <td><strong>₱{{ number_format((float) str_replace(',', '', $record->amount ?? 0), 2) }}</strong></td>
-                <td>{{ $record->status ?? '-' }}</td>
-                <td>{{ $record->date_returned_1 ?? '-' }}</td>
-                <td>{{ $record->remarks_1 ?? '-' }}</td>
-                <td>{{ $record->date_received_1 ?? '-' }}</td>
-                <td>{{ $record->date_forwarded_1 ?? '-' }}</td>
-                <td>{{ $record->date_ors_received ?? '-' }}</td>
-                <td>{{ $record->date_returned_2 ?? '-' }}</td>
-                <td>{{ $record->remarks_2 ?? '-' }}</td>
-                <td>{{ $record->date_received_2 ?? '-' }}</td>
-                <td>{{ $record->date_forwarded_accounting ?? '-' }}</td>
-                <td>{{ $record->total_time_budget ?? '-' }}</td>
-                <td>{{ $record->total_time ?? '-' }}</td>
-                <td>{{ $record->final_remarks ?? '-' }}</td>
-                <td>
+            <tbody>
+              @forelse($records as $record)
+                <tr>
+                  <td style="color: var(--primary); background-color:var(--secondary-variant)"><strong>{{ $record->ors_no ?? '-' }}</strong></td>
+                  <td>{{ $record->date_received ?? '-' }}</td>
+                  
+                  {{-- ISSUING OFFICE COLUMN WITH COLOR-CODING BADGES --}}
+                  <td>
+                    @if(!empty($record->issuing_office))
+                      @php
+                        $office = strtoupper(trim($record->issuing_office));
+                        $officeStyles = match($office) {
+                          'PMD'          => 'background-color: #E2F0D9; color: #385723;',
+                          'SMD'          => 'background-color: #FFF2CC; color: #7F6000;',
+                          'LPDD'         => 'background-color: #FCE4D6; color: #C65911;',
+                          'ADMIN'        => 'background-color: #E9EDF4; color: #305496;',
+                          'FD'           => 'background-color: #EDEDED; color: #595959;',
+                          'ORED'         => 'background-color: #F2DCDB; color: #C00000;',
+                          'ARD MS'       => 'background-color: #E4DFEC; color: #595959;',
+                          'PERSONNEL'    => 'background-color: #D9E1F2; color: #1F4E78;',
+                          'RSCIG'        => 'background-color: #E2EFDA; color: #375623;',
+                          'LEGAL'        => 'background-color: #FBE5D6; color: #A61C00;',
+                          'ARD TS'       => 'background-color: #FFF2CC; color: #D66000;',
+                          'ED'           => 'background-color: #D0CECE; color: #3A3A3A;',
+                          'CDD'          => 'background-color: #E1F5FE; color: #0288D1;',
+                          'HRDS'         => 'background-color: #F3E5F5; color: #7B1FA2;',
+                          'PROCUREMENT'  => 'background-color: #E8F5E9; color: #2E7D32;',
+                          default        => 'background-color: #F8F9FA; color: #212529;'
+                        };
+                      @endphp
+                      <span class="badge fw-bold" style="{{ $officeStyles }}; font-size: 1em;">{{ $office }}</span>
+                    @else
+                      <span class="text-muted">-</span>
+                    @endif
+                  </td>
+
+                  <td><strong>{{ $record->payee ?? '-' }}</strong></td>
+                  <td><strong>{{ $record->particulars ?? '-' }}</strong></td>
+                  <td>{{ $record->classification ?? '-' }}</td>
+                  <td>{{ $record->particulars_remark ?? '-' }}</td>
+                  <td><strong>₱{{ number_format((float) str_replace(',', '', $record->amount ?? 0), 2) }}</strong></td>
+                  
+                  {{-- STATUS COLUMN WITH SPECIFIED VALUE COLOR-CODING --}}
+                  <td>
+                    @if(!empty($record->status))
+                      @php
+                        $status = trim($record->status);
+                        $statusStyles = match($status) {
+                          'Pending'                 => 'background-color: #FFEECC; color: #9D6B0B;',
+                          'Processing'              => 'background-color: #FFDEC5; color: #BB400D;',
+                          'Returned'                => 'background-color: #EFDFFF; color: #7909FF;',
+                          'Paid'                    => 'background-color: #DEF5C4; color: var(--secondary);',
+                          'For Review'              => 'background-color: #CFF0F1; color: #066B6B;',
+                          'For Obligation'          => 'background-color: #BCC3F6; color: #271ECE;',
+                          'Canceled'                => 'background-color: #FFC2C2; color: var(--error);',
+                          'Forwarded to Accounting' => 'background-color: var(--secondary-variant); color: var(--primary);',
+                          default                   => 'background-color: #F8F9FA; color: #6C757D;'
+                        };
+                      @endphp
+                      <span class="badge fw-bold" style="{{ $statusStyles }}; font-size: 1em;">{{ $status }}</span>
+                    @else
+                      <span class="text-muted">-</span>
+                    @endif
+                  </td>
+
+                  <td>{{ $record->date_returned_1 ?? '-' }}</td>
+                  <td>{{ $record->remarks_1 ?? '-' }}</td>
+                  <td>{{ $record->date_received_1 ?? '-' }}</td>
+                  <td>{{ $record->date_forwarded_1 ?? '-' }}</td>
+                  <td>{{ $record->date_ors_received ?? '-' }}</td>
+                  <td>{{ $record->date_returned_2 ?? '-' }}</td>
+                  <td>{{ $record->remarks_2 ?? '-' }}</td>
+                  <td>{{ $record->date_received_2 ?? '-' }}</td>
+                  <td>{{ $record->date_forwarded_accounting ?? '-' }}</td>
+                  <td>{{ $record->total_time_budget ?? '-' }}</td>
+                  <td>{{ $record->total_time ?? '-' }}</td>
+                  <td>{{ $record->final_remarks ?? '-' }}</td>
+                  <td>
                       @if(!empty($record->payee))
-                      <div class="d-flex gap-1">
-                          <button type="button"
-                                  class="btn btn-sm btn-outline-info action-btn"
-                                  data-action="view"
-                                  data-ors="{{ $record->ors_no }}"
-                                  data-payee="{{ $record->payee }}"
-                                  data-status="{{ $record->status }}"
-                                  data-bs-toggle="modal"
-                                  data-bs-target="#actionModal">
-                              <i class="bi bi-eye"></i>
-                          </button>
-                          <button type="button"
-                                  class="btn btn-sm btn-outline-primary action-btn"
-                                  data-action="edit"
-                                  data-ors="{{ $record->ors_no }}"
-                                  data-status="{{ $record->status }}"
-                                  data-bs-toggle="modal"
-                                  data-bs-target="#actionModal">
-                              <i class="bi bi-pencil"></i>
-                          </button>
-                          <button type="button"
-                                  class="btn btn-sm btn-outline-danger action-btn"
-                                  data-action="delete"
-                                  data-ors="{{ $record->ors_no }}"
-                                  data-bs-toggle="modal"
-                                  data-bs-target="#actionModal">
-                              <i class="bi bi-trash"></i>
-                          </button>
+                      <div class="d-flex gap-1 justify-content-center">
+                          <button type="button" class="btn btn-sm btn-outline-info action-btn" data-action="view" data-ors="{{ $record->ors_no }}" data-payee="{{ $record->payee }}" data-status="{{ $record->status }}" data-bs-toggle="modal" data-bs-target="#actionModal"><i class="bi bi-eye"></i></button>
+                          <button type="button" class="btn btn-sm btn-outline-primary action-btn" data-action="edit" data-ors="{{ $record->ors_no }}" data-status="{{ $record->status }}" data-bs-toggle="modal" data-bs-target="#actionModal"><i class="bi bi-pencil"></i></button>
+                          <button type="button" class="btn btn-sm btn-outline-danger action-btn" data-action="delete" data-ors="{{ $record->ors_no }}" data-bs-toggle="modal" data-bs-target="#actionModal"><i class="bi bi-trash"></i></button>
                       </div>
                       @else
                           <span class="text-muted">No DV No.</span>
                       @endif
                   </td>
-              </tr>
-            @empty
-              <tr>
-                <td colspan="20" class="text-center text-muted py-3">No records found matching parameters.</td>
-              </tr>
-            @endforelse
-          </tbody>
+                </tr>
+              @empty
+                <tr>
+                  <td colspan="22" class="text-center text-muted py-3">No records found matching parameters.</td>
+                </tr>
+              @endforelse
+            </tbody>
         </table>
       </div>
-      
       @if(method_exists($records, 'links'))
-        <div class="mt-1">
+        <div class="mt-3">
           {{ $records->withQueryString()->links() }}
         </div>
       @endif
     </div>
   </div>
-</div>
-
-{{-- FILTER MODAL --}}
-<div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content text-start">
-      <form method="GET" action="{{ route('budget.logbook') }}">
-        <input type="hidden" name="search" value="{{ request('search') }}">
-
-        <div class="modal-header">
-          <h5 class="modal-title fw-bold"><i class="bi bi-filter-square-fill me-2 text-secondary"></i>Filter Logbook</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-        <div class="modal-body text-dark">
-          {{-- YEAR --}}
-          <div class="mb-3">
-            <label class="form-label fw-semibold small">Year</label>
-            <select name="year" class="form-select">
-              <option value="all" @selected(request('year', 'all') == 'all')>All (2025-2026)</option>
-              <option value="2026" @selected(request('year') == '2026')>2026</option>
-              <option value="2025" @selected(request('year') == '2025')>2025</option>
-            </select>
-          </div>
-
-          {{-- MONTH --}}
-          <div class="mb-3">
-            <label class="form-label fw-semibold small">Month</label>
-            <select name="month" class="form-select">
-              <option value="">All Months</option>
-              <option value="01" @selected(request('month') == '01')>January</option>
-              <option value="02" @selected(request('month') == '02')>February</option>
-              <option value="03" @selected(request('month') == '03')>March</option>
-              <option value="04" @selected(request('month') == '04')>April</option>
-              <option value="05" @selected(request('month') == '05')>May</option>
-              <option value="06" @selected(request('month') == '06')>June</option>
-              <option value="07" @selected(request('month') == '07')>July</option>
-              <option value="08" @selected(request('month') == '08')>August</option>
-              <option value="09" @selected(request('month') == '09')>September</option>
-              <option value="10" @selected(request('month') == '10')>October</option>
-              <option value="11" @selected(request('month') == '11')>November</option>
-              <option value="12" @selected(request('month') == '12')>December</option>
-            </select>
-          </div>
-
-          {{-- STATUS --}}
-          <div class="mb-3">
-            <label class="form-label fw-semibold small">Status</label>
-            <select name="status" class="form-select">
-              <option value="all" @selected(request('status', 'all') == 'all')>All Status</option>
-              <option value="for_obligation" @selected(request('status') == 'for_obligation')>For Obligation</option>
-              <option value="forwarded_to_accounting" @selected(request('status') == 'forwarded_to_accounting')>Forwarded to Accounting</option>
-            </select>
-          </div>
-
-          {{-- SORT --}}
-          <div class="mb-3">
-              <label class="form-label fw-semibold small">Sort Order</label>
-              <select name="sort" class="form-select">
-                  <option value="latest" @selected(request('sort', 'latest') == 'latest')>Latest Date Received</option>
-                  <option value="ors_2025_asc" @selected(request('sort') == 'ors_2025_asc')>ORS No. 2025 (Asc)</option>
-                  <option value="ors_2025_desc" @selected(request('sort') == 'ors_2025_desc')>ORS No. 2025 (Desc)</option>
-                  <option value="ors_2026_asc" @selected(request('sort') == 'ors_2026_asc')>ORS No. 2026 (Asc)</option>
-                  <option value="ors_2026_desc" @selected(request('sort') == 'ors_2026_desc')>ORS No. 2026 (Desc)</option>
-              </select>
-          </div>           
-        </div>
-
-        <div class="modal-footer bg-light">
-          <a href="{{ route('budget.logbook') }}" class="btn btn-secondary btn-sm">Reset</a>
-          <button type="submit" class="btn btn-success btn-sm fw-bold">Apply Filters</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-</div>
-
-{{-- ACTION MODAL --}}
-<div class="modal fade" id="actionModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="actionTitle"></h5>
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal">
-                </button>
-            </div>
-            <div class="modal-body" id="actionBody">
-            </div>
-            <div class="modal-footer" id="actionFooter">
-            </div>
-        </div>
-    </div>
 </div>
 
 {{-- ACTION SCRIPT --}}
