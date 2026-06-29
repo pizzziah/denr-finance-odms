@@ -511,9 +511,7 @@ function openDetails(dv) {
             let html = `
 
             <div class="container-fluid">
-
             <hr>
-
             <div class="row">
 
                 <div class="col-2 fw-bold fs-4">
@@ -521,7 +519,6 @@ function openDetails(dv) {
                 </div>
 
                 <div class="col-10">
-
                     <div class="row">
 
                         <div class="col-md-3">
@@ -555,11 +552,8 @@ function openDetails(dv) {
                         </div>
 
                     </div>
-
                 </div>
-
             </div>
-
             <hr>
 
             <div class="row">
@@ -576,7 +570,6 @@ function openDetails(dv) {
             html += `
 
             <div class="border-bottom pb-3 mb-3">
-
             <div class="row">
 
             <div class="col-md-3">
@@ -619,9 +612,7 @@ function openDetails(dv) {
             </div>
 
             </div>
-
             </div>
-
             `;
 
             });
@@ -641,7 +632,6 @@ function openDetails(dv) {
                 </div>
 
                 <div class="col-9">
-
                     <div class="row">
 
                         <div class="col-md-4">
@@ -655,9 +645,7 @@ function openDetails(dv) {
                         </div>
 
                     </div>
-
                 </div>
-
             </div>
 
             <hr>
@@ -669,7 +657,6 @@ function openDetails(dv) {
                 </div>
 
                 <div class="col-9">
-
                     <div class="row">
 
                         <div class="col-md-4">
@@ -683,9 +670,7 @@ function openDetails(dv) {
                         </div>
 
                     </div>
-
                 </div>
-
             </div>
             `;
 
