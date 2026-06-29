@@ -35,7 +35,7 @@ class AccountingLogbookController extends Controller
                   ->orWhere('obr_no', 'like', "%$search%")
                   ->orWhere('payee', 'like', "%$search%")
                   ->orWhere('particulars', 'like', "%$search%")
-                  ->orWhere('uacs_code', 'like', "%$search%")
+                  ->orWhere('uac_codes', 'like', "%$search%")
                   ->orWhere('status', 'like', "%$search%");
             });
         }

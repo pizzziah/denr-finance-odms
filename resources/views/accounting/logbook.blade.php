@@ -126,7 +126,7 @@
                   @endif
                 </td>
 
-                <td>{{ $record->uacs_code ?? '-' }}</td>
+                <td>{{ $record->uac_codes ?? '-' }}</td>
                 <td>₱{{ number_format((float) str_replace(',', '', $record->debit ?? 0), 2) }}</td>
                 <td>₱{{ number_format((float) str_replace(',', '', $record->credit ?? 0), 2) }}</td>
                 <td>{{ $record->tax_percent ?? '-' }}</td>
