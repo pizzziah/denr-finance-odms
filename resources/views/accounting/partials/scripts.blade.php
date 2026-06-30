@@ -244,20 +244,26 @@ function openDetails(dv) {
             `;
 
             });
+            // After rows.forEach(...)
+
+            html += `
+                </div>   <!-- closes col-10 -->
+            </div>       <!-- closes Accounting Processing row -->
+            <hr class="my-1">
+            `;
 
             html += `
                     </tbody>
                 </table>
             `;
+
             html += `
-
-            <div class="row mb-4">
-
-                <div class="col-3">
-                    <h5 class="fw-bold">Signature</h5>
+            <div class="row">
+                <div class="col-2 fw-bold fs-4">
+                    Signature
                 </div>
 
-                <div class="col-9">
+                <div class="col-10">
                     <div class="row">
 
                         <div class="col-md-4">
@@ -273,14 +279,15 @@ function openDetails(dv) {
             </div>
 
             <hr class="my-1">
+            `;
 
+            html += `
             <div class="row">
-
-                <div class="col-3">
-                    <h5 class="fw-bold">Routing & Status</h5>
+                <div class="col-2 fw-bold fs-4">
+                    Routing<br>Status
                 </div>
 
-                <div class="col-9">
+                <div class="col-10">
                     <div class="row">
 
                         <div class="col-md-4">
