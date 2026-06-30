@@ -15,6 +15,9 @@
             </div>
 
             <div class="modal-footer">
+                <button class="btn btn-primary" onclick="printDetails()">
+                    <i class="bi bi-printer"></i> Print
+                </button>
                 <button class="btn btn-success"
                         data-bs-dismiss="modal">
                     Close

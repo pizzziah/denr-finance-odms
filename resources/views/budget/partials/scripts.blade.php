@@ -241,4 +241,84 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
+function printDetails() {
+
+    const content = document.getElementById('detailsBody').innerHTML;
+
+    const printWindow = window.open('', '_blank');
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Budget Transaction</title>
+
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+            <style>
+
+                body{
+                    padding:30px;
+                    font-family:Arial,sans-serif;
+                    font-size:14px;
+                }
+
+                h4{
+                    text-align:center;
+                    margin-bottom:30px;
+                }
+
+                hr{
+                    margin:20px 0;
+                }
+
+                .row{
+                    margin-bottom:12px;
+                }
+
+                strong{
+                    font-weight:600;
+                }
+
+                @media print{
+
+                    body{
+                        margin:0;
+                        padding:20px;
+                    }
+
+                    .no-print{
+                        display:none;
+                    }
+
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            <h4>Accounting Transaction Details</h4>
+
+            ${content}
+
+        </body>
+
+        </html>
+    `);
+
+    printWindow.document.close();
+
+    printWindow.focus();
+
+    setTimeout(() => {
+
+        printWindow.print();
+
+        printWindow.close();
+
+    },500);
+
+}
 </script>
