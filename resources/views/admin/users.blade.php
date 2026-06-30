@@ -32,10 +32,16 @@
         </select>
 
         <div class="input-group input-group-sm" style="min-width: 260px;">
-          <input type="text" name="search" class="form-control fs-6 p-1" style="border-color: #bebebe" placeholder="Search email..." value="{{ request('search') }}">
-          <button class="btn" type="submit" style="border-color: #bebebe">
+          <input type="text"
+                 name="search"
+                 class="form-control p-1"
+                 placeholder="Search email..."
+                 value="{{ request('search') }}"
+                 style="border-color:#bebebe;">
+
+          <button class="btn btn-dark" type="submit" style="border-color:#bebebe;">
             <i class="bi bi-search"></i>
-          </button>
+          </button>  
           @if(request('search') || request('department'))
             <a href="{{ route('admin.users') }}" class="btn btn-outline-danger" title="Clear Filters">
               <i class="bi bi-x-circle"></i>

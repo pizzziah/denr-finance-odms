@@ -11,22 +11,34 @@
       <div class="card glass-card-hover card-c p-0 h-80 border-0 border-start border-4" style="border-color: var(--primary) !important;">
         <div class="card-body d-flex align-items-center justify-content-between">
           <div>
-            <h6 class="text-uppercase fw-bold p-0 m-0" style="color: var(--primary)">Current Balance</h6>
-            <h2 class="fw-bold fs-2 m-0" style="color: var(--primary)">₱{{ $currentBalance }}</h2>
+            <h6 class="text-uppercase fw-bold p-0 m-0" style="color: var(--primary)">
+              Current Balance
+            </h6>
+            <h2 class="fw-bold fs-2 m-0" style="color: var(--primary)">
+              ₱{{ $currentBalance }}
+            </h2>
           </div>
-          <div class="fs-1 opacity-60" style="color: var(--primary);"><i class="bi bi-database-exclamation"></i></div>  
+          <div class="fs-1 opacity-60" style="color: var(--primary);">
+            <i class="bi bi-wallet2"></i>
+          </div>  
         </div>
       </div>
     </div>
 
     <div class="col-12 col-sm-6 col-md-4">
-      <div class="card glass-card-hover card-c p-0 h-80 border-0 border-start border-4" style="border-color: var(--success) !important;">
+      <div class="card glass-card-hover card-c p-0 h-80 border-0 border-start border-4" style="border-color: #9D6B0B !important;">
         <div class="card-body d-flex align-items-center justify-content-between">
           <div>
-            <h6 class="text-uppercase fw-bold p-0 m-0" style="color: var(--success)">Total Received</h6>
-            <h2 class="fw-bold fs-2 m-0" style="color: var(--success)">₱{{ $totalReceived }}</h2>
+            <h6 class="text-uppercase fw-bold p-0 m-0" style="color: #9D6B0B">
+              Total Received
+            </h6>
+            <h2 class="fw-bold fs-2 m-0" style="color: #9D6B0B">
+              ₱{{ $totalReceived }}
+            </h2>
           </div>
-          <div class="fs-1 opacity-60" style="color: var(--success);"><i class="bi bi-arrow-down-left-square"></i></div>  
+          <div class="fs-1 opacity-60" style="color: #9D6B0B;">
+             <i class="bi bi-layer-forward"></i>
+            </div>  
         </div>
       </div>
     </div>
@@ -35,18 +47,24 @@
       <div class="card glass-card-hover card-c p-0 h-80 border-0 border-start border-4" style="border-color: var(--error) !important;">
         <div class="card-body d-flex align-items-center justify-content-between">
           <div>
-            <h6 class="text-uppercase fw-bold p-0 m-0" style="color: var(--error)">Total Downloaded</h6>
-            <h2 class="fw-bold fs-2 m-0" style="color: var(--error)">₱{{ $totalDownloaded }}</h2>
+            <h6 class="text-uppercase fw-bold p-0 m-0" style="color: var(--error)">
+              Total Downloaded
+            </h6>
+            <h2 class="fw-bold fs-2 m-0" style="color: var(--error)">
+              ₱{{ $totalDownloaded }}
+            </h2>
           </div>
-          <div class="fs-1 opacity-60" style="color: var(--error);"><i class="bi bi-arrow-up-right-square"></i></div>  
+          <div class="fs-1 opacity-60" style="color: var(--error);">
+            <i class="bi bi-layer-backward"></i>
+          </div>  
         </div>
       </div>
     </div>
   </div>
 
   @if($isLocked)
-    <div class="alert alert-warning d-flex align-items-center mb-3 py-2 border-start border-warning border-4" role="alert">
-      <i class="bi bi-lock-fill fs-5 me-2"></i>
+    <div class="alert alert-warning d-flex align-items-center mb-3 py-2 border-2" style="background: #FFC2C2; border-color: var(--error); color: var(--error);" role="alert">
+      <i class="bi bi-lock-fill fs-5"></i>
       <div><strong>Quarter Locked:</strong> This quarter is completed. Form additions and structural ledger entries have been locked.</div>
     </div>
   @endif
@@ -56,7 +74,7 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
       <div>
         @if($isLocked)
-          <button type="button" class="btn btn-secondary" onclick="alert('Cannot add entries. This operational quarter table has been closed.');" disabled>
+          <button type="button" class="btn"  style="background: #FFC2C2; border-color: var(--error); color: var(--error);"  disabled>
             <i class="bi bi-lock"></i> Quarter Locked
           </button>
         @else
@@ -78,8 +96,16 @@
         </div>
 
         <div class="input-group input-group-sm" style="min-width:260px;">
-          <input type="text" name="search" class="form-control" placeholder="Search Details, DV, ADA..." value="{{ request('search') }}">
-          <button class="btn btn-dark" type="submit"><i class="bi bi-search"></i></button>
+          <input type="text"
+                 name="search"
+                 class="form-control"
+                 placeholder="Search Details, DV, ADA..."
+                 value="{{ request('search') }}"
+                 style="border-color:#bebebe;">
+
+          <button class="btn btn-dark" type="submit" style="border-color:#bebebe;">
+            <i class="bi bi-search"></i>
+          </button>       
           @if(request('search'))
             <a href="{{ route('accounting.quarterly-summary', ['quarter' => $selectedQuarter]) }}" class="btn btn-outline-danger"><i class="bi bi-x-circle"></i></a>
           @endif

@@ -29,8 +29,14 @@
         </button>
 
         <div class="input-group input-group-sm" style="min-width: 260px;">
-          <input type="text" name="search" class="form-control p-1" style="border-color: #bebebe" placeholder="Search ORS, Payee, Office..." value="{{ request('search') }}">
-          <button class="btn" style="border-color: #bebebe" type="submit">
+          <input type="text"
+                 name="search"
+                 class="form-control p-1"
+                 placeholder="Search ORS, Payee, Office..."
+                 value="{{ request('search') }}"
+                 style="border-color:#bebebe;">
+
+          <button class="btn btn-dark" type="submit" style="border-color:#bebebe;">
             <i class="bi bi-search"></i>
           </button>
           @if(request('search') || request('year') !== 'all' || request('month') || request('status') !== 'all')

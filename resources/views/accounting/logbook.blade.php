@@ -45,9 +45,9 @@
                  value="{{ request('search') }}"
                  style="border-color:#bebebe;">
 
-          <button class="btn" type="submit" style="border-color:#bebebe;">
+          <button class="btn btn-dark" type="submit" style="border-color:#bebebe;">
             <i class="bi bi-search"></i>
-          </button>
+          </button>  
 
           {{-- RESET --}}
           @if(request('search') || request('month') !== 'all' || request('status') !== 'all' || request('sort') !== 'latest')
