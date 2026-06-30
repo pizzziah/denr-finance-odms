@@ -22,21 +22,27 @@ class AccountingQuarterlySummaryController extends Controller {
       $search = $request->input('search');
       $query->where(function($q) use ($search) {
         $q->where('particulars', 'LIKE', "%{$search}%")
-          ->orWhere('dv_no', 'LIKE', "%{$search}%")
-          ->orWhere('ada_check_no', 'LIKE', "%{$search}%");
+          ->orWhere('amount', 'LIKE', "%{$search}%");
       });
     }
 
     $sortDirection = $request->get('sort_date', 'desc') === 'asc' ? 'asc' : 'desc';
-    $allRecords = $query->orderBy($modelInstance->getKeyName(), $sortDirection)->get();
+    $pk = $modelInstance->getKeyName();
+
+$allRecords = $query
+    ->orderBy($pk, $sortDirection)
+    ->get();
+
+foreach ($allRecords as $record) {
+    $record->setKeyName($pk);
+}
+
     $totalReceived = 0;
     $totalDownloaded = 0;
-    $totalAdjustments = 0;
 
     foreach ($allRecords as $rec) {
       $totalReceived += AccountingQuarterlySummary::parseMoney($rec->nca_nta_received);
       $totalDownloaded += AccountingQuarterlySummary::parseMoney($rec->nca_nta_downloaded);
-      $totalAdjustments += AccountingQuarterlySummary::parseMoney($rec->adjustments);
     }
 
     $latestRow = $modelInstance
@@ -59,7 +65,6 @@ class AccountingQuarterlySummaryController extends Controller {
       'currentBalance' => $currentBalance,
       'totalReceived' => number_format($totalReceived, 2),
       'totalDownloaded' => number_format($totalDownloaded, 2),
-      'totalAdjustments' => number_format($totalAdjustments, 2)
     ]);
   }
 
@@ -72,13 +77,13 @@ class AccountingQuarterlySummaryController extends Controller {
     }
 
     $request->validate([
-      'emds_date'        => 'required|string',
-      'particulars'      => 'required|string|max:255',
-      'transaction_type' => 'required|in:received,downloaded,adjustment',
-      'amount'           => 'required|numeric',
-      'dv_no'            => 'nullable|string|max:50',
-      'ada_check_no'     => 'nullable|string|max:100',
-      'remarks'          => 'nullable|string'
+        'emds_date' => 'required|string',
+        'date_processed' => 'required|string',
+        'particulars' => 'required|string|max:255',
+        'transaction_type' => 'required|in:received,downloaded',
+        'amount' => 'required|numeric',
+        'ada_no' => 'nullable|string|max:100',
+        'remarks' => 'nullable|string',
     ]);
 
     $modelInstance = new AccountingQuarterlySummary();
@@ -100,29 +105,36 @@ class AccountingQuarterlySummaryController extends Controller {
       ? AccountingQuarterlySummary::parseMoney($lastRecord->balance)
       : 0;
 
-    $dvAmount = (float) $request->dv_no;
+    $amount = (float)$request->amount;
 
     $newBalance =
       $previousBalance
-      - $dvAmount
+      - $amount
       + AccountingQuarterlySummary::parseMoney($received)
       - AccountingQuarterlySummary::parseMoney($downloaded);
 
-    $modelInstance->create([
-      'emds_date' => Carbon::parse($request->emds_date)
-        ->format('n/j/Y') . ' 0:00:00',
+$modelInstance->create([
 
-      'particulars' => $request->particulars,
-      'dv_no' => number_format($dvAmount, 2, '.', ','),
-      'nca_nta_received' => $received,
-      'nca_nta_downloaded' => $downloaded,
+    'emds_date' => Carbon::parse($request->emds_date)
+        ->format('n/j/Y'),
 
-      'adjustments' => null,
-      'balance' => number_format($newBalance, 2, '.', ','),
+    'date_processed' => Carbon::parse($request->date_processed)
+        ->format('n/j/Y'),
 
-      'ada_check_no' => $request->ada_check_no,
-      'remarks' => $request->remarks,
-    ]);    
+    'particulars' => $request->particulars,
+
+    'amount' => number_format($amount,2,'.',','),
+
+    'nca_nta_received' => $received,
+
+    'nca_nta_downloaded' => $downloaded,
+
+    'balance' => number_format($newBalance,2,'.',','),
+
+    'ada_no' => $request->ada_no,
+
+    'remarks' => $request->remarks,
+]); 
 
 
     return redirect()->back()->with('success', 'Entry securely logged.');
@@ -137,13 +149,13 @@ class AccountingQuarterlySummaryController extends Controller {
     }
 
     $request->validate([
-      'emds_date'        => 'required|string',
-      'particulars'      => 'required|string|max:255',
-      'transaction_type' => 'required|in:received,downloaded,adjustment',
-      'amount'           => 'required|numeric',
-      'dv_no'            => 'nullable|string|max:50',
-      'ada_check_no'     => 'nullable|string|max:100',
-      'remarks'          => 'nullable|string'
+        'emds_date' => 'required|string',
+        'date_processed' => 'required|string',
+        'particulars' => 'required|string|max:255',
+        'transaction_type' => 'required|in:received,downloaded',
+        'amount' => 'required|numeric',
+        'ada_no' => 'nullable|string|max:100',
+        'remarks' => 'nullable|string',
     ]);
 
     $modelInstance = new AccountingQuarterlySummary();
@@ -161,19 +173,28 @@ class AccountingQuarterlySummaryController extends Controller {
       ? number_format($request->amount, 2, '.', ',')
       : null;
 
-    $dvAmount = (float) $request->dv_no;
+    $amount=(float)$request->amount;
 
-    $row->update([
-      'emds_date' => Carbon::parse($request->emds_date)
-        ->format('n/j/Y') . ' 0:00:00',
-      'particulars' => $request->particulars,
-      'dv_no' => number_format($dvAmount, 2, '.', ','),
-      'nca_nta_received' => $received,
-      'nca_nta_downloaded' => $downloaded,
-      'adjustments' => null,
-      'ada_check_no' => $request->ada_check_no,
-      'remarks' => $request->remarks,
-    ]);
+$row->update([
+
+    'emds_date'=>Carbon::parse($request->emds_date)
+        ->format('n/j/Y'),
+
+    'date_processed'=>Carbon::parse($request->date_processed)
+        ->format('n/j/Y'),
+
+    'particulars'=>$request->particulars,
+
+    'amount'=>number_format($amount,2,'.',','),
+
+    'nca_nta_received'=>$received,
+
+    'nca_nta_downloaded'=>$downloaded,
+
+    'ada_no'=>$request->ada_no,
+
+    'remarks'=>$request->remarks,
+]);
 
     $this->recalculateQuarterlyBalances($quarter);
     return redirect()->back()->with('success', 'Entry updated successfully.');
@@ -215,12 +236,18 @@ class AccountingQuarterlySummaryController extends Controller {
 
     foreach ($records as $rec) {
       $rec->setKeyName($pkName);
-      $dv = AccountingQuarterlySummary::parseMoney($rec->dv_no);
-      $received = AccountingQuarterlySummary::parseMoney($rec->nca_nta_received);
-      $downloaded = AccountingQuarterlySummary::parseMoney($rec->nca_nta_downloaded);
+$amount = AccountingQuarterlySummary::parseMoney($rec->amount);
+
+$received = AccountingQuarterlySummary::parseMoney(
+    $rec->{'nca_nta_received'}
+);
+
+$downloaded = AccountingQuarterlySummary::parseMoney(
+    $rec->{'nca_nta_downloaded'}
+);
       $runningBalance =
         $runningBalance
-          - $dv
+          - $amount
           + $received
           - $downloaded;
       $rec->balance = number_format($runningBalance, 2, '.', ',');

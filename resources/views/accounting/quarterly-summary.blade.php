@@ -125,56 +125,51 @@
                 <div class="d-flex align-items-center justify-content-between">
                   <span>EMDS Date</span>
                   <div class="btn-group btn-group-xs ms-2">
-                    <a href="{{ request()->fullUrlWithQuery(['sort_date' => 'desc']) }}" class="btn p-0 px-1 text-white {{ request('sort_date', 'desc') === 'desc' ? 'opacity-100 fw-bold' : 'opacity-50' }}"><i class="bi bi-sort-numeric-down"></i></a>
-                    <a href="{{ request()->fullUrlWithQuery(['sort_date' => 'asc']) }}" class="btn p-0 px-1 text-white {{ request('sort_date') === 'asc' ? 'opacity-100 fw-bold' : 'opacity-50' }}"><i class="bi bi-sort-numeric-up-alt"></i></a>
+                    <a href="{{ request()->fullUrlWithQuery(['sort_date' => 'asc']) }}" class="btn p-0 px-1 text-white {{ request('sort_date') === 'asc' ? 'opacity-100 fw-bold' : 'opacity-50' }}"><i class="bi bi-sort-numeric-down"></i></a>
+                    <a href="{{ request()->fullUrlWithQuery(['sort_date' => 'desc']) }}" class="btn p-0 px-1 text-white  {{ request('sort_date', 'desc') === 'desc' ? 'opacity-100 fw-bold' : 'opacity-50' }}"><i class="bi bi-sort-numeric-up-alt"></i></a>
                   </div>
                 </div>
               </th>
-              <th style="width: 320px;">Particulars</th>
+              <th style="width: 150px;">Date Processed</th>
+              <th style="width: 200px;">Particulars</th>
               <th style="width: 120px;">Amount</th>
               <th style="width: 160px;">NCA/NTA Received</th>
               <th style="width: 160px;">NCA/NTA Downloaded</th>
-              <th style="width: 160px; background-color: #212529;">Balance</th>
+              <th style="width: 160px;">Balance</th>
               <th style="width: 150px;">ADA/Check No.</th>
               <th>Remarks</th>
               <th style="width: 110px; text-align: center;">Actions</th>
             </tr>
           </thead>
+
           <tbody>
             @forelse($records as $record)
-              @php 
-                // Dynamically look up the correct primary key column name based on the selected quarter
-                $pkName = match((int)$selectedQuarter) {
-                    1 => 'cash1st_id',
-                    2 => 'cash2nd_id',
-                    3 => 'cash3rd_id',
-                    4 => 'cash4th_id',
-                    default => 'cash1st_id'
-                };
-                
-                // Explicitly grab the ID using the correct column string name
-                $rowId = $record->{$pkName}; 
 
-                $cleanReceived = str_replace([',', ' '], '', $record->nca_nta_received);
-                $cleanDownloaded = str_replace([',', ' '], '', $record->nca_nta_downloaded);
-                $cleanAdjustments = str_replace([',', ' '], '', $record->adjustments);
+              @php
+                  $rowId = $record->getKey();
 
-                $txType = 'received';
-                $rawAmount = 0;
-                if (!empty($cleanReceived)) { $txType = 'received'; $rawAmount = $cleanReceived; }
-                elseif (!empty($cleanDownloaded)) { $txType = 'downloaded'; $rawAmount = $cleanDownloaded; }
-                elseif (!empty($cleanAdjustments)) { $txType = 'adjustment'; $rawAmount = $cleanAdjustments; }
+                  $cleanReceived = \App\Models\Accounting\AccountingQuarterlySummary::parseMoney($record->nca_nta_received);
+                  $cleanDownloaded = \App\Models\Accounting\AccountingQuarterlySummary::parseMoney($record->nca_nta_downloaded);
+                  
+                  $txType = $cleanReceived > 0 ? 'received' : 'downloaded';
               @endphp
+
               <tr>
                 <td class="small">{{ $record->emds_date ?? '-' }}</td>
+                <td class="small">{{ $record->date_processed ?? '-' }}</td>
                 <td class="fw-semibold text-wrap" style="word-break: break-word;">{{ $record->particulars ?? '-' }}</td>
                 <td class="fw-bold text-end">
-                  {{ !empty($record->dv_no) ? '₱' . number_format((float)$record->dv_no, 2) : '-' }}
+                  {{ !empty($record->amount) ? '₱' . number_format((float)str_replace(',', '', $record->amount), 2) : '-' }}
                 </td>
-                <td class="text-success fw-bold">{{ !empty($record->nca_nta_received) ? '₱'.$record->nca_nta_received : '-' }}</td>
-                <td class="text-danger fw-bold">{{ !empty($record->nca_nta_downloaded) ? '₱'.$record->nca_nta_downloaded : '-' }}</td>
-                <td class="fw-bold table-active text-primary">₱{{ $record->balance ?? '0.00' }}</td>
-                <td>{{ $record->ada_check_no ?? '-' }}</td>
+                <td class="text-success fw-bold">
+                  {{ $cleanReceived > 0 ? '₱' . number_format($cleanReceived, 2) : '-' }}
+                </td>
+                <td class="text-danger fw-bold">
+                  {{ $cleanDownloaded > 0 ? '₱' . number_format($cleanDownloaded, 2) : '-' }}
+                </td>
+
+                <td class="fw-bold table-success text-success">₱{{ $record->balance ?? '0.00' }}</td>
+                <td>{{ $record->ada_no ?? '-' }}</td>
                 <td class="text-wrap"><em>{{ $record->remarks ?? '-' }}</em></td>
                 <td class="text-center">
                   <div class="d-flex justify-content-center gap-1">
@@ -196,11 +191,29 @@
 
               {{-- INLINE EDIT MODAL GENERATOR PER ROW --}}
               @if(!$isLocked)
-                @include('accounting.partials.edit-entry-quarterly-summary-modal', ['record' => $record, 'rowId' => $rowId, 'txType' => $txType, 'rawAmount' => $rawAmount])
+                @php
+    $rowId = $record->getKey();
+
+    $received = \App\Models\Accounting\AccountingQuarterlySummary::parseMoney(
+        $record->nca_nta_received
+    );
+
+    $downloaded = \App\Models\Accounting\AccountingQuarterlySummary::parseMoney(
+        $record->nca_nta_downloaded
+    );
+
+    if ($received > 0) {
+        $txType = 'received';
+        $rawAmount = $received;
+    } else {
+        $txType = 'downloaded';
+        $rawAmount = $downloaded;
+    }
+@endphp
               @endif
             @empty
               <tr>
-                <td colspan="9" class="text-center py-5 fs-6 bg-light">No ledger entries matching parameters logged in this operational quarter.</td>
+                <td colspan="9" class="text-center py-5 small bg-light">No data available for this quarter.</td>
               </tr>
             @endforelse
           </tbody>
@@ -211,4 +224,5 @@
 </div>
 
 @include('accounting.partials.add-entry-quarterly-summary-modal')
+
 @endsection

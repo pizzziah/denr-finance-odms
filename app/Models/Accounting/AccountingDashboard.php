@@ -71,7 +71,7 @@ class AccountingDashboard {
       
       $debit = (float) str_replace([',', '₱', ' '], '', $rawDebit);
       $credit = (float) str_replace([',', '₱', ' '], '', $rawCredit);
-      $combinedAmount = $debit + $credit;
+      $combinedAmount = $debit;
 
       $totalRequestedAmount += $combinedAmount;
       $payee = strtoupper(trim($row->payee ?? ''));
