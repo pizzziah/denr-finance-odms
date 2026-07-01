@@ -1,213 +1,229 @@
 @extends('layouts.app')
-
 @section('title', 'Quarterly Summary')
-
 @section('content')
-<div class="container-fluid mt-3 px-0" style="min-width: 0; overflow-x: hidden;">
-
-  {{-- OVERVIEW METRIC CARD STRIPS --}}
-  <div class="row g-3 mb-3">
-    <div class="col-12 col-sm-6 col-md-4">
-      <div class="card glass-card-hover card-c p-0 h-80 border-0 border-start border-4" style="border-color: var(--primary) !important;">
-        <div class="card-body d-flex align-items-center justify-content-between">
-          <div>
-            <h6 class="text-uppercase fw-bold p-0 m-0" style="color: var(--primary)">
-              Current Balance
-            </h6>
-            <h2 class="fw-bold fs-2 m-0" style="color: var(--primary)">
-              ₱{{ $currentBalance }}
-            </h2>
-          </div>
-          <div class="fs-1 opacity-60" style="color: var(--primary);">
-            <i class="bi bi-wallet2"></i>
-          </div>  
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-md-4">
-      <div class="card glass-card-hover card-c p-0 h-80 border-0 border-start border-4" style="border-color: #9D6B0B !important;">
-        <div class="card-body d-flex align-items-center justify-content-between">
-          <div>
-            <h6 class="text-uppercase fw-bold p-0 m-0" style="color: #9D6B0B">
-              Total Received
-            </h6>
-            <h2 class="fw-bold fs-2 m-0" style="color: #9D6B0B">
-              ₱{{ $totalReceived }}
-            </h2>
-          </div>
-          <div class="fs-1 opacity-60" style="color: #9D6B0B;">
-             <i class="bi bi-layer-forward"></i>
-            </div>  
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-md-4">
-      <div class="card glass-card-hover card-c p-0 h-80 border-0 border-start border-4" style="border-color: var(--error) !important;">
-        <div class="card-body d-flex align-items-center justify-content-between">
-          <div>
-            <h6 class="text-uppercase fw-bold p-0 m-0" style="color: var(--error)">
-              Total Downloaded
-            </h6>
-            <h2 class="fw-bold fs-2 m-0" style="color: var(--error)">
-              ₱{{ $totalDownloaded }}
-            </h2>
-          </div>
-          <div class="fs-1 opacity-60" style="color: var(--error);">
-            <i class="bi bi-layer-backward"></i>
-          </div>  
-        </div>
-      </div>
-    </div>
-  </div>
-
-  @if($isLocked)
-    <div class="alert alert-warning d-flex align-items-center mb-3 py-2 border-2" style="background: #FFC2C2; border-color: var(--error); color: var(--error);" role="alert">
-      <i class="bi bi-lock-fill fs-5"></i>
-      <div><strong>Quarter Locked:</strong> This quarter is completed. Form additions and structural ledger entries have been locked.</div>
+<div class="container-fluid mt-4 px-4">
+  @if(session('success'))
+    <div class="alert alert-success">
+      {{ session('success') }}
     </div>
   @endif
 
-  {{-- CONTROL FILTERS BAR INTERFACES --}}
-  <div class="card p-3 mb-3 m-0 w-100 bg-white shadow-sm">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-      <div>
-        @if($isLocked)
-          <button type="button" class="btn"  style="background: #FFC2C2; border-color: var(--error); color: var(--error);"  disabled>
-            <i class="bi bi-lock"></i> Quarter Locked
-          </button>
-        @else
-          <button type="button" class="btn" style="background-color: var(--secondary-variant); border: 1px solid var(--primary); color: var(--primary); font-weight: bold;" data-bs-toggle="modal" data-bs-target="#addSummaryModal">
-            <i class="bi bi-file-earmark-plus"></i> Add Entry
-          </button>
-        @endif
-      </div>
-
-      <form action="{{ route('accounting.quarterly-summary') }}" method="GET" class="d-flex align-items-center gap-2 flex-wrap flex-md-nowrap m-0">
-        <div class="d-flex align-items-center gap-1">
-          <label class="small fw-bold text-nowrap mb-0 me-1">Scope View:</label>
-          <select name="quarter" class="form-select form-select-sm fw-bold border-secondary" style="min-width: 140px;" onchange="this.form.submit()">
-            <option value="1" @selected($selectedQuarter == 1)>1st Quarter @if($currentQuarter > 1) (Locked) @endif</option>
-            <option value="2" @selected($selectedQuarter == 2)>2nd Quarter @if($currentQuarter > 2) (Locked) @endif</option>
-            <option value="3" @selected($selectedQuarter == 3)>3rd Quarter @if($currentQuarter > 3) (Locked) @endif</option>
-            <option value="4" @selected($selectedQuarter == 4)>4th Quarter @if($currentQuarter > 4) (Locked) @endif</option>
-          </select>
-        </div>
-
-        <div class="input-group input-group-sm" style="min-width:260px;">
-          <input type="text"
-                 name="search"
-                 class="form-control"
-                 placeholder="Search Details, DV, ADA..."
-                 value="{{ request('search') }}"
-                 style="border-color:#bebebe;">
-
-          <button class="btn btn-dark" type="submit" style="border-color:#bebebe;">
-            <i class="bi bi-search"></i>
-          </button>       
-          @if(request('search'))
-            <a href="{{ route('accounting.quarterly-summary', ['quarter' => $selectedQuarter]) }}" class="btn btn-outline-danger"><i class="bi bi-x-circle"></i></a>
-          @endif
-        </div>
-      </form>
+  @if(session('error'))
+    <div class="alert alert-danger">
+      {{ session('error') }}
     </div>
-  </div>
+  @endif
 
-  {{-- LEDGER DATA CONTAINER FEATURING FIXED HEADER HEIGHT AND VERTICAL SCROLLBAR --}}
-  <div class="card m-0 w-100 shadow-sm">
-    <div class="card-body p-2">
-      <div style="max-height: 520px; overflow-y: auto; overflow-x: auto; border: 1px solid #dee2e6;">
-        <table class="table table-bordered table-hover table-sm align-middle m-0" style="min-width: 1450px;">
-          <thead class="table-dark" style="position: sticky; top: 0; z-index: 10;">
-            <tr>
-              <th style="width: 150px;">
-                <div class="d-flex align-items-center justify-content-between">
-                  <span>EMDS Date</span>
-                  <div class="btn-group btn-group-xs ms-2">
-                    <a href="{{ request()->fullUrlWithQuery(['sort_date' => 'asc']) }}" class="btn p-0 px-1 text-white {{ request('sort_date') === 'asc' ? 'opacity-100 fw-bold' : 'opacity-50' }}"><i class="bi bi-sort-numeric-down"></i></a>
-                    <a href="{{ request()->fullUrlWithQuery(['sort_date' => 'desc']) }}" class="btn p-0 px-1 text-white  {{ request('sort_date', 'desc') === 'desc' ? 'opacity-100 fw-bold' : 'opacity-50' }}"><i class="bi bi-sort-numeric-up-alt"></i></a>
+  @if($errors->any())
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        @foreach($errors->all() as $error)
+          <li>{{ $error }}</li>
+        @endforeach
+      </ul>
+    </div>
+  @endif
+
+  <div class="card glass-card p-3">
+    
+    <div class="px-3 pt-3 pb-2 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+      <h5 class="fw-bold m-0">Quarterly Summary</h5>
+      
+      <div class="d-flex align-items-center gap-2 flex-wrap flex-md-nowrap m-0">
+        @if(!$isLocked && auth()->user()->department === 'Accounting')
+          <form action="{{ route('accounting.quarterly-summary.manual-lock') }}" method="POST" class="m-0 me-1">
+            @csrf
+            <input type="hidden" name="quarter" value="{{ $selectedQuarter }}">
+            <input type="hidden" name="year" value="{{ $selectedYear }}">
+            <button type="submit" class="btn btn-sm btn-outline-danger fw-bold shadow-sm">
+              <i class="bi bi-lock-fill me-1"></i> Lock Quarter
+            </button>
+          </form>
+        @endif
+
+        @if($isLocked && auth()->user()->department === 'Accounting')
+          <form action="{{ route('accounting.quarterly-summary.request-unlock') }}" method="POST" class="m-0 me-1">
+            @csrf
+            <input type="hidden" name="quarter" value="{{ $selectedQuarter }}">
+            <input type="hidden" name="year" value="{{ $selectedYear }}">
+            <button type="submit" class="btn btn-sm btn-warning fw-bold shadow-sm" @disabled($requiresAdminRequest)>
+              <i class="bi bi-shield-lock-fill me-1"></i> {{ $requiresAdminRequest ? 'Unlock Pending' : 'Request Unlock' }}
+            </button>
+          </form>
+        @endif
+
+        <form action="{{ route('accounting.quarterly-summary') }}" method="GET" class="d-flex align-items-center gap-2 m-0 flex-wrap flex-md-nowrap">
+          <select name="quarter" class="form-select form-select-sm" style="min-width: 120px;" onchange="this.form.submit()">
+            @for ($q = 1; $q <= 4; $q++)
+              <option value="{{ $q }}" {{ $selectedQuarter == $q ? 'selected' : '' }}>Quarter {{ $q }}</option>
+            @endfor
+          </select>
+
+          <select name="year" class="form-select form-select-sm" style="min-width: 120px;" onchange="this.form.submit()">
+            @for ($y = date('Y'); $y >= date('Y') - 5; $y--)
+              <option value="{{ $y }}" {{ $selectedYear == $y ? 'selected' : '' }}>{{ $y }}</option>
+            @endfor
+          </select>
+
+          <div class="input-group input-group-sm" style="min-width: 260px;">
+            <input type="text"
+                   name="search"
+                   class="form-control p-1"
+                   placeholder="Search particulars..."
+                   value="{{ request('search') }}"
+                   style="border-color:#bebebe;">
+
+            <button class="btn btn-dark" type="submit" style="border-color:#bebebe;">
+              <i class="bi bi-search"></i>
+            </button>  
+            @if(request('search') || request('quarter') || request('year'))
+              <a href="{{ route('accounting.quarterly-summary') }}" class="btn btn-outline-danger" title="Clear Filters">
+                <i class="bi bi-x-circle"></i>
+              </a>
+            @endif
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="ms-3 me-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
+      <x-button variant="header" data-bs-toggle="modal" data-bs-target="#addSummaryEntryModal" :disabled="$isLocked">
+        <i class="bi bi-plus-circle-fill me-1"></i> Add Record Entry
+      </x-button>
+
+      <div class="d-flex gap-3 text-end small border p-2 rounded bg-light shadow-sm">
+        <div>Total Received: <span class="fw-bold text-success">₱{{ $totalReceived }}</span></div>
+        <div class="border-start ps-3">Total Downloaded: <span class="fw-bold text-danger">₱{{ $totalDownloaded }}</span></div>
+        <div class="border-start ps-3">Running Balance: <span class="fw-bold text-dark">₱{{ $currentBalance }}</span></div>
+      </div>
+    </div>
+
+    <div class="card-body" style="background-color: transparent;">
+      <table class="table table-bordered table-hover align-middle">
+        <thead class="sticky-top">
+          <tr>
+            <th>
+              <div class="d-flex align-items-center justify-content-between dropdown-toggle-no-caret">
+                <span>EMDS Date</span>
+                <div class="d-flex flex-column line-height-1 small ps-2">
+                  <a href="{{ request()->fullUrlWithQuery(['sort_date' => 'asc', 'sort_processed' => null]) }}" class="text-dark p-0 m-0 line-height-1 {{ request('sort_date') === 'asc' ? 'fw-bold' : 'opacity-50' }}" style="font-size: 10px;"><i class="bi bi-caret-up-fill"></i></a>
+                  <a href="{{ request()->fullUrlWithQuery(['sort_date' => 'desc', 'sort_processed' => null]) }}" class="text-dark p-0 m-0 line-height-1 {{ request('sort_date') === 'desc' ? 'fw-bold' : 'opacity-50' }}" style="font-size: 10px;"><i class="bi bi-caret-down-fill"></i></a>
+                </div>
+              </div>
+            </th>
+            <th>
+              <div class="d-flex align-items-center justify-content-between dropdown-toggle-no-caret">
+                <span>Date Processed</span>
+                <div class="d-flex flex-column line-height-1 small ps-2">
+                  <a href="{{ request()->fullUrlWithQuery(['sort_processed' => 'asc', 'sort_date' => null]) }}" class="text-dark p-0 m-0 line-height-1 {{ request('sort_processed') === 'asc' ? 'fw-bold' : 'opacity-50' }}" style="font-size: 10px;"><i class="bi bi-caret-up-fill"></i></a>
+                  <a href="{{ request()->fullUrlWithQuery(['sort_processed' => 'desc', 'sort_date' => null]) }}" class="text-dark p-0 m-0 line-height-1 {{ request('sort_processed') === 'desc' ? 'fw-bold' : 'opacity-50' }}" style="font-size: 10px;"><i class="bi bi-caret-down-fill"></i></a>
+                </div>
+              </div>
+            </th>
+            <th>Particulars</th>
+            <th>Amount (Adj)</th>
+            <th>NCA/NTA Received</th>
+            <th>NCA/NTA Downloaded</th>
+            <th>Balance</th>
+            <th>ADA/Check No.</th>
+            <th>Remarks</th>
+            <th width="140">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+        @forelse($records as $record)
+          @php
+            $rowId = $record->getKey();
+            $cleanReceived = \App\Models\Accounting\AccountingQuarterlySummary::parseMoney($record->nca_nta_received);
+            $cleanDownloaded = \App\Models\Accounting\AccountingQuarterlySummary::parseMoney($record->nca_nta_downloaded);
+            
+            $txType = 'adjustment';
+            if ($cleanReceived > 0) { $txType = 'received'; }
+            elseif ($cleanDownloaded > 0) { $txType = 'downloaded'; }
+            
+            $rawAmount = 0.00;
+            if ($txType === 'adjustment') {
+                $rawAmount = (float)str_replace(',', '', $record->amount ?? 0);
+            } else {
+                $rawAmount = $cleanReceived > 0 ? $cleanReceived : $cleanDownloaded;
+            }
+          @endphp
+          <tr>
+            <td>{{ $record->emds_date }}</td>
+            <td>{{ $record->date_processed }}</td>
+            <td class="text-wrap" style="max-width: 240px;">{{ $record->particulars }}</td>
+            <td class="text-end fw-bold">
+              {{ !empty($record->amount) && (float)str_replace(',', '', $record->amount) > 0 ? '₱' . number_format((float)str_replace(',', '', $record->amount), 2) : '-' }}
+            </td>
+            <td class="text-end text-success fw-bold">
+              {{ $cleanReceived > 0 ? '₱' . number_format($cleanReceived, 2) : '-' }}
+            </td>
+            <td class="text-end text-danger fw-bold">
+              {{ $cleanDownloaded > 0 ? '₱' . number_format($cleanDownloaded, 2) : '-' }}
+            </td>
+            <td class="text-end fw-bold" style="background-color: var(--secondary-variant); color: var(--primary); border-left: 2px solid var(--primary);">
+              ₱{{ $record->balance }}
+            </td>
+            <td>{{ $record->ada_no ?? '-' }}</td>
+            <td class="text-wrap" style="max-width: 200px;">{{ $record->remarks ?? '-' }}</td>
+            <td>
+              <div class="d-flex gap-2 justify-content-center align-items-center">
+                <x-button variant="edit" type="button" class="px-2" data-bs-toggle="modal" data-bs-target="#editSummaryModal{{ $rowId }}" :disabled="$isLocked">
+                  <i class="bi bi-pencil-square"></i>
+                </x-button>
+
+                <x-button variant="alert" type="button" class="px-2" data-bs-toggle="modal" data-bs-target="#deleteSummaryModal{{ $rowId }}" :disabled="$isLocked">
+                  <i class="bi bi-trash3"></i>
+                </x-button>
+
+                <div class="modal fade" id="deleteSummaryModal{{ $rowId }}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content text-start">
+                      <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title fw-bold m-0"><i class="bi bi-exclamation-triangle-fill me-2"></i> Confirm Record Removal</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body text-dark py-3">
+                        <p class="mb-1">Are you sure you want to remove this transaction entry from the summary matrix ledger?</p>
+                        <strong class="text-danger">{{ $record->particulars }}</strong>
+                        <div class="alert alert-warning mt-3 mb-0 py-2 small">
+                          <i class="bi bi-info-circle-fill me-1"></i> Running balance dependencies below this entry will step through cascading updates immediately.
+                        </div>
+                      </div>
+                      <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <form action="{{ route('accounting.quarterly-summary.destroy', $rowId) }}" method="POST" class="m-0">
+                          @csrf
+                          @method('DELETE')
+                          <input type="hidden" name="target_quarter" value="{{ $selectedQuarter }}">
+                          <button type="submit" class="btn btn-danger btn-sm fw-bold">Delete Entry</button>
+                        </form>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </th>
-              <th style="width: 150px;">Date Processed</th>
-              <th style="width: 200px;">Particulars</th>
-              <th style="width: 120px;">Amount</th>
-              <th style="width: 160px;">NCA/NTA Received</th>
-              <th style="width: 160px;">NCA/NTA Downloaded</th>
-              <th style="width: 160px;">Balance</th>
-              <th style="width: 150px;">ADA/Check No.</th>
-              <th>Remarks</th>
-              <th style="width: 110px; text-align: center;">Actions</th>
-            </tr>
-          </thead>
+              </div>
+            </td>
+          </tr>
 
-          <tbody>
-@forelse($records as $record)
-
-    @php
-        $rowId = $record->getKey();
-
-        $cleanReceived = \App\Models\Accounting\AccountingQuarterlySummary::parseMoney($record->nca_nta_received);
-        $cleanDownloaded = \App\Models\Accounting\AccountingQuarterlySummary::parseMoney($record->nca_nta_downloaded);
-        
-        $txType = $cleanReceived > 0 ? 'received' : 'downloaded';
-
-        // 🌟 ADD THIS LINE BELOW TO FIX THE UNDEFINED VARIABLE ERROR
-        $rawAmount = (float)str_replace(',', '', $record->amount ?? 0);
-    @endphp
-
-              <tr>
-                <td class="small">{{ $record->emds_date ?? '-' }}</td>
-                <td class="small">{{ $record->date_processed ?? '-' }}</td>
-                <td class="fw-semibold text-wrap" style="word-break: break-word;">{{ $record->particulars ?? '-' }}</td>
-                <td class="fw-bold text-end">
-                  {{ !empty($record->amount) ? '₱' . number_format((float)str_replace(',', '', $record->amount), 2) : '-' }}
-                </td>
-                <td class="text-success fw-bold">
-                  {{ $cleanReceived > 0 ? '₱' . number_format($cleanReceived, 2) : '-' }}
-                </td>
-                <td class="text-danger fw-bold">
-                  {{ $cleanDownloaded > 0 ? '₱' . number_format($cleanDownloaded, 2) : '-' }}
-                </td>
-
-                <td class="fw-bold table-success text-success">₱{{ $record->balance ?? '0.00' }}</td>
-                <td>{{ $record->ada_no ?? '-' }}</td>
-                <td class="text-wrap"><em>{{ $record->remarks ?? '-' }}</em></td>
-                <td class="text-center">
-                  <div class="d-flex justify-content-center gap-1">
-                    <button type="button" class="btn btn-xs btn-outline-primary py-0 px-1" title="Edit row"
-                            data-bs-toggle="modal" data-bs-target="#editSummaryModal{{ $rowId }}" @disabled($isLocked)>
-                      <i class="bi bi-pencil-square"></i>
-                    </button>
-                    <form action="{{ route('accounting.quarterly-summary.destroy', ['id' => $rowId]) }}" method="POST" onsubmit="return confirm('Delete this ledger row record? Balance histories will be automatically shifted.')">
-                        @csrf
-                      @method('DELETE')
-                      <input type="hidden" name="target_quarter" value="{{ $selectedQuarter }}">
-                      <button type="submit" class="btn btn-xs btn-outline-danger py-0 px-1" title="Delete row" @disabled($isLocked)>
-                        <i class="bi bi-trash3"></i>
-                      </button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-
-              {{-- INLINE EDIT MODAL GENERATOR PER ROW --}}
-              @if(!$isLocked)
-                @include('accounting.partials.edit-entry-quarterly-summary-modal', ['record' => $record, 'rowId' => $rowId, 'txType' => $txType, 'rawAmount' => $rawAmount])
-              @endif
-            @empty
-              <tr>
-                <td colspan="9" class="text-center py-5 small bg-light">No data available for this quarter.</td>
-              </tr>
-            @endforelse
-          </tbody>
-        </table>
-      </div>
+          @if(!$isLocked)
+            @include('accounting.partials.edit-entry-quarterly-summary-modal', ['record' => $record, 'rowId' => $rowId, 'txType' => $txType, 'rawAmount' => $rawAmount, 'targetQuarter' => $selectedQuarter])
+          @endif
+        @empty
+          <tr>
+            <td colspan="10" class="text-center text-muted py-4 bg-light">No ledger entries registered matching current quarterly criteria parameters.</td>
+          </tr>
+        @endforelse
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
 
-@include('accounting.partials.add-entry-quarterly-summary-modal')
-
+@include('accounting.partials.add-entry-quarterly-summary-modal', ['targetQuarter' => $selectedQuarter])
 @endsection
+
+@php
+  $pageTitle = 'Quarterly Summary';
+@endphp

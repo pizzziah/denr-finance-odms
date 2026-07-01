@@ -1,29 +1,31 @@
 @if(!$isLocked)
-<div class="modal fade" id="addSummaryModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="addSummaryModalLabel" aria-hidden="true">
+<div class="modal fade" id="addSummaryModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form method="POST" action="{{ route('accounting.quarterly-summary.store') }}" onsubmit="return confirm('Please confirm execution: Are you sure you want to write this row entry into the active Quarter {{ $selectedQuarter }} database log?')">
+      <form id="addSummaryForm" method="POST" action="{{ route('accounting.quarterly-summary.store') }}">
         @csrf
         <input type="hidden" name="target_quarter" value="{{ $selectedQuarter }}">
         
         <div class="modal-header">
-          <h5 class="fw-bold mb-0" id="addSummaryModalLabel">Add Quarterly Summary Entry</h5>
+          <h5 class="fw-bold mb-0">Add Quarterly Summary Entry</h5>
         </div>
         
         <div class="modal-body">
-          {{-- DATE INPUT (Datepicker) --}}
           <div class="mb-3">
             <label class="fw-bold">Date <span class="fw-medium" style="color: var(--error);">*</span></label>
-            <input type="date" name="emds_date" class="form-control" value="{{ now()->format('n/j/Y H:i:s') }}" required>
+            <input type="date" name="emds_date" class="form-control" value="{{ now()->format('Y-m-d') }}" required>
           </div>
 
-          {{-- PARTICULARS INPUT --}}
+          <div class="mb-3">
+            <label class="fw-bold">Date Processed <span class="fw-medium" style="color: var(--error);">*</span></label>
+            <input type="date" name="date_processed" class="form-control" value="{{ now()->format('Y-m-d') }}" required>
+          </div>
+
           <div class="mb-3">
             <label class="fw-bold">Particulars <span class="fw-medium" style="color: var(--error);">*</span></label>
             <textarea name="particulars" class="form-control" rows="2" placeholder="Enter Particulars Details..." required></textarea>
           </div>
 
-          {{-- AMOUNT INPUT WITH LIVE VISUAL FORMATTER --}}
           <div class="mb-3">
             <label class="fw-bold">Amount <span class="fw-medium" style="color: var(--error);">*</span></label>
             <div class="input-group">
@@ -35,12 +37,11 @@
             </div>
           </div>
 
-          {{-- TRANSACTION TYPE SELECTOR --}}
           <div class="mb-3">
             <label class="fw-bold d-block mb-1">Transaction Type <span class="fw-medium" style="color: var(--error);">*</span></label>
             <div class="form-check">
               <input class="form-check-input" type="radio" name="transaction_type" id="type_received" value="received" checked required>
-              <label class="form-check-label text-warning" for="type_received">NCA/NTA Received</label>
+              <label class="form-check-label text-success" for="type_received">NCA/NTA Received</label>
             </div>
             <div class="form-check">
               <input class="form-check-input" type="radio" name="transaction_type" id="type_downloaded" value="downloaded">
@@ -48,17 +49,15 @@
             </div>
             <div class="form-check">
               <input class="form-check-input" type="radio" name="transaction_type" id="type_adjustment" value="adjustment">
-              <label class="form-check-label text-success" for="type_adjustment">Adjustment</label>
+              <label class="form-check-label text-warning" for="type_adjustment">Adjustment</label>
             </div>
           </div>
 
-          {{-- ADA CHECK NO INPUT --}}
           <div class="mb-3">
             <label class="fw-bold">ADA Check No.</label>
             <input type="text" name="ada_no" class="form-control" placeholder="Enter ADA Check Number...">
           </div>
 
-          {{-- REMARKS INPUT --}}
           <div class="mb-3">
             <label class="fw-bold">Remarks</label>
             <textarea name="remarks" class="form-control" rows="2" placeholder="Enter remarks (if any)..."></textarea>
@@ -66,34 +65,67 @@
         </div>
         
         <div class="modal-footer">
-          <x-button type="button" variant="secondary" data-bs-dismiss="modal">
-            Cancel
-          </x-button>
-          <x-button type="submit" variant="primary">Save</x-button>
+          <button type="button" class="btn btn-secondary" id="cancelAddBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Entry</button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
+<div class="modal fade" id="addCancelConfirmModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-body text-center p-4">
+        <div class="text-warning mb-3"><i class="bi bi-exclamation-circle-fill display-5"></i></div>
+        <h5 class="fw-bold">Unsaved Changes</h5>
+        <p class="small text-muted mb-4">You have modified this form. Do you want to discard your changes?</p>
+        <div class="d-flex gap-2 justify-content-center">
+          <button type="button" class="btn btn-sm btn-light border w-100" id="keepEditingAddBtn">No, Keep</button>
+          <button type="button" class="btn btn-sm btn-warning w-100" id="discardAddChangesBtn">Yes, Discard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     const amountInput = document.getElementById('amount_input');
     const amountPreview = document.getElementById('amount_preview');
+    const form = document.getElementById('addSummaryForm');
+    
+    let isFormDirty = false;
+    form.querySelectorAll('input, textarea, select').forEach(input => {
+        input.addEventListener('change', () => isFormDirty = true);
+        input.addEventListener('input', () => isFormDirty = true);
+    });
 
     if (amountInput && amountPreview) {
       amountInput.addEventListener('input', function() {
         const val = parseFloat(this.value);
-        if (!isNaN(val)) {
-          amountPreview.textContent = new Intl.NumberFormat('en-PH', {
-            style: 'currency',
-            currency: 'PHP'
-          }).format(val);
-        } else {
-          amountPreview.textContent = '₱0.00';
-        }
+        amountPreview.textContent = !isNaN(val) ? new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(val) : '₱0.00';
       });
     }
-  });
+
+    const bsAddModal = new bootstrap.Modal(document.getElementById('addSummaryModal'));
+    const bsCancelModal = new bootstrap.Modal(document.getElementById('addCancelConfirmModal'));
+
+    document.getElementById('cancelAddBtn').addEventListener('click', function() {
+        if (isFormDirty) {
+            bsCancelModal.show();
+        } else {
+            bsAddModal.hide();
+        }
+    });
+
+    document.getElementById('keepEditingAddBtn').addEventListener('click', () => bsCancelModal.hide());
+    document.getElementById('discardAddChangesBtn').addEventListener('click', function() {
+        isFormDirty = false;
+        form.reset();
+        bsCancelModal.hide();
+        bsAddModal.hide();
+    });
+});
 </script>
 @endif
