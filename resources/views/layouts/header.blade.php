@@ -24,14 +24,14 @@
     {{-- ACCOUNTING --}}
     @if(in_array(Auth::user()->role, ['accountant', 'bookkeeper']))
       <h6 class="p-3 fw-bold" style="color: var(--primary); background-color: var(--secondary-variant); border: 1px solid var(--primary); border-radius: 8px;">
-        Accounting Department
+        Accounting Section
       </h6>
     @endif
         
     {{-- BUDGET --}}
     @if(auth()->user()->role === 'budget')
       <h6 class="p-3 fw-bold" style="color: var(--secondary); background-color: var(--secondary-variant); border: 1px solid var(--secondary); border-radius: 8px; ">
-        Budget Department
+        Budget Section
       </h6>
     @endif        
   </div>

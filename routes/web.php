@@ -44,6 +44,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/quarterly-summary', [AccountingQuarterlySummaryController::class, 'store'])->name('accounting.quarterly-summary.store');
         Route::put('/quarterly-summary/{id}', [AccountingQuarterlySummaryController::class, 'update'])->name('accounting.quarterly-summary.update');
         Route::delete('/quarterly-summary/{id}', [AccountingQuarterlySummaryController::class, 'destroy'])->name('accounting.quarterly-summary.destroy');
+        
+        // Manual Locking Actions for Accounting
+        Route::post('/quarterly-summary/manual-lock', [AccountingQuarterlySummaryController::class, 'manualLock'])->name('accounting.quarterly-summary.manual-lock');
+        Route::post('/quarterly-summary/request-unlock', [AccountingQuarterlySummaryController::class, 'requestAdminUnlock'])->name('accounting.quarterly-summary.request-unlock');
     });
 
     /* -----------
@@ -57,5 +61,8 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/users/{id}', [AdminUserController::class, 'update'])->name('admin.users.update');
         Route::delete('/users/{id}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
         Route::delete('/users/{id}/force-delete', [AdminUserController::class, 'forceDelete'])->name('admin.users.forceDelete');   
+        
+        // Administrative Unlock Action
+        Route::post('/quarters/{id}/unlock', [AdminUserController::class, 'administrativeUnlockQuarter'])->name('admin.unlock-quarter');
     }); 
 });
