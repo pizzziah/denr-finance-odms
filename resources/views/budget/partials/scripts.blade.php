@@ -30,144 +30,174 @@ document.addEventListener('DOMContentLoaded', () => {
                     let html = `
 
                     <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-2 fw-bold fs-4">
-                            Request<br>Information
+                        <div class="row">
+                            <!-- Section Title -->
+                            <div class="col-2 fw-bold fs-4 lh-1">
+                                Request<br>Information
+                            </div>
+
+                            <!-- Left Column -->
+                            <div class="col-5">
+                                <div class="row">
+                                    <div class="col-5 fw-bold">Date Received</div>
+                                    <div class="col-7">${row.date_received ?? '-'}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5 fw-bold">Issuing Office</div>
+                                    <div class="col-7">${row.issuing_office ?? '-'}</div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="col-5">
+                                <div class="row">
+                                    <div class="col-5 fw-bold">Payee</div>
+                                    <div class="col-7">${row.payee ?? '-'}</div>
+                                </div>
+                                <div class="row  ">
+                                    <div class="col-5 fw-bold">Classification</div>
+                                    <div class="col-7">${row.classification ?? '-'}</div>
+                                </div>
+                                <div class="row  ">
+                                    <div class="col-5 fw-bold">Particulars</div>
+                                    <div class="col-7">${row.particulars ?? '-'}</div>
+                                </div>
+                                <div class="row  ">
+                                    <div class="col-5 fw-bold">Particulars Remark</div>
+                                    <div class="col-7">${row.particulars_remark ?? '-'}</div>
+                                </div>
+                                <div class="row  ">
+                                    <div class="col-5 fw-bold">Amount</div>
+                                        <div class="col-7">
+                                            ₱${Number(row.amount ?? 0).toLocaleString(undefined,{
+                                                minimumFractionDigits:2,
+                                                maximumFractionDigits:2
+                                                })}
+                                        </div>
+                                </div>
+                            </div>   
                         </div>
-                        <div class="col-10">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <strong>ORS No:</strong> ${row.ors_no ?? '-'}
+
+                        <hr>
+
+                        <div class="row">
+                            <div class="col-2 fw-bold fs-4 lh-1">
+                                Review<br>Processing
+                            </div>
+                            
+                            <!-- LEFT COLUMN -->
+                            <div class="col-5">
+                                <div class="row mb">
+                                    <div class="col-5 fw-bold">Status</div>
+                                    <div class="col-7">${row.status ?? '-'}</div>
                                 </div>
-                                <div class="col-md-4">
-                                    <strong>Date Received:</strong> ${row.date_received ?? '-'}
+                            </div>
+
+                            <!-- RIGHT COLUMN -->
+                            <div class="col-5">
+                                <div class="row mb-2">
+                                    <div class="col-5 fw-bold">Date Returned</div>
+                                    <div class="col-7">${row.date_returned_1 ?? '-'}</div>
                                 </div>
-                                <div class="col-md-4">
-                                    <strong>Status:</strong> ${row.status ?? '-'}
+                                <div class="row mb-2">
+                                    <div class="col-5 fw-bold">Remarks</div>
+                                    <div class="col-7">${row.remarks_1?? '-'}</div>
                                 </div>
-                                <div class="col-md-4">
-                                    <strong>Payee:</strong> ${row.payee ?? '-'}
-                                </div>
-                                <div class="col-md-4">
-                                    <strong>Issuing Office:</strong> ${row.issuing_office ?? '-'}
-                                </div>
-                                <div class="col-md-12">
-                                    <strong>Particulars:</strong> ${row.particulars ?? '-'}
-                                </div>
-                                <div class="col-md-4">
-                                    <strong>Classification:</strong> ${row.classification ?? '-'}
-                                </div>
-                                <div class="col-md-4]">
-                                    <strong>UACS Code:</strong> ${row.uac_codes ?? '-'}
-                                </div>
-                                <div class="col-md-4 mt-3">
-                                    <strong>Amount: </strong> ₱${Number(row.amount ?? 0).toLocaleString(undefined,{
-                                        minimumFractionDigits:2,
-                                        maximumFractionDigits:2
-                                    })}
+                                <div class="row mb-2">
+                                    <div class="col-5 fw-bold">Date Received</div>
+                                    <div class="col-7">${row.date_received_1 ?? '-'}</div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <hr class="my-1">
-                    <div class="row">
-                        <div class="col-2 fw-bold fs-4">
-                            Returned<br>to End User
-                        </div>
-                        <div class="col-10">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <strong>Date Returned</strong><br>
-                                    ${row.date_returned_1 ?? '-'}
+                        <hr> 
+
+                        <div class="row">
+                            <div class="col-2 fw-bold fs-4 lh-1">
+                                Obligation<br>Processing
+                            </div>
+                            
+                            <!-- LEFT COLUMN -->
+                            <div class="col-5">
+                                <div class="row">
+                                    <div class="col-5 fw-bold">ORS No:</div>
+                                    <div class="col-7">${row.ors_no ?? '-'}</div>
                                 </div>
-                                <div class="col-md-4">
-                                    <strong>Date Received</strong><br>
-                                    ${row.date_received_1 ?? '-'}
+                            </div>
+
+                            <!-- RIGHT COLUMN -->
+                            <div class="col-5">
+                                <div class="row">
+                                    <div class="col-5 fw-bold">Date Forwarded</div>
+                                    <div class="col-7">${row.date_forwarded_1 ?? '-'}</div>
                                 </div>
-                                <div class="col-md-4">
-                                    <strong>Remarks</strong><br>
-                                    ${row.remarks_1 ?? '-'}
+                                <div class="row">
+                                    <div class="col-5 fw-bold">Date ORS received</div>
+                                    <div class="col-7">${row.date_ors_received ?? '-'}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5 fw-bold">Date Returned</div>
+                                    <div class="col-7">${row.date_returned_2 ?? '-'}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5 fw-bold">Remarks</div>
+                                    <div class="col-7">${row.remarks_2 ?? '-'}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5 fw-bold">Date Received</div>
+                                    <div class="col-7">${row.date_received_2 ?? '-'}</div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <hr class="my-1">
-                    <div class="row">
-                        <div class="col-2 fw-bold fs-4">
-                            Forwarded
-                        </div>
-                        <div class="col-10">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <strong>Date Forwarded</strong><br>
-                                    ${row.date_forwarded_1 ?? '-'}
+                        <hr> 
+
+                        <div class="row">
+                            <div class="col-2 fw-bold fs-4 lh-1">
+                                Forwarded<br>to Accounting
+                            </div>
+                            
+                            <!-- LEFT COLUMN -->
+                            <div class="col-5">
+                                <div class="row mb-2">
+                                    <div class="col-5 fw-bold">Date Forwarded to Acccounting</div>
+                                    <div class="col-7">${row.date_forwarded_accounting ?? '-'}</div>
                                 </div>
-                                <div class="col-md-4">
-                                    <strong>Date ORS Received</strong><br>
-                                    ${row.date_ors_received ?? '-'}
-                                </div>
-                                <div class="col-md-4">
-                                    <strong>Remarks</strong><br>
-                                    ${row.remarks_2 ?? '-'}
+                            </div>
+
+                            <!-- RIGHT COLUMN -->
+                            <div class="col-5">
+                                <div class="row mb-2">
+                                    <div class="col-5 fw-bold">Remarks</div>
+                                    <div class="col-7">${row.final_remarks ?? '-'}</div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <hr class="my-1">
-                    <div class="row">
-                        <div class="col-2 fw-bold fs-4">
-                            Returned by<br>Accounting
-                        </div>
-                        <div class="col-10">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <strong>Date Returned</strong><br>
-                                    ${row.date_returned_2 ?? '-'}
+                        <hr> 
+
+                        <div class="row">
+                            <div class="col-2 fw-bold fs-4 lh-1">
+                                Processing<br>Metrics
+                            </div>
+                            
+                            <!-- LEFT COLUMN -->
+                            <div class="col-5">
+                                <div class="row mb-2">
+                                    <div class="col-5 fw-bold">Total Time in Budget</div>
+                                    <div class="col-7">${row.total_time_budget ?? '-'}</div>
                                 </div>
-                                <div class="col-md-6">
-                                    <strong>Date Received</strong><br>
-                                    ${row.date_received_2 ?? '-'}
+                            </div>
+
+                            <!-- RIGHT COLUMN -->
+                            <div class="col-5">
+                                <div class="row mb-2">
+                                    <div class="col-5 fw-bold">Total Time</div>
+                                    <div class="col-7">${row.total_time ?? '-'}</div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <hr class="my-1">
-                    <div class="row">
-                        <div class="col-2 fw-bold fs-4">
-                            Forwarded to<br>Accounting
-                        </div>
-                        <div class="col-10">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <strong>Date Forwarded</strong><br>
-                                    ${row.date_forwarded_accounting ?? '-'}
-                                </div>
-                                <div class="col-md-4">
-                                    <strong>Total Time in Budget</strong><br>
-                                    ${row.total_time_budget ?? '-'}
-                                </div>
-                                <div class="col-md-4">
-                                    <strong>Total Time</strong><br>
-                                    ${row.total_time ?? '-'}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr class="my-1">
-                    <div class="row">
-                        <div class="col-2 fw-bold fs-4">
-                            Final<br>Remarks
-                        </div>
-                        <div class="col-10">
-                            <strong>Remarks</strong><br>
-                            ${row.final_remarks ?? '-'}
-                        </div>
-                    </div>
                     </div>
                     `;
 
