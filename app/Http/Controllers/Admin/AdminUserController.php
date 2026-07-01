@@ -98,4 +98,16 @@ class AdminUserController extends Controller {
     DB::table('quarter_locks')->where('id', $id)->update(['status' => 'open', 'requires_admin_unlock' => false]);
     return redirect()->back()->with('success', 'Quarter unlocked successfully.');
   }
+
+  public function denyUnlockQuarter($id)
+{
+    $request = UnlockQuarterRequest::findOrFail($id);
+
+    $request->delete();
+
+    return back()->with(
+        'success',
+        'Unlock request denied.'
+    );
+}
 }

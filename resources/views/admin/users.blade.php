@@ -13,12 +13,85 @@
            @foreach($pendingUnlocks as $lock)
               <div class="p-2 border rounded d-flex align-items-center gap-3 bg-light">
                  <span class="small font-monospace text-dark"><strong>Year {{ $lock->year }} - Q{{ $lock->quarter }}</strong></span>
-                 <form action="{{ route('admin.unlock-quarter', $lock->id) }}" method="POST" class="m-0">
-                    @csrf
-                    <button type="submit" class="btn btn-xs btn-warning py-0 fw-bold px-2">Grant Unlock</button>
-                 </form>
+                 <div class="d-flex align-items-center gap-2">
+
+    <form action="{{ route('admin.unlock-quarter', $lock->id) }}"
+          method="POST"
+          class="m-0">
+        @csrf
+        <button type="submit"
+                class="btn btn-xs btn-warning py-0 fw-bold px-2">
+            Grant Unlock
+        </button>
+    </form>
+
+    <button
+        type="button"
+        class="btn btn-xs btn-outline-danger py-0 px-2"
+        data-bs-toggle="modal"
+        data-bs-target="#denyUnlockModal{{ $lock->id }}">
+        <i class="bi bi-x-lg"></i>
+    </button>
+
+</div>
               </div>
            @endforeach
+
+           <div class="modal fade"
+     id="denyUnlockModal{{ $lock->id }}"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    Deny Unlock Request
+                </h5>
+
+                <button class="btn-close btn-close-white"
+                        data-bs-dismiss="modal">
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                Are you sure you want to deny the unlock request for
+
+                <strong>
+                    Year {{ $lock->year }},
+                    Quarter {{ $lock->quarter }}
+                </strong>?
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+                <form action="{{ route('admin.unlock-quarter.deny', $lock->id) }}"
+                      method="POST">
+
+                    @csrf
+                    @method('DELETE')
+
+                    <button class="btn btn-danger">
+                        Deny Request
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
         </div>
      </div>
   @endif
@@ -79,7 +152,7 @@
   <td>
     @if($user->department === 'Accounting')
       <span class="badge {{ $user->permission_level === 'special' ? 'bg-purple style-override text-dark border border-dark' : 'bg-light text-muted border' }} px-2 py-1">
-        {{ $user->permission_level === 'special' ? '⚡ Special (Manager)' : '🔒 Restricted' }}
+        {{ $user->permission_level === 'special' ? '⚡ Special' : '🔒 Restricted' }}
       </span>
     @else
       <span class="text-muted font-monospace small">-</span>
@@ -118,3 +191,7 @@
 </div>
 @include('admin.partials.add-user-modal')
 @endsection
+
+@php 
+  $pageTitle = 'Users';
+@endphp

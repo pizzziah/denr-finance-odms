@@ -106,9 +106,36 @@
               @csrf
               <input type="hidden" name="quarter" value="{{ $selectedQuarter }}">
               <input type="hidden" name="year" value="{{ $selectedYear ?? date('Y') }}">
-              <button type="submit" class="btn btn-sm btn-warning fw-bold shadow-sm" @disabled($requiresAdminRequest)>
-                <i class="bi bi-shield-lock-fill me-1"></i> {{ $requiresAdminRequest ? 'Unlock Pending' : 'Request Unlock' }}
-              </button>
+              
+              @if(!$requiresAdminRequest)
+
+<form action="{{ route('accounting.quarterly-summary.request-unlock') }}"
+      method="POST"
+      class="m-0 ms-1">
+    @csrf
+    <input type="hidden" name="quarter" value="{{ $selectedQuarter }}">
+    <input type="hidden" name="year" value="{{ $selectedYear ?? date('Y') }}">
+
+    <button type="submit" class="btn btn-sm btn-warning fw-bold shadow-sm">
+        <i class="bi bi-shield-lock-fill me-1"></i>
+        Request Unlock
+    </button>
+</form>
+
+@else
+
+<button
+    type="button"
+    class="btn btn-sm btn-secondary fw-bold shadow-sm"
+    data-bs-toggle="modal"
+    data-bs-target="#cancelUnlockRequestModal">
+    <i class="bi bi-hourglass-split me-1"></i>
+    Unlock Pending
+</button>
+
+@endif
+              
+              
             </form>
           @endif
         @endif
@@ -303,6 +330,67 @@
 @endif
 
 @include('accounting.partials.add-entry-quarterly-summary-modal', ['targetQuarter' => $selectedQuarter])
+
+@if($requiresAdminRequest)
+
+<div class="modal fade"
+     id="cancelUnlockRequestModal"
+     tabindex="-1"
+     data-bs-backdrop="static">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    Cancel Unlock Request
+                </h5>
+
+                <button class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                Are you sure you want to cancel your unlock request for
+                <strong>
+                    Year {{ $selectedYear ?? date('Y') }},
+                    Quarter {{ $selectedQuarter }}
+                </strong>?
+            </div>
+
+            <div class="modal-footer">
+
+                <button class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    No
+                </button>
+
+                <form action="{{ route('accounting.quarterly-summary.cancel-unlock') }}"
+                      method="POST">
+                    @csrf
+                    @method('DELETE')
+
+                    <input type="hidden"
+                           name="quarter"
+                           value="{{ $selectedQuarter }}">
+
+                    <input type="hidden"
+                           name="year"
+                           value="{{ $selectedYear ?? date('Y') }}">
+
+                    <button class="btn btn-danger">
+                        Yes, Cancel Request
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+@endif
 
 @endsection
 

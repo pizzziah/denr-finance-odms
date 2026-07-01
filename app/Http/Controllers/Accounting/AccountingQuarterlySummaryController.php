@@ -270,4 +270,17 @@ class AccountingQuarterlySummaryController extends Controller {
     }
   }
 
+  public function cancelUnlockRequest(Request $request)
+{
+    UnlockQuarterRequest::where('quarter', $request->quarter)
+        ->where('year', $request->year)
+        ->where('status', 'pending')
+        ->delete();
+
+    return back()->with(
+        'success',
+        'Unlock request cancelled successfully.'
+    );
+}
+
 }

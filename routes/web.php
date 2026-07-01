@@ -49,6 +49,10 @@ Route::middleware(['auth'])->group(function () {
         // Manual Locking Actions for Accounting
         Route::post('/quarterly-summary/manual-lock', [AccountingQuarterlySummaryController::class, 'manualLock'])->name('accounting.quarterly-summary.manual-lock');
         Route::post('/quarterly-summary/request-unlock', [AccountingQuarterlySummaryController::class, 'requestAdminUnlock'])->name('accounting.quarterly-summary.request-unlock');
+        Route::delete(
+    '/accounting/quarterly-summary/cancel-unlock',
+    [QuarterlySummaryController::class, 'cancelUnlockRequest']
+)->name('accounting.quarterly-summary.cancel-unlock');
     });
 
     /* -----------
@@ -65,5 +69,9 @@ Route::middleware(['auth'])->group(function () {
         
         // Administrative Unlock Action
         Route::post('/quarters/{id}/unlock', [AdminUserController::class, 'administrativeUnlockQuarter'])->name('admin.unlock-quarter');
+        Route::delete(
+    '/admin/unlock-quarter/{id}/deny',
+    [AdminController::class, 'denyUnlockQuarter']
+)->name('admin.unlock-quarter.deny');
     }); 
 });
