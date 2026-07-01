@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
             );
 
             modal.show();
-
+            
             document.getElementById('detailsBody').innerHTML = `
                 <div class="text-center py-5">
                     <div class="spinner-border text-success"></div>
@@ -26,7 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
             fetch('/budget/logbook/' + budget_id + '/details')
                 .then(response => response.json())
                 .then(row => {
+                    document.getElementById('transactionTitle').textContent =
+                        row.ors_no ?? '-';
 
+                    document.getElementById('transactionSubtitle').textContent =
+                        row.payee ?? '-';
+                        
                     let html = `
 
                     <div class="container-fluid">
@@ -163,10 +168,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div class="col-5 fw-bold">Date Forwarded to Acccounting:</div>
                                     <div class="col-7">${row.date_forwarded_accounting ?? '-'}</div>
                                 </div>
-                            </div>
-
-                            <!-- RIGHT COLUMN -->
-                            <div class="col-5">
                                 <div class="row mb-2">
                                     <div class="col-5 fw-bold">Remarks:</div>
                                     <div class="col-7">${row.final_remarks ?? '-'}</div>
@@ -187,17 +188,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div class="col-5 fw-bold">Total Time in Budget:</div>
                                     <div class="col-7">${row.total_time_budget ?? '-'}</div>
                                 </div>
-                            </div>
-
-                            <!-- RIGHT COLUMN -->
-                            <div class="col-5">
                                 <div class="row mb-2">
                                     <div class="col-5 fw-bold">Total Time:</div>
                                     <div class="col-7">${row.total_time ?? '-'}</div>
                                 </div>
                             </div>
                         </div>
-
                     </div>
                     `;
 
