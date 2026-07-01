@@ -209,15 +209,15 @@ document.addEventListener('DOMContentLoaded', function () {
                         <!-- Left Column -->
                         <div class="col-5">
                             <div class="row  ">
-                                <div class="col-5 fw-bold">Date Received</div>
+                                <div class="col-5 fw-bold">Date Received:</div>
                                 <div class="col-7">${rows[0].date_received ?? '-'}</div>
                             </div>
                             <div class="row  ">
-                                <div class="col-5 fw-bold">OBR Date</div>
+                                <div class="col-5 fw-bold">OBR Date:</div>
                                 <div class="col-7">${rows[0].obr_date ?? '-'}</div>
                             </div>
                             <div class="row  ">
-                                <div class="col-5 fw-bold">OBR No.</div>
+                                <div class="col-5 fw-bold">OBR No:</div>
                                 <div class="col-7">${rows[0].obr_no ?? '-'}</div>
                             </div>
                         </div>
@@ -225,15 +225,15 @@ document.addEventListener('DOMContentLoaded', function () {
                         <!-- Right Column -->
                         <div class="col-5">
                             <div class="row  ">
-                                <div class="col-5 fw-bold">Payee</div>
+                                <div class="col-5 fw-bold">Payee:</div>
                                 <div class="col-7">${summary.payee ?? '-'}</div>
                             </div>
                             <div class="row  ">
-                                <div class="col-5 fw-bold">Particulars</div>
+                                <div class="col-5 fw-bold">Particulars:</div>
                                 <div class="col-7">${rows[0].particulars ?? '-'}</div>
                             </div>
                             <div class="row  ">
-                                <div class="col-5 fw-bold">Remark</div>
+                                <div class="col-5 fw-bold">Remark:</div>
                                 <div class="col-7">${rows[0].particulars_remark ?? '-'}</div>
                             </div>
                         </div>
@@ -251,11 +251,11 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <!-- LEFT COLUMN -->
                                 <div class="col-md-4 border-end">
                                     <div class="row  ">
-                                        <div class="col-5 fw-bold">Date Processed</div>
+                                        <div class="col-5 fw-bold">Date Processed:</div>
                                         <div class="col-7">${rows[0].date_processed ?? '-'}</div>
                                     </div>
                                     <div class="row  ">
-                                        <div class="col-5 fw-bold">DV No.</div>
+                                        <div class="col-5 fw-bold">DV No:</div>
                                         <div class="col-7">${rows[0].dv_no ?? '-'}</div>
                                     </div>
                                 </div>
@@ -267,11 +267,11 @@ document.addEventListener('DOMContentLoaded', function () {
                                     html += `
                                     <div class="border-bottom mb-3 pb-3">
                                         <div class="row  ">
-                                            <div class="col-5 fw-bold">UACS Code</div>
+                                            <div class="col-5 fw-bold">UACS Code:</div>
                                             <div class="col-7">${row.uac_codes ?? '-'}</div>
                                         </div>
                                         <div class="row  ">
-                                            <div class="col-5 fw-bold">Debit</div>
+                                            <div class="col-5 fw-bold">Debit:</div>
                                             <div class="col-7">
                                                 ₱${Number(row.debit ?? 0).toLocaleString(undefined,{
                                                     minimumFractionDigits:2
@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                             </div>
                                         </div>
                                         <div class="row  ">
-                                            <div class="col-5 fw-bold">Credit</div>
+                                            <div class="col-5 fw-bold">Credit:</div>
                                             <div class="col-7">
                                                 ₱${Number(row.credit ?? 0).toLocaleString(undefined,{
                                                     minimumFractionDigits:2
@@ -288,11 +288,11 @@ document.addEventListener('DOMContentLoaded', function () {
                                         </div>
 
                                         <div class="row  ">
-                                            <div class="col-5 fw-bold">Tax %</div>
+                                            <div class="col-5 fw-bold">Tax:</div>
                                             <div class="col-7">${row.tax_percent ?? '-'}</div>
                                         </div>
                                         <div class="row  ">
-                                            <div class="col-5 fw-bold">Tax Remarks</div>
+                                            <div class="col-5 fw-bold">Tax Remarks:</div>
                                             <div class="col-7">${row.tax_remarks ?? '-'}</div>
                                         </div>
                                     </div>
@@ -319,13 +319,13 @@ document.addEventListener('DOMContentLoaded', function () {
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="row  ">
-                                        <div class="col-5 fw-bold">Signed By</div>
+                                        <div class="col-5 fw-bold">Signed By:</div>
                                         <div class="col-7">${rows[0].signed_by_accountant ?? '-'}</div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="row  ">
-                                        <div class="col-5 fw-bold">Date Signed</div>
+                                        <div class="col-5 fw-bold">Date Signed:</div>
                                         <div class="col-7">${rows[0].date_signed ?? '-'}</div>
                                     </div>
                                 </div>
@@ -344,13 +344,13 @@ document.addEventListener('DOMContentLoaded', function () {
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="row  ">
-                                        <div class="col-5 fw-bold">Status</div>
+                                        <div class="col-5 fw-bold">Status:</div>
                                         <div class="col-7">${summary.status ?? '-'}</div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="row  ">
-                                        <div class="col-5 fw-bold">Date Forwarded</div>
+                                        <div class="col-5 fw-bold">Date Forwarded:</div>
                                         <div class="col-7">${rows[0].date_forwarded ?? '-'}</div>
                                     </div>
                                 </div>
