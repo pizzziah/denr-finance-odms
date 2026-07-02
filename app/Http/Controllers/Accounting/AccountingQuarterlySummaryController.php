@@ -20,7 +20,7 @@ class AccountingQuarterlySummaryController extends Controller {
     $autoLockDate = $quarterEndDate->copy()->addDays(14);
 
     // Fetch existing overrides or manual state triggers
-    $lockRecord = DB::table('quarter_locks')
+    $lockRecord = DB::table('odms_admin_quarter_locks')
         ->where('year', $year)
         ->where('quarter', $quarter)
         ->first();
@@ -33,7 +33,7 @@ class AccountingQuarterlySummaryController extends Controller {
 
     if ($now->greaterThan($autoLockDate)) {
         if (!$lockRecord) {
-            DB::table('quarter_locks')->insert([
+            DB::table('odms_admin_quarter_locks')->insert([
                 'year' => $year,
                 'quarter' => $quarter,
                 'status' => 'locked',
@@ -41,7 +41,7 @@ class AccountingQuarterlySummaryController extends Controller {
                 'updated_at' => $now
             ]);
         } else {
-            DB::table('quarter_locks')
+            DB::table('odms_admin_quarter_locks')
                 ->where('id', $lockRecord->id)
                 ->update(['status' => 'locked', 'updated_at' => $now]);
         }
@@ -107,7 +107,7 @@ class AccountingQuarterlySummaryController extends Controller {
     $currentBalance = $latestRow ? number_format(AccountingQuarterlySummary::parseMoney($latestRow->balance), 2) : '0.00';
 
     // Verify manual unlock requirement records
-    $dbLock = DB::table('quarter_locks')->where('year', $selectedYear)->where('quarter', $selectedQuarter)->first();
+    $dbLock = DB::table('odms_admin_quarter_locks')->where('year', $selectedYear)->where('quarter', $selectedQuarter)->first();
     $requiresAdminRequest = $dbLock ? (bool)$dbLock->requires_admin_unlock : false;
 
     return view('accounting.quarterly-summary', [
@@ -133,7 +133,7 @@ class AccountingQuarterlySummaryController extends Controller {
   $quarter = (int)$request->input('quarter');
   $year = (int)$request->input('year');
 
-  DB::table('quarter_locks')->updateOrInsert(
+  DB::table('odms_admin_quarter_locks')->updateOrInsert(
       ['year' => $year, 'quarter' => $quarter],
       ['status' => 'locked', 'requires_admin_unlock' => true, 'updated_at' => \Carbon\Carbon::now()]
   );
@@ -149,7 +149,7 @@ class AccountingQuarterlySummaryController extends Controller {
     $quarter = (int)$request->input('quarter');
     $year = (int)$request->input('year');
 
-    DB::table('quarter_locks')->where('year', $year)->where('quarter', $quarter)->update(['requires_admin_unlock' => true]);
+    DB::table('odms_admin_quarter_locks')->where('year', $year)->where('quarter', $quarter)->update(['requires_admin_unlock' => true]);
     return redirect()->back()->with('success', 'Unlock request sent to System Administration.');
   }
 
