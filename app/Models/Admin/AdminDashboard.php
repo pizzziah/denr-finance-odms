@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class AdminDashboard extends Model {
-protected $table = 'users';
+protected $table = 'odms_admin_users';
 
   /**
   * Get real-time aggregated metrics for the admin dashboard.

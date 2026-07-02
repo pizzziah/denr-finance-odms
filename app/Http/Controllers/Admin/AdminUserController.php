@@ -27,7 +27,7 @@ class AdminUserController extends Controller {
     }
 
     $users = $query->latest()->paginate(10);
-    $pendingUnlocks = DB::table('quarter_locks')->where('requires_admin_unlock', true)->get();
+    $pendingUnlocks = DB::table('odms_admin_quarter_locks')->where('requires_admin_unlock', true)->get();
 
     return view('admin.users', compact('users', 'pendingUnlocks'));
   }
@@ -95,7 +95,7 @@ class AdminUserController extends Controller {
   }
 
   public function administrativeUnlockQuarter(Request $request, $id) {
-    DB::table('quarter_locks')->where('id', $id)->update(['status' => 'open', 'requires_admin_unlock' => false]);
+    DB::table('odms_adminquarter_locks')->where('id', $id)->update(['status' => 'open', 'requires_admin_unlock' => false]);
     return redirect()->back()->with('success', 'Quarter unlocked successfully.');
   }
 

@@ -10,7 +10,7 @@ use Illuminate\Notifications\Notifiable;
 class AdminUser extends Authenticatable {
   use HasFactory, Notifiable;
 
-  protected $table = 'users';
+  protected $table = 'odms_admin_users';
 
   protected $fillable = [
     'department',
