@@ -91,19 +91,18 @@
             <i class="bi bi-lock"></i> Quarter Locked
           </button>
         @else
-          <button type="button" class="btn btn-sm" style="background-color: var(--secondary-variant); border: 1px solid var(--primary); color: var(--primary); font-weight: bold;" data-bs-toggle="modal" data-bs-target="#addSummaryModal">
+          <x-button type="button" variant="secondary" data-bs-toggle="modal" data-bs-target="#addSummaryModal">
             <i class="bi bi-file-earmark-plus"></i> Add Entry
-          </button>
+          </x-button>
         @endif
 
         @if(auth()->user()->department === 'Accounting' && auth()->user()->permission_level === 'special')
           @if(!$isLocked)
-            <x-button type="button" variant="lock" data-bs-toggle="modal" data-bs-target="#lockQuarterModal">
+            <x-button type="button" variant="alert" data-bs-toggle="modal" data-bs-target="#lockQuarterModal">
               <i class="bi bi-lock-fill me-1"></i> Lock Quarter
             </x-button>
           @else
             @if($requiresAdminRequest)
-
                 <button type="button"
                         class="btn btn-sm btn-secondary fw-bold shadow-sm"
                         data-bs-toggle="modal"
@@ -126,7 +125,6 @@
                         Request Unlock
                     </button>
                 </form>
-
             @endif
           @endif
         @endif
@@ -185,12 +183,10 @@
                   </div>
                 </div>
               </th>
-              <th style="width: 200px;">DV Number</th>
+              <th style="width: 120px;">DV Number</th>
               <th style="width: 120px;">Amount</th>
               <th style="width: 160px;">NCA/NTA Received</th>
               <th style="width: 160px;">NCA/NTA Downloaded</th>
-              <th style="width: 150px;">ADA/Check No.</th>
-              <th>Remarks</th>
               <th style="width: 150px;">
                 <div class="d-flex align-items-center justify-content-between">
                   <span>EMDS Date</span>
@@ -201,7 +197,9 @@
                 </div>
               </th>
               <th style="width: 160px;">Balance</th>
-              <th style="width: 110px; text-align: center;">Actions</th>
+              <th style="width: 100px;">ADA/Check No.</th>
+              <th>Remarks</th>
+              <th style="width: 150px; text-align: center;">Actions</th>
             </tr>
           </thead>
 
@@ -212,25 +210,26 @@
                 $cleanReceived = \App\Models\Accounting\AccountingQuarterlySummary::parseMoney($record->nca_nta_received);
                 $cleanDownloaded = \App\Models\Accounting\AccountingQuarterlySummary::parseMoney($record->nca_nta_downloaded);
                 $txType = $cleanReceived > 0 ? 'received' : 'downloaded';
-                $rawAmount = (float)str_replace(',', '', $record->amount ?? 0);
+                
+if ($cleanReceived > 0) {
+    $rawAmount = $cleanReceived;
+} elseif ($cleanDownloaded > 0) {
+    $rawAmount = $cleanDownloaded;
+} else {
+    $rawAmount = \App\Models\Accounting\AccountingQuarterlySummary::parseMoney($record->amount);
+}
               @endphp
 
               <tr>
                 <td class="small">{{ $record->date_processed ?? '-' }}</td>
-                <td class="fw-semibold text-wrap" style="word-break: break-word;">{{ $record->particulars ?? '-' }}</td>
-                <td class="fw-bold text-end">
-                  {{ !empty($record->amount) && (float)str_replace(',', '', $record->amount) > 0 ? '₱' . number_format((float)str_replace(',', '', $record->amount), 2) : '-' }}
-                </td>
-                <td class="text-success fw-bold text-end">
-                  {{ $cleanReceived > 0 ? '₱' . number_format($cleanReceived, 2) : '-' }}
-                </td>
-                <td class="text-danger fw-bold text-end">
-                  {{ $cleanDownloaded > 0 ? '₱' . number_format($cleanDownloaded, 2) : '-' }}
-                </td>
+                <td style="color: var(--primary);"><strong>{{ $record->particulars ?? '-' }}</strong></td>
+                <td style="color: #7909FF;">{{ !empty($record->amount) && (float)str_replace(',', '', $record->amount) > 0 ? '₱' . number_format((float)str_replace(',', '', $record->amount), 2) : '-' }}</td>
+                <td style="color: #9D6B0B;"><strong>{{ $cleanReceived > 0 ? '₱' . number_format($cleanReceived, 2) : '-' }}</strong></td>
+                <td style="color: var(--error);"><strong>{{ $cleanDownloaded > 0 ? '₱' . number_format($cleanDownloaded, 2) : '-' }}</strong></td>
+                <td class="small">{{ $record->emds_date ?? '-' }}</td>
+                <td style="background-color: var(--secondary-variant); color: var(--primary);"><strong>₱{{ $record->balance ?? '0.00' }}</strong></td>
                 <td>{{ $record->ada_no ?? '-' }}</td>
                 <td class="text-wrap"><em>{{ $record->remarks ?? '-' }}</em></td>
-                <td class="small">{{ $record->emds_date ?? '-' }}</td>
-                <td class="fw-bold text-success text-end" style="background-color: var(--secondary-variant);">₱{{ $record->balance ?? '0.00' }}</td>
                 <td>
                   <div class="d-flex gap-2 justify-content-center align-items-center">
                     <x-button type="button" variant="edit" data-bs-toggle="modal" data-bs-target="#editSummaryModal{{ $rowId }}" :disabled="$isLocked">

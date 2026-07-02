@@ -12,18 +12,13 @@
         
         <div class="modal-body">
           <div class="mb-3">
-            <label class="fw-bold">Date <span class="fw-medium" style="color: var(--error);">*</span></label>
-            <input type="date" name="emds_date" class="form-control" value="{{ now()->format('Y-m-d') }}" required>
+            <label class="fw-bold">Date Processed</label>
+            <input type="date" name="date_processed" class="form-control" readonly>
           </div>
 
           <div class="mb-3">
-            <label class="fw-bold">Date Processed <span class="fw-medium" style="color: var(--error);">*</span></label>
-            <input type="date" name="date_processed" class="form-control" value="{{ now()->format('Y-m-d') }}" required>
-          </div>
-
-          <div class="mb-3">
-            <label class="fw-bold">Particulars <span class="fw-medium" style="color: var(--error);">*</span></label>
-            <textarea name="particulars" class="form-control" rows="2" placeholder="Enter Particulars Details..." required></textarea>
+            <label class="fw-bold">DV Number</label>
+            <input type="number" name="particulars" class="form-control" readonly>
           </div>
 
           <div class="mb-3">
@@ -36,21 +31,28 @@
               Live Preview: <span id="amount_preview" class="fw-bold text-dark">₱0.00</span>
             </div>
           </div>
-
+          
           <div class="mb-3">
             <label class="fw-bold d-block mb-1">Transaction Type <span class="fw-medium" style="color: var(--error);">*</span></label>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="transaction_type" id="type_received" value="received" checked required>
-              <label class="form-check-label text-success" for="type_received">NCA/NTA Received</label>
+              <input class="form-check-input" type="radio" name="transaction_type" id="type_adjustment" value="adjustment" checked required>
+              <label class="form-check-label" style="color: #7909FF;" for="type_adjustment">Adjustment</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="transaction_type" id="type_received" value="received">
+              <label class="form-check-label" style="color: #9D6B0B;" for="type_received">NCA/NTA Received</label>
             </div>
             <div class="form-check">
               <input class="form-check-input" type="radio" name="transaction_type" id="type_downloaded" value="downloaded">
-              <label class="form-check-label text-danger" for="type_downloaded">NCA/NTA Downloaded</label>
+              <label class="form-check-label" style="color: var(--error)" for="type_downloaded">NCA/NTA Downloaded</label>
             </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="transaction_type" id="type_adjustment" value="adjustment">
-              <label class="form-check-label text-warning" for="type_adjustment">Adjustment</label>
-            </div>
+          </div>
+
+          <hr class="my-3">
+
+          <div class="mb-3">
+            <label class="fw-bold">EMDS Date</label>
+            <input type="date" name="emds_date" class="form-control" value="{{ now()->format('Y-m-d') }}">
           </div>
 
           <div class="mb-3">

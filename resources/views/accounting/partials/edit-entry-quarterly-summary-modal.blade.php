@@ -12,23 +12,9 @@
         
         <div class="modal-body">
           <div class="mb-3">
-            <label class="fw-bold">EMDS Date</label>
-            @php 
-              try {
-                // Issue #1 Fix: Parse custom slash formats precisely using createFromFormat
-                $formattedDate = !empty($record->emds_date) ? \Carbon\Carbon::createFromFormat('n/j/Y', $record->emds_date)->format('Y-m-d') : '';
-              } catch(\Exception $e) {
-                $formattedDate = ''; 
-              }
-            @endphp
-            <input type="date" name="emds_date" class="form-control" value="{{ $formattedDate }}" required>
-          </div>
-
-          <div class="mb-3">
             <label class="fw-bold">Date Processed</label>
             @php 
               try {
-                // Issue #1 Fix: Explicit slash extraction fallback rules applied
                 $formattedProcessedDate = !empty($record->date_processed) ? \Carbon\Carbon::createFromFormat('n/j/Y', $record->date_processed)->format('Y-m-d') : '';
               } catch(\Exception $e) {
                 $formattedProcessedDate = ''; 
@@ -38,7 +24,7 @@
           </div>
 
           <div class="mb-3">
-            <label class="fw-bold">Particulars</label>
+            <label class="fw-bold">DV Number</label>
             <textarea name="particulars" class="form-control" rows="2" required>{{ $record->particulars }}</textarea>
           </div>
 
@@ -55,23 +41,37 @@
 
           <div class="mb-3">
             <label class="fw-bold d-block mb-1">Transaction Type</label>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="transaction_type" id="type_received_{{ $rowId }}" value="received" @checked($txType === 'received') required>
-              <label class="form-check-label fw-semibold text-success" for="type_received_{{ $rowId }}">NCA/NTA Received</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="transaction_type" id="type_adjustment_{{ $rowId }}" value="adjustment" @checked($txType === 'adjustment') required>
+              <label class="form-check-label" style="color: #7909FF;" for="type_adjustment_{{ $rowId }}">Adjustment</label>
             </div>
-            <div class="form-check form-check-inline">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="transaction_type" id="type_received_{{ $rowId }}" value="received" @checked($txType === 'received')>
+              <label class="form-check-label" style="color: #9D6B0B; for="type_received_{{ $rowId }}">NCA/NTA Received</label>
+            </div>
+            <div class="form-check">
               <input class="form-check-input" type="radio" name="transaction_type" id="type_downloaded_{{ $rowId }}" value="downloaded" @checked($txType === 'downloaded')>
-              <label class="form-check-label fw-semibold text-danger" for="type_downloaded_{{ $rowId }}">NCA/NTA Downloaded</label>
+              <label class="form-check-label" style="color: var(--error)" for="type_downloaded_{{ $rowId }}">NCA/NTA Downloaded</label>
             </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="transaction_type" id="type_adjustment_{{ $rowId }}" value="adjustment" @checked($txType === 'adjustment')>
-              <label class="form-check-label fw-semibold text-warning" for="type_adjustment_{{ $rowId }}">Adjustment</label>
-            </div>
+          </div>
+
+          <hr class="my-3">
+
+          <div class="mb-3">
+            <label class="fw-bold">EMDS Date</label>
+            @php 
+              try {
+                $formattedDate = !empty($record->emds_date) ? \Carbon\Carbon::createFromFormat('n/j/Y', $record->emds_date)->format('Y-m-d') : '';
+              } catch(\Exception $e) {
+                $formattedDate = ''; 
+              }
+            @endphp
+            <input type="date" name="emds_date" class="form-control" value="{{ $formattedDate }}">
           </div>
 
           <div class="mb-3">
             <label class="fw-bold">ADA Check No.</label>
-            <input type="text" name="ada_no" class="form-control font-monospace" value="{{ $record->ada_no }}" placeholder="Enter tracking instrument id...">
+            <input type="text" name="ada_no" class="form-control" value="{{ $record->ada_no }}" placeholder="Enter tracking instrument id...">
           </div>
 
           <div class="mb-3">
@@ -131,7 +131,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isFormDirty) {
             bsCancelModal.show();
         } else {
-            bsEditModal.hide();
+          bootstrap.Modal.getInstance(
+              document.getElementById('editSummaryModal{{ $rowId }}')
+          ).hide();
         }
     });
 
@@ -139,7 +141,9 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('discardEditChangesBtn_{{ $rowId }}').addEventListener('click', function() {
         isFormDirty = false;
         bsCancelModal.hide();
-        bsEditModal.hide();
+        bootstrap.Modal.getInstance(
+            document.getElementById('editSummaryModal{{ $rowId }}')
+        ).hide();
     });
 });
 </script>

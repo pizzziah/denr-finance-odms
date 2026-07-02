@@ -220,6 +220,9 @@ private function checkQuarterLockStatus($quarter, $year) {
     $modelInstance->setQuarterTable($quarter, $year);
     $row = $modelInstance->newQuery()->findOrFail($id);
 
+    $row->setTable($modelInstance->getTable());
+    $row->setKeyName($modelInstance->getKeyName());
+
     $isAdjustment = $request->transaction_type === 'adjustment';
     
     $row->update([
