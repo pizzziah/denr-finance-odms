@@ -39,10 +39,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/logbook/{dv_no}/details', [AccountingLogbookController::class, 'show'])->name('accounting.logbook.details');
         Route::get('/logbook/{dv_no}/edit', [AccountingLogbookController::class, 'edit'])->name('accounting.logbook.edit');
         Route::put('/logbook/{dv_no}/update', [AccountingLogbookController::class, 'update'])->name('accounting.logbook.update');
+        Route::post('/logbook/store', [AccountingLogbookController::class, 'store'])->name('accounting.logbook.store');
         Route::delete('/logbook/{dv_no}/destroy', [AccountingLogbookController::class, 'destroy'])->name('accounting.logbook.destroy');
 
         Route::get('/quarterly-summary', [AccountingQuarterlySummaryController::class, 'index'])->name('accounting.quarterly-summary');
         Route::post('/quarterly-summary', [AccountingQuarterlySummaryController::class, 'store'])->name('accounting.quarterly-summary.store');
+        
         Route::post('/quarterly-summary/manual-lock', [AccountingQuarterlySummaryController::class, 'manualLock'])->name('accounting.quarterly-summary.manual-lock');
         Route::post('/quarterly-summary/request-unlock', [AccountingQuarterlySummaryController::class, 'requestAdminUnlock'])->name('accounting.quarterly-summary.request-unlock');
         Route::delete('/quarterly-summary/cancel-unlock', [AccountingQuarterlySummaryController::class, 'cancelUnlockRequest'])->name('accounting.quarterly-summary.cancel-unlock');

@@ -14,8 +14,13 @@
   {{-- 1ST CARD --}}
   <div class="card p-3 mb-3 m-0 w-100">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-
-      <h5 class="m-0 fw-bold">Accounting Log Book</h5>
+      <x-button
+          variant="header"
+          data-bs-toggle="modal"
+          data-bs-target="#addRecordModal">
+          <i class="bi bi-file-earmark-plus"></i>
+          Add Record
+      </x-button>
 
       {{-- SEARCH + FILTER --}}
       <form action="{{ route('accounting.logbook') }}"
@@ -213,6 +218,7 @@
 @include('accounting.partials.details-modal')
 @include('accounting.partials.scripts')
 @include('accounting.partials.edit-modal')
+@include('accounting.partials.add-modal')
 @endsection
 
 @php
