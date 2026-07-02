@@ -102,41 +102,32 @@
               <i class="bi bi-lock-fill me-1"></i> Lock Quarter
             </x-button>
           @else
-            <form action="{{ route('accounting.quarterly-summary.request-unlock') }}" method="POST" class="m-0 ms-1">
-              @csrf
-              <input type="hidden" name="quarter" value="{{ $selectedQuarter }}">
-              <input type="hidden" name="year" value="{{ $selectedYear ?? date('Y') }}">
-              
-              @if(!$requiresAdminRequest)
+            @if($requiresAdminRequest)
 
-<form action="{{ route('accounting.quarterly-summary.request-unlock') }}"
-      method="POST"
-      class="m-0 ms-1">
-    @csrf
-    <input type="hidden" name="quarter" value="{{ $selectedQuarter }}">
-    <input type="hidden" name="year" value="{{ $selectedYear ?? date('Y') }}">
+                <button type="button"
+                        class="btn btn-sm btn-secondary fw-bold shadow-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#cancelUnlockModal">
+                    <i class="bi bi-hourglass-split me-1"></i>
+                    Unlock Pending
+                </button>
 
-    <button type="submit" class="btn btn-sm btn-warning fw-bold shadow-sm">
-        <i class="bi bi-shield-lock-fill me-1"></i>
-        Request Unlock
-    </button>
-</form>
+            @else
 
-@else
+                <form action="{{ route('accounting.quarterly-summary.request-unlock') }}" method="POST">
+                    @csrf
 
-<button
-    type="button"
-    class="btn btn-sm btn-secondary fw-bold shadow-sm"
-    data-bs-toggle="modal"
-    data-bs-target="#cancelUnlockRequestModal">
-    <i class="bi bi-hourglass-split me-1"></i>
-    Unlock Pending
-</button>
+                    <input type="hidden" name="quarter" value="{{ $selectedQuarter }}">
+                    <input type="hidden" name="year" value="{{ $selectedYear }}">
 
-@endif
-              
-              
-            </form>
+                    <button type="submit"
+                            class="btn btn-sm btn-warning fw-bold">
+                        <i class="bi bi-unlock"></i>
+                        Request Unlock
+                    </button>
+                </form>
+
+            @endif
           @endif
         @endif
       </div>
@@ -178,22 +169,13 @@
     </div>
   </div>
 
-  {{-- LEDGER DATA CONTAINER FEATURING FIXED HEADER HEIGHT AND VERTICAL SCROLLBAR --}}
+  {{-- REORDERED LEDGER DATA TABLE --}}
   <div class="card m-0 w-100 shadow-sm">
     <div class="card-body p-2">
       <div style="max-height: 520px; overflow-y: auto; overflow-x: auto; border: 1px solid #dee2e6;">
         <table class="table table-bordered table-hover table-sm align-middle m-0" style="min-width: 1450px;">
           <thead class="table-dark" style="position: sticky; top: 0; z-index: 10;">
             <tr>
-              <th style="width: 150px;">
-                <div class="d-flex align-items-center justify-content-between">
-                  <span>EMDS Date</span>
-                  <div class="btn-group btn-group-xs ms-2">
-                    <a href="{{ request()->fullUrlWithQuery(['sort_date' => 'asc']) }}" class="btn p-0 px-1 text-white {{ request('sort_date') === 'asc' ? 'opacity-100 fw-bold' : 'opacity-50' }}"><i class="bi bi-sort-numeric-down"></i></a>
-                    <a href="{{ request()->fullUrlWithQuery(['sort_date' => 'desc']) }}" class="btn p-0 px-1 text-white  {{ request('sort_date', 'desc') === 'desc' ? 'opacity-100 fw-bold' : 'opacity-50' }}"><i class="bi bi-sort-numeric-up-alt"></i></a>
-                  </div>
-                </div>
-              </th>
               <th style="width: 150px;">
                 <div class="d-flex align-items-center justify-content-between">
                   <span>Date Processed</span>
@@ -203,13 +185,22 @@
                   </div>
                 </div>
               </th>
-              <th style="width: 200px;">Particulars</th>
+              <th style="width: 200px;">DV Number</th>
               <th style="width: 120px;">Amount</th>
               <th style="width: 160px;">NCA/NTA Received</th>
               <th style="width: 160px;">NCA/NTA Downloaded</th>
-              <th style="width: 160px;">Balance</th>
               <th style="width: 150px;">ADA/Check No.</th>
               <th>Remarks</th>
+              <th style="width: 150px;">
+                <div class="d-flex align-items-center justify-content-between">
+                  <span>EMDS Date</span>
+                  <div class="btn-group btn-group-xs ms-2">
+                    <a href="{{ request()->fullUrlWithQuery(['sort_date' => 'asc']) }}" class="btn p-0 px-1 text-white {{ request('sort_date') === 'asc' ? 'opacity-100 fw-bold' : 'opacity-50' }}"><i class="bi bi-sort-numeric-down"></i></a>
+                    <a href="{{ request()->fullUrlWithQuery(['sort_date' => 'desc']) }}" class="btn p-0 px-1 text-white  {{ request('sort_date', 'desc') === 'desc' ? 'opacity-100 fw-bold' : 'opacity-50' }}"><i class="bi bi-sort-numeric-up-alt"></i></a>
+                  </div>
+                </div>
+              </th>
+              <th style="width: 160px;">Balance</th>
               <th style="width: 110px; text-align: center;">Actions</th>
             </tr>
           </thead>
@@ -218,16 +209,13 @@
             @forelse($records as $record)
               @php
                 $rowId = $record->getKey();
-
                 $cleanReceived = \App\Models\Accounting\AccountingQuarterlySummary::parseMoney($record->nca_nta_received);
                 $cleanDownloaded = \App\Models\Accounting\AccountingQuarterlySummary::parseMoney($record->nca_nta_downloaded);
-               
                 $txType = $cleanReceived > 0 ? 'received' : 'downloaded';
                 $rawAmount = (float)str_replace(',', '', $record->amount ?? 0);
               @endphp
 
               <tr>
-                <td class="small">{{ $record->emds_date ?? '-' }}</td>
                 <td class="small">{{ $record->date_processed ?? '-' }}</td>
                 <td class="fw-semibold text-wrap" style="word-break: break-word;">{{ $record->particulars ?? '-' }}</td>
                 <td class="fw-bold text-end">
@@ -239,13 +227,11 @@
                 <td class="text-danger fw-bold text-end">
                   {{ $cleanDownloaded > 0 ? '₱' . number_format($cleanDownloaded, 2) : '-' }}
                 </td>
-
-                {{-- BALANCE COLUMN CELLS CHANGED TO VAR(--SECONDARY-VARIANT) BACKGROUND --}}
-                <td class="fw-bold text-success text-end" style="background-color: var(--secondary-variant);">₱{{ $record->balance ?? '0.00' }}</td>
                 <td>{{ $record->ada_no ?? '-' }}</td>
                 <td class="text-wrap"><em>{{ $record->remarks ?? '-' }}</em></td>
+                <td class="small">{{ $record->emds_date ?? '-' }}</td>
+                <td class="fw-bold text-success text-end" style="background-color: var(--secondary-variant);">₱{{ $record->balance ?? '0.00' }}</td>
                 <td>
-                  {{-- ACTION BUTTON PATTERNS MAPPED TO PROP VALUES --}}
                   <div class="d-flex gap-2 justify-content-center align-items-center">
                     <x-button type="button" variant="edit" data-bs-toggle="modal" data-bs-target="#editSummaryModal{{ $rowId }}" :disabled="$isLocked">
                       <i class="bi bi-pencil-square"></i>
@@ -261,7 +247,6 @@
               @if(!$isLocked)
                 @include('accounting.partials.edit-entry-quarterly-summary-modal', ['record' => $record, 'rowId' => $rowId, 'txType' => $txType, 'rawAmount' => $rawAmount, 'targetQuarter' => $selectedQuarter])
                 
-                {{-- REUSABLE DELETE VERIFICATION LAYOUT POP-UP USING BLADE COMPONENTS --}}
                 <div class="modal fade" id="deleteRowModal{{ $rowId }}" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
                   <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content border-0 shadow">
@@ -272,7 +257,7 @@
                       <div class="modal-body text-start py-3">
                         <p class="mb-2 text-dark">Are you completely sure you want to permanently delete this structural ledger framework record?</p>
                         <blockquote class="bg-light p-2 border-start border-3 border-danger rounded text-muted small mb-0">
-                          <strong>Particulars:</strong> {{ $record->particulars ?? '-' }}<br>
+                          <strong>DV Number:</strong> {{ $record->particulars ?? '-' }}<br>
                           <strong>Date:</strong> {{ $record->date_processed ?? '-' }}
                         </blockquote>
                         <p class="text-danger small mt-2 mb-0 fw-bold"><i class="bi bi-info-circle-fill"></i> Balance transaction histories down the stream will automatically calculate and shift.</p>
@@ -302,7 +287,7 @@
   </div>
 </div>
 
-{{-- LOCK QUARTER MODAL POP-UP USING BLADE COMPONENTS --}}
+{{-- LOCK QUARTER MODAL --}}
 @if(auth()->user()->department === 'Accounting' && auth()->user()->permission_level === 'special' && !$isLocked)
 <div class="modal fade" id="lockQuarterModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -332,64 +317,26 @@
 @include('accounting.partials.add-entry-quarterly-summary-modal', ['targetQuarter' => $selectedQuarter])
 
 @if($requiresAdminRequest)
-
-<div class="modal fade"
-     id="cancelUnlockRequestModal"
-     tabindex="-1"
-     data-bs-backdrop="static">
-
+<div class="modal fade" id="cancelUnlockModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
+            <form action="{{ route('accounting.quarterly-summary.cancel-unlock') }}" method="POST">
+                @csrf
+                @method('DELETE')
+                <input type="hidden" name="quarter" value="{{ $selectedQuarter }}">
+                <input type="hidden" name="year" value="{{ $selectedYear }}">
 
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">
-                    Cancel Unlock Request
-                </h5>
-
-                <button class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-                Are you sure you want to cancel your unlock request for
-                <strong>
-                    Year {{ $selectedYear ?? date('Y') }},
-                    Quarter {{ $selectedQuarter }}
-                </strong>?
-            </div>
-
-            <div class="modal-footer">
-
-                <button class="btn btn-secondary"
-                        data-bs-dismiss="modal">
-                    No
-                </button>
-
-                <form action="{{ route('accounting.quarterly-summary.cancel-unlock') }}"
-                      method="POST">
-                    @csrf
-                    @method('DELETE')
-
-                    <input type="hidden"
-                           name="quarter"
-                           value="{{ $selectedQuarter }}">
-
-                    <input type="hidden"
-                           name="year"
-                           value="{{ $selectedYear ?? date('Y') }}">
-
-                    <button class="btn btn-danger">
-                        Yes, Cancel Request
-                    </button>
-                </form>
-
-            </div>
-
+                <div class="modal-body">
+                    Are you sure you want to cancel the pending unlock request for Year {{ $selectedYear }} - Q{{ $selectedQuarter }}?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep It</button>
+                    <button type="submit" class="btn btn-danger">Yes, Cancel Request</button>
+                </div>
+            </form>
         </div>
     </div>
-
 </div>
-
 @endif
 
 @endsection

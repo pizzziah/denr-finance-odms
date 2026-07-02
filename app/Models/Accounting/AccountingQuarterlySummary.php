@@ -25,24 +25,22 @@ class AccountingQuarterlySummary extends Model
     ];
 
     /**
-     * Set the database table dynamically at runtime and synchronize primary keys.
+     * Set the database table dynamically at runtime and synchronize primary keys across years.
      */
-    public function setQuarterTable($quarter)
+    public function setQuarterTable($quarter, $year = null)
     {
-        $mapping = [
-            1 => ['table' => 'odms_accounting_2026_q1', 'pk' => 'q1_id'],
-            2 => ['table' => 'odms_accounting_2026_q2', 'pk' => 'q2_id'],
-            3 => ['table' => 'odms_accounting_2026_q3', 'pk' => 'q3_id'],
-            4 => ['table' => 'odms_accounting_2026_q4', 'pk' => 'q4_id'],
-        ];
+        // Fallback to the current year if none is supplied
+        $year = $year ?? date('Y');
 
-        $target = $mapping[$quarter] ?? $mapping[1];
+        // Dynamically compute names based on the selected year and quarter context
+        $tableName = "odms_accounting_{$year}_q{$quarter}";
+        $pkName = "q{$quarter}_id";
         
         // Ensure table exists dynamically in the database
-        $this->ensureTableExists($target['table'], $target['pk']);
+        $this->ensureTableExists($tableName, $pkName);
 
-        $this->setTable($target['table']);
-        $this->primaryKey = $target['pk'];
+        $this->setTable($tableName);
+        $this->primaryKey = $pkName;
         
         return $this;
     }

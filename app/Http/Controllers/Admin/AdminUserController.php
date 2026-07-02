@@ -36,7 +36,7 @@ class AdminUserController extends Controller {
     $request->validate([
       'department' => 'required|string',
       'role' => 'required|string',
-      'email' => 'required|email|unique:users,email',
+      'email' => 'required|email|unique:odms_admin_users,email',
       'password' => 'required|min:8',
       'permission_level' => 'required_if:department,Accounting|nullable|in:restricted,special'
     ]);
@@ -56,12 +56,16 @@ class AdminUserController extends Controller {
   public function update(Request $request, string $id) {
     $user = AdminUser::findOrFail($id);
 
-    $request->validate([
-      'department' => 'required|string',
-      'role' => 'required|string',
-      'email' => 'required|email',
-      'permission_level' => 'required_if:department,Accounting|nullable|in:restricted,special'
-    ]);
+$request->validate([
+    'department' => 'required|string',
+    'role' => 'required|string',
+    'email' => [
+        'required',
+        'email',
+        Rule::unique('odms_admin_users', 'email')->ignore($user->id),
+    ],
+    'permission_level' => 'required_if:department,Accounting|nullable|in:restricted,special',
+]);
 
     $data = [
       'email' => $request->email,
@@ -94,20 +98,31 @@ class AdminUserController extends Controller {
     return redirect()->route('admin.users')->with('success', 'Account permanently removed.');
   }
 
-  public function administrativeUnlockQuarter(Request $request, $id) {
-    DB::table('odms_adminquarter_locks')->where('id', $id)->update(['status' => 'open', 'requires_admin_unlock' => false]);
-    return redirect()->back()->with('success', 'Quarter unlocked successfully.');
+public function administrativeUnlockQuarter(Request $request, $id) {
+    // FIXED: Corrected table name typo to 'odms_admin_quarter_locks'
+    DB::table('odms_admin_quarter_locks')
+        ->where('id', $id)
+        ->update([
+            'status' => 'open', 
+            'requires_admin_unlock' => false,
+            'updated_at' => \Carbon\Carbon::now()
+        ]);
+
+    return redirect()->back()->with('success', 'Quarter access granted and unlocked successfully.');
   }
 
-  public function denyUnlockQuarter($id)
-{
-    $request = UnlockQuarterRequest::findOrFail($id);
+  /**
+   * Denies the unlock request, keeping the status locked while removing the pending request flag.
+   */
+  public function denyUnlockQuarter($id) {
+    // FIXED: Removed missing model reference, using clean direct table updates instead
+    DB::table('odms_admin_quarter_locks')
+        ->where('id', $id)
+        ->update([
+            'requires_admin_unlock' => false,
+            'updated_at' => \Carbon\Carbon::now()
+        ]);
 
-    $request->delete();
-
-    return back()->with(
-        'success',
-        'Unlock request denied.'
-    );
-}
+    return redirect()->back()->with('success', 'Unlock request denied. Ledger access remains locked.');
+  }
 }

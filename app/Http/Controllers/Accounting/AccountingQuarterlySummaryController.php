@@ -10,9 +10,17 @@ use Carbon\Carbon;
 
 class AccountingQuarterlySummaryController extends Controller {
   
-  private function checkQuarterLockStatus($quarter, $year) {
+private function checkQuarterLockStatus($quarter, $year) {
     $now = Carbon::now();
     
+    // SAFETY FALLBACK: If quarter is missing, empty, or 0, fallback to current context
+    if (empty($quarter) || $quarter < 1 || $quarter > 4) {
+        $quarter = ceil($now->month / 3);
+    }
+    if (empty($year)) {
+        $year = $now->year;
+    }
+
     // Calculate 14-day automatic grace period cutoff rule
     $quarterEndMonths = [1 => 3, 2 => 6, 3 => 9, 4 => 12];
     $endMonth = $quarterEndMonths[$quarter];
@@ -63,7 +71,8 @@ class AccountingQuarterlySummaryController extends Controller {
     $isLocked = $lockState['is_locked'];
 
     $modelInstance = new AccountingQuarterlySummary();
-    $modelInstance->setQuarterTable($selectedQuarter);
+    // Pass both parameters to resolve multi-year data scopes dynamically
+    $modelInstance->setQuarterTable($selectedQuarter, $selectedYear);
     $query = $modelInstance->newQuery();
 
     if ($request->filled('search')) {
@@ -76,11 +85,11 @@ class AccountingQuarterlySummaryController extends Controller {
 
     // Always recalculate balances sequentially matching primary creation order first
     $pk = $modelInstance->getKeyName();
-    $this->recalculateQuarterlyBalances($selectedQuarter);
+    $this->recalculateQuarterlyBalances($selectedQuarter, $selectedYear);
 
     // Apply sorting preferences: default sequence displays the most recent items first
     $sortColumn = $pk;
-    $sortDirection = 'desc';
+    $sortDirection = 'asc';
 
     if ($request->has('sort_date')) {
         $sortColumn = 'emds_date';
@@ -123,28 +132,26 @@ class AccountingQuarterlySummaryController extends Controller {
     ]);
   }
 
-
   public function manualLock(Request $request) {
-    // Enforce specialized permission restriction
     if (auth()->user()->department !== 'Accounting' || auth()->user()->permission_level !== 'special') {
         return redirect()->back()->with('error', 'Action denied: Your account context lacks ledger locking authorization.');
+    }
+
+    $quarter = (int)$request->input('quarter');
+    $year = (int)$request->input('year');
+
+    DB::table('odms_admin_quarter_locks')->updateOrInsert(
+        ['year' => $year, 'quarter' => $quarter],
+        ['status' => 'locked', 'requires_admin_unlock' => true, 'updated_at' => \Carbon\Carbon::now()]
+    );
+
+    return redirect()->back()->with('success', "Quarter {$quarter} manual lock completed.");
   }
-
-  $quarter = (int)$request->input('quarter');
-  $year = (int)$request->input('year');
-
-  DB::table('odms_admin_quarter_locks')->updateOrInsert(
-      ['year' => $year, 'quarter' => $quarter],
-      ['status' => 'locked', 'requires_admin_unlock' => true, 'updated_at' => \Carbon\Carbon::now()]
-  );
-
-  return redirect()->back()->with('success', "Quarter {$quarter} manual lock completed.");
-}
 
   public function requestAdminUnlock(Request $request) {
     if (auth()->user()->department !== 'Accounting' || auth()->user()->permission_level !== 'special') {
       return redirect()->back()->with('error', 'Action denied: Only authorized personnel can request state modifications.');
-  }
+    }
 
     $quarter = (int)$request->input('quarter');
     $year = (int)$request->input('year');
@@ -153,11 +160,9 @@ class AccountingQuarterlySummaryController extends Controller {
     return redirect()->back()->with('success', 'Unlock request sent to System Administration.');
   }
 
-
-
   public function store(Request $request) {
     $quarter = (int) $request->input('target_quarter');
-    $year = Carbon::now()->year;
+    $year = (int) $request->input('target_year', Carbon::now()->year);
     $lock = $this->checkQuarterLockStatus($quarter, $year);
 
     if ($lock['is_locked']) {
@@ -173,7 +178,7 @@ class AccountingQuarterlySummaryController extends Controller {
     ]);
 
     $entry = new AccountingQuarterlySummary();
-    $entry->setQuarterTable($quarter);
+    $entry->setQuarterTable($quarter, $year);
     
     $isAdjustment = $request->transaction_type === 'adjustment';
     $received = $request->transaction_type === 'received' ? number_format($request->amount, 2, '.', ',') : null;
@@ -190,13 +195,13 @@ class AccountingQuarterlySummaryController extends Controller {
     $entry->remarks = $request->remarks;
     $entry->save();
 
-    $this->recalculateQuarterlyBalances($quarter);
+    $this->recalculateQuarterlyBalances($quarter, $year);
     return redirect()->back()->with('success', 'Entry added successfully.');
   }
 
   public function update(Request $request, $id) {
     $quarter = (int) $request->input('target_quarter');
-    $year = Carbon::now()->year;
+    $year = (int) $request->input('target_year', Carbon::now()->year);
     $lock = $this->checkQuarterLockStatus($quarter, $year);
 
     if ($lock['is_locked']) {
@@ -212,7 +217,7 @@ class AccountingQuarterlySummaryController extends Controller {
     ]);
 
     $modelInstance = new AccountingQuarterlySummary();
-    $modelInstance->setQuarterTable($quarter);
+    $modelInstance->setQuarterTable($quarter, $year);
     $row = $modelInstance->newQuery()->findOrFail($id);
 
     $isAdjustment = $request->transaction_type === 'adjustment';
@@ -228,33 +233,32 @@ class AccountingQuarterlySummaryController extends Controller {
         'remarks' => $request->remarks,
     ]);
 
-    $this->recalculateQuarterlyBalances($quarter);
+    $this->recalculateQuarterlyBalances($quarter, $year);
     return redirect()->back()->with('success', 'Entry modified.');
   }
 
   public function destroy(Request $request, $id) {
     $quarter = (int) $request->input('target_quarter');
-    $year = Carbon::now()->year;
+    $year = (int) $request->input('target_year', Carbon::now()->year);
     if ($this->checkQuarterLockStatus($quarter, $year)['is_locked']) {
       return redirect()->back()->with('error', 'Write access denied: Quarter is locked.');
     }
 
     $modelInstance = new AccountingQuarterlySummary();
-    $modelInstance->setQuarterTable($quarter);
+    $modelInstance->setQuarterTable($quarter, $year);
     $row = $modelInstance->newQuery()->findOrFail($id);
     $row->setKeyName($modelInstance->getKeyName());
     $row->delete();
 
-    $this->recalculateQuarterlyBalances($quarter);
+    $this->recalculateQuarterlyBalances($quarter, $year);
     return redirect()->back()->with('success', 'Entry removed.');
   }
 
-  private function recalculateQuarterlyBalances($quarter) {
+  private function recalculateQuarterlyBalances($quarter, $year = null) {
     $modelInstance = new AccountingQuarterlySummary();
-    $modelInstance->setQuarterTable($quarter);
+    $modelInstance->setQuarterTable($quarter, $year);
     $pkName = $modelInstance->getKeyName();
 
-    // Balances MUST process sequentially matching chronological input structure order
     $records = $modelInstance->newQuery()->orderBy($pkName, 'asc')->get();
     $runningBalance = 0;
 
@@ -270,17 +274,19 @@ class AccountingQuarterlySummaryController extends Controller {
     }
   }
 
-  public function cancelUnlockRequest(Request $request)
-{
-    UnlockQuarterRequest::where('quarter', $request->quarter)
-        ->where('year', $request->year)
-        ->where('status', 'pending')
-        ->delete();
+public function cancelUnlockRequest(Request $request) {
+    // Fallbacks to ensure the calculation never receives a 0 parameter context
+    $quarter = $request->filled('quarter') ? (int)$request->quarter : ceil(Carbon::now()->month / 3);
+    $year = $request->filled('year') ? (int)$request->year : Carbon::now()->year;
 
-    return back()->with(
-        'success',
-        'Unlock request cancelled successfully.'
-    );
-}
+    DB::table('odms_admin_quarter_locks')
+        ->where('quarter', $quarter)
+        ->where('year', $year)
+        ->update([
+            'requires_admin_unlock' => false,
+            'updated_at' => Carbon::now()
+        ]);
 
+    return back()->with('success', 'Unlock request cancelled successfully.');
+  }
 }
