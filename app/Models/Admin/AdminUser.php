@@ -12,13 +12,14 @@ class AdminUser extends Authenticatable {
 
   protected $table = 'odms_admin_users';
 
-  protected $fillable = [
+protected $fillable = [
     'department',
     'email',
     'password',
     'role',
+    'permission_level',
     'is_active',
-  ];
+];
 
   protected $hidden = [
     'password',
