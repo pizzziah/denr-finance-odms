@@ -113,17 +113,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const editAmountInput = document.getElementById('amount_input_{{ $rowId }}');
     const editAmountPreview = document.getElementById('amount_preview_{{ $rowId }}');
     
-    let isFormDirty = false;
+    // We will save the original string version of the form data here
+    let originalFormDataString = "";
 
-    // Track input changes across all element types
-    form.querySelectorAll('input, textarea, select').forEach(input => {
-        // 'input' covers text/numbers, 'change' explicitly captures date pickers & radios
-        ['input', 'change'].forEach(eventType => {
-            input.addEventListener(eventType, () => {
-                isFormDirty = true;
-                console.log("Form became dirty due to element:", input.name, "Value:", input.value);
-            });
-        });
+    // Function to convert form inputs into a simple URL-encoded string for clean tracking
+    function getFormSnapshot() {
+        return new URLSearchParams(new FormData(form)).toString();
+    }
+
+    // Capture the initial state as soon as the modal is fully visible to the user
+    mainModalEl.addEventListener('shown.bs.modal', function () {
+        originalFormDataString = getFormSnapshot();
+        console.log("Original snapshot captured!");
     });
 
     // Live Amount Preview formatting
@@ -139,18 +140,27 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cancelBtn) {
         cancelBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            e.stopPropagation(); // Stop Bootstrap from trying to handle this click
+            e.stopPropagation();
+
+            // Take a fresh snapshot of the current state right now
+            const currentFormDataString = getFormSnapshot();
             
-            console.log("Cancel button clicked. isFormDirty status:", isFormDirty);
+            // If the text strings do not match, a user changed something!
+            const isFormDirty = (originalFormDataString !== currentFormDataString);
+            
+            console.log("Cancel button clicked.");
+            console.log("Original Form State:", originalFormDataString);
+            console.log("Current Form State: ", currentFormDataString);
+            console.log("Is form dirty?:", isFormDirty);
 
             const bsCancelModal = bootstrap.Modal.getOrCreateInstance(cancelModalEl);
             const bsEditModal = bootstrap.Modal.getOrCreateInstance(mainModalEl);
 
             if (isFormDirty) {
-                console.log("Showing confirmation popup...");
+                console.log("Changes detected. Showing confirmation pop-up...");
                 bsCancelModal.show();
             } else {
-                console.log("Form clean. Closing main modal.");
+                console.log("No changes detected. Safely closing main modal.");
                 bsEditModal.hide();
             }
         });
@@ -164,19 +174,12 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // "Discard" button logic
     document.getElementById('discardEditChangesBtn_{{ $rowId }}').addEventListener('click', function() {
-        isFormDirty = false;
-        
         const bsCancelModal = bootstrap.Modal.getOrCreateInstance(cancelModalEl);
         const bsEditModal = bootstrap.Modal.getOrCreateInstance(mainModalEl);
         
         bsCancelModal.hide();
         bsEditModal.hide();
         form.reset(); 
-    });
-
-    // Reset tracking flag on form submission
-    form.addEventListener('submit', () => {
-        isFormDirty = false;
     });
 });
 </script>
