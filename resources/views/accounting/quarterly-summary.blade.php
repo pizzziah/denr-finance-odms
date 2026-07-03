@@ -174,7 +174,7 @@
         <table class="table table-bordered table-hover table-sm align-middle m-0" style="min-width: 1450px;">
           <thead class="table-dark" style="position: sticky; top: 0; z-index: 10;">
             <tr>
-              <th style="width: 150px;">
+              <th style="width: 120px;">
                 <div class="d-flex align-items-center justify-content-between">
                   <span>Date Processed</span>
                   <div class="btn-group btn-group-xs ms-2">
