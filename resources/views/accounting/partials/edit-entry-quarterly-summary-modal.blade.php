@@ -1,4 +1,4 @@
-<div class="modal fade" id="editSummaryModal{{ $rowId }}" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="editSummaryModal{{ $rowId }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog text-start">
     <div class="modal-content">
       <form id="editSummaryForm_{{ $rowId }}" method="POST" action="{{ route('accounting.quarterly-summary.update', ['id' => $rowId]) }}">
@@ -47,7 +47,7 @@
             </div>
             <div class="form-check">
               <input class="form-check-input" type="radio" name="transaction_type" id="type_received_{{ $rowId }}" value="received" @checked($txType === 'received')>
-              <label class="form-check-label" style="color: #9D6B0B; for="type_received_{{ $rowId }}">NCA/NTA Received</label>
+              <label class="form-check-label" style="color: #9D6B0B;" for="type_received_{{ $rowId }}">NCA/NTA Received</label>
             </div>
             <div class="form-check">
               <input class="form-check-input" type="radio" name="transaction_type" id="type_downloaded_{{ $rowId }}" value="downloaded" @checked($txType === 'downloaded')>
@@ -81,9 +81,9 @@
         </div>
         
         <div class="modal-footer">
-          <x-button type="button" variant="secondary"  id="cancelEditBtn_{{ $rowId }}" data-bs-dismiss="modal">Cancel</x-button>
-          <x-button type="submit" variant="primary">Save</x-button>
-        </div>
+  <button type="button" class="btn btn-secondary" id="cancelEditBtn_{{ $rowId }}">Cancel</button>
+  <button type="submit" class="btn btn-primary">Save</button>
+</div>
       </form>
     </div>
   </div>
@@ -104,19 +104,29 @@
     </div>
   </div>
 </div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const editAmountInput = document.getElementById('amount_input_{{ $rowId }}');
-    const editAmountPreview = document.getElementById('amount_preview_{{ $rowId }}');
+    const mainModalEl = document.getElementById('editSummaryModal{{ $rowId }}');
+    const cancelModalEl = document.getElementById('editCancelConfirmModal_{{ $rowId }}');
     const form = document.getElementById('editSummaryForm_{{ $rowId }}');
     
+    const editAmountInput = document.getElementById('amount_input_{{ $rowId }}');
+    const editAmountPreview = document.getElementById('amount_preview_{{ $rowId }}');
+    
     let isFormDirty = false;
+
+    // Track input changes across all element types
     form.querySelectorAll('input, textarea, select').forEach(input => {
-        input.addEventListener('change', () => isFormDirty = true);
-        input.addEventListener('input', () => isFormDirty = true);
+        // 'input' covers text/numbers, 'change' explicitly captures date pickers & radios
+        ['input', 'change'].forEach(eventType => {
+            input.addEventListener(eventType, () => {
+                isFormDirty = true;
+                console.log("Form became dirty due to element:", input.name, "Value:", input.value);
+            });
+        });
     });
 
+    // Live Amount Preview formatting
     if (editAmountInput && editAmountPreview) {
       editAmountInput.addEventListener('input', function() {
         const val = parseFloat(this.value);
@@ -124,26 +134,49 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
-    const bsEditModal = new bootstrap.Modal(document.getElementById('editSummaryModal{{ $rowId }}'));
-    const bsCancelModal = new bootstrap.Modal(document.getElementById('editCancelConfirmModal_{{ $rowId }}'));
+    // Handle the Cancel button click
+    const cancelBtn = document.getElementById('cancelEditBtn_{{ $rowId }}');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Stop Bootstrap from trying to handle this click
+            
+            console.log("Cancel button clicked. isFormDirty status:", isFormDirty);
 
-    document.getElementById('cancelEditBtn_{{ $rowId }}').addEventListener('click', function() {
-        if (isFormDirty) {
-            bsCancelModal.show();
-        } else {
-          bootstrap.Modal.getInstance(
-              document.getElementById('editSummaryModal{{ $rowId }}')
-          ).hide();
-        }
+            const bsCancelModal = bootstrap.Modal.getOrCreateInstance(cancelModalEl);
+            const bsEditModal = bootstrap.Modal.getOrCreateInstance(mainModalEl);
+
+            if (isFormDirty) {
+                console.log("Showing confirmation popup...");
+                bsCancelModal.show();
+            } else {
+                console.log("Form clean. Closing main modal.");
+                bsEditModal.hide();
+            }
+        });
+    }
+
+    // "Keep Editing" button logic
+    document.getElementById('keepEditingEditBtn_{{ $rowId }}').addEventListener('click', () => {
+        const bsCancelModal = bootstrap.Modal.getOrCreateInstance(cancelModalEl);
+        bsCancelModal.hide();
     });
-
-    document.getElementById('keepEditingEditBtn_{{ $rowId }}').addEventListener('click', () => bsCancelModal.hide());
+    
+    // "Discard" button logic
     document.getElementById('discardEditChangesBtn_{{ $rowId }}').addEventListener('click', function() {
         isFormDirty = false;
+        
+        const bsCancelModal = bootstrap.Modal.getOrCreateInstance(cancelModalEl);
+        const bsEditModal = bootstrap.Modal.getOrCreateInstance(mainModalEl);
+        
         bsCancelModal.hide();
-        bootstrap.Modal.getInstance(
-            document.getElementById('editSummaryModal{{ $rowId }}')
-        ).hide();
+        bsEditModal.hide();
+        form.reset(); 
+    });
+
+    // Reset tracking flag on form submission
+    form.addEventListener('submit', () => {
+        isFormDirty = false;
     });
 });
 </script>
