@@ -16,10 +16,16 @@
   {{-- 1ST CARD --}}
   <div class="card p-3 mb-3 m-0 w-100" >
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-      <x-button variant="header" data-bs-toggle="modal" data-bs-target="#addRecordModal">
-        <i class="bi bi-file-earmark-plus"></i>
-        Add Record
-      </x-button>
+      <div class="col-auto">
+          @if($showStatusColumn)
+              <x-button variant="header"
+                        data-bs-toggle="modal"
+                        data-bs-target="#addRecordModal">
+                  <i class="bi bi-file-earmark-plus"></i>
+                  Add Record
+              </x-button>
+          @endif
+      </div>
       
       {{-- SEARCH AND FILTER CONTAINER --}}
       <form action="{{ route('budget.logbook') }}" method="GET" class="d-flex align-items-center gap-2 m-0 flex-wrap flex-md-nowrap">
