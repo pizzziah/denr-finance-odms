@@ -78,8 +78,8 @@
 
           <thead class="table-dark sticky-top" style="z-index: 5;">
             <tr>
-              <th style="min-width: 80px;">DV No.</th>
               <th>Date Received</th>
+              <th style="min-width: 80px;">DV No.</th>
               <th>Date Processed</th>
               <th>OBR Date</th>
               <th style="min-width: 70px;">OBR No.</th>
@@ -99,8 +99,8 @@
           <tbody>
             @forelse($records as $record)
               <tr>
-                <td style="color: var(--primary); background-color:var(--secondary-variant)"><strong>{{ $record->dv_no ?? '-' }}</strong></td>
                 <td>{{ $record->date_received ?? '-' }}</td>
+                <td style="color: var(--primary); background-color:var(--secondary-variant)"><strong>{{ $record->dv_no ?? '-' }}</strong></td>
                 <td>{{ $record->date_processed ?? '-' }}</td>
                 <td>{{ $record->obr_date ?? '-' }}</td>
                 <td style="color: var(--primary); background-color:var(--secondary-variant)"><strong>{{ $record->obr_no ?? '-' }}</strong></td>
@@ -217,8 +217,8 @@
 @include('accounting.partials.action-modal')
 @include('accounting.partials.details-modal')
 @include('accounting.partials.scripts')
-@include('accounting.partials.edit-modal')
-@include('accounting.partials.add-modal')
+@include('accounting.partials.edit-entry-modal')
+@include('accounting.partials.add-entry-modal')
 @endsection
 
 @php

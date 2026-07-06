@@ -6,11 +6,6 @@
 
 <div class="container-fluid mt-3 px-0" style="min-width: 0; overflow-x: hidden;">
 
-  {{-- TOP BAR --}}
-  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-    @include('layouts.subtab')
-  </div>
-
   {{-- ARCHIVE FILTER CONTROL BLOCK --}}
   <div class="card p-3 mb-3 m-0 w-100">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
