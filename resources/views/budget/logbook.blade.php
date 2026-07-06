@@ -24,8 +24,14 @@
         <input type="hidden" name="status" value="{{ request('status', 'all') }}">
         <input type="hidden" name="sort" value="{{ request('sort', 'latest') }}">
 
-        <button type="button" class="btn p-1" data-bs-toggle="modal" data-bs-target="#filterModal" style="min-width: 100px; border-color: #bebebe;">
-          <small><i class="bi bi-funnel"></i> Filter</small>
+        {{-- Filter --}}
+        <button type="button" class="btn btn-outline-primary d-inline-flex"data-bs-toggle="modal"data-bs-target="#filterModal">
+            <i class="bi bi-funnel"></i> Filter
+        </button>
+
+        {{-- Sort --}}
+        <button type="button"class="btn btn-outline-secondary d-inline-flex"data-bs-toggle="modal"data-bs-target="#sortModal">
+            <i class="bi bi-sort-down"></i> <span>Sort</span>
         </button>
 
         <div class="input-group input-group-sm" style="min-width: 260px;">
@@ -227,6 +233,7 @@
   </div>
 </div>
 @include('budget.partials.filter-modal')
+@include('budget.partials.sort-modal')
 @include('budget.partials.action-modal')
 @include('budget.partials.details-modal')
 @include('budget.partials.scripts')
