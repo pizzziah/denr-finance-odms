@@ -9,6 +9,7 @@ use App\Http\Controllers\Accounting\AccountingQuarterlySummaryController;
 
 use App\Http\Controllers\Budget\BudgetLogbookController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 
 Route::view('/', 'auth.login')->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
@@ -73,5 +74,11 @@ Route::middleware(['auth'])->group(function () {
         
         Route::post('/unlock-quarter/{id}', [AdminUserController::class, 'administrativeUnlockQuarter'])->name('admin.unlock-quarter');
         Route::delete('/unlock-quarter/deny/{id}', [AdminUserController::class, 'denyUnlockQuarter'])->name('admin.unlock-quarter.deny');
+    });
+
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/read/{id}', [NotificationController::class, 'read'])->name('notifications.read');
+        Route::post('/read-all', [NotificationController::class, 'readAll'])->name('notifications.readAll');
     });
 });
