@@ -58,6 +58,14 @@ class BudgetLogbookController extends Controller
         // SORT
         switch ($sort) {
 
+            case 'latest':
+                $query->orderByDesc('date_received');
+                break;
+
+            case 'oldest':
+                $query->orderBy('date_received');
+                break;
+
             case 'ors_asc':
                 $query->orderBy('ors_no');
                 break;

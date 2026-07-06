@@ -6,14 +6,16 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h5 class="modal-title">Filters</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title d-flex align-items-center gap-2"><i class="bi bi-sort-down"></i>
+                        <span>Sort Records</span>
+                    </h5>
+                    <button type="button"class="btn-close"data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
 
                     <div class="mb-3">
-                        <label>Year</label>
+                        <label><strong>Year</strong></label>
                         <select name="year" class="form-select">
                             <option value="all">All</option>
                             <option value="2025" @selected(request('year')=='2025')>2025</option>
@@ -22,7 +24,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label>Month</label>
+                        <label><strong>Month</strong></label>
                         <select name="month" class="form-select">
                             <option value="">All</option>
                             @for($m=1;$m<=12;$m++)
@@ -34,7 +36,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label>Status</label>
+                        <label><strong>Status</strong></label>
                         <select name="status" class="form-select">
                             <option value="all">All</option>
                             <option value="pending">Pending</option>
@@ -47,16 +49,6 @@
                             <option value="returned">Returned</option>
                         </select>
                     </div>
-
-                    <div class="mb-3">
-                        <label>Sort</label>
-                        <select name="sort" class="form-select">
-                            <option value="latest">Latest Date</option>
-                            <option value="ors_asc">ORS Ascending</option>
-                            <option value="ors_desc">ORS Descending</option>
-                        </select>
-                    </div>
-
                     <input type="hidden" name="search" value="{{ request('search') }}">
 
                 </div>

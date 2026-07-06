@@ -24,7 +24,7 @@
                     <div class="row g-3">
 
                         <div class="col-md-3">
-                            <label class="form-label">ORS No.</label>
+                            <label class="form-label"><strong>ORS No.</strong></label>
                             <input type="text"
                                    id="edit_ors_no"
                                    name="ors_no"
@@ -32,7 +32,7 @@
                         </div>
 
                         <div class="col-md-3">
-                            <label class="form-label">Date Received</label>
+                            <label class="form-label"><strong>Date Received</strong></label>
                             <input type="datetime-local"
                                    id="edit_date_received"
                                    name="date_received"
@@ -41,7 +41,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Payee</label>
+                            <label class="form-label"><strong>Payee</strong></label>
                             <input type="text"
                                    id="edit_payee"
                                    name="payee"
@@ -49,7 +49,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Issuing Office</label>
+                            <label class="form-label"><strong>Issuing Office</strong></label>
                            <select id="edit_issuing_office"
                                     name="issuing_office"
                                     class="form-select">
@@ -63,7 +63,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Classification</label>
+                            <label class="form-label"><strong>Classification</strong></label>
                             <select
                                 id="edit_classifications"
                                 name="classification"
@@ -78,7 +78,7 @@
                         </div>
 
                         <div class="col-md-12">
-                            <label class="form-label">Particulars</label>
+                            <label class="form-label"><strong>Particulars</strong></label>
                             <textarea class="form-control"
                                       rows="3"
                                       id="edit_particulars"
@@ -86,7 +86,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">UACS Code</label>
+                            <label class="form-label"><strong>UACS Code</strong></label>
                             <select id="edit_uac_codes" name="uac_codes" class="form-select">
                                 @foreach($uacs as $uac)
                                     <option value="{{ $uac->new_uac }}">
@@ -97,7 +97,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Amount</label>
+                            <label class="form-label"><strong>Amount</strong></label>
                             <input type="number"
                                    step="0.01"
                                    id="edit_amount"
@@ -115,7 +115,7 @@
                     <div class="row g-3">
 
                         <div class="col-md-4">
-                            <label class="form-label">Date Returned</label>
+                            <label class="form-label"><strong>Date Returned</strong></label>
                             <input type="datetime-local"
                                    id="edit_date_returned_1"
                                    name="date_returned_1"
@@ -123,7 +123,7 @@
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">Date Received</label>
+                            <label class="form-label"><strong>Date Received</strong></label>
                             <input type="datetime-local"
                                    id="edit_date_received_1"
                                    name="date_received_1"
@@ -131,7 +131,7 @@
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">Remarks</label>
+                            <label class="form-label"><strong>Remarks</strong></label>
                             <input type="text"
                                    id="edit_remarks_1"
                                    name="remarks_1"
@@ -148,7 +148,7 @@
                     <div class="row g-3">
 
                         <div class="col-md-4">
-                            <label class="form-label">Date Forwarded</label>
+                            <label class="form-label"><strong>Date Forwarded</strong></label>
                             <input type="datetime-local"
                                    id="edit_date_forwarded_1"
                                    name="date_forwarded_1"
@@ -156,7 +156,7 @@
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">Date ORS Received</label>
+                            <label class="form-label"><strong>Date ORS Received</strong></label>
                             <input type="datetime-local"
                                    id="edit_date_ors_received"
                                    name="date_ors_received"
@@ -164,7 +164,7 @@
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">Remarks</label>
+                            <label class="form-label"><strong>Remarks</strong></label>
                             <input type="text"
                                    id="edit_remarks_2"
                                    name="remarks_2"
@@ -181,7 +181,7 @@
                     <div class="row g-3">
 
                         <div class="col-md-6">
-                            <label class="form-label">Date Returned</label>
+                            <label class="form-label"><strong>Date Returned</strong></label>
                             <input type="datetime-local"
                                    id="edit_date_returned_2"
                                    name="date_returned_2"
@@ -189,7 +189,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Date Received</label>
+                            <label class="form-label"><strong>Date Received</strong></label>
                             <input type="datetime-local"
                                    id="edit_date_received_2"
                                    name="date_received_2"
@@ -206,7 +206,7 @@
                     <div class="row g-3">
 
                         <div class="col-md-6">
-                            <label class="form-label">Date Forwarded to Accounting</label>
+                            <label class="form-label"><strong>Date Forwarded to Accounting</strong></label>
                             <input type="datetime-local"
                                    id="edit_date_forwarded_accounting"
                                    name="date_forwarded_accounting"
@@ -214,7 +214,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Total Time in Budget</label>
+                            <label class="form-label"><strong>Total Time in Budget</strong></label>
                             <input type="text"
                                    id="edit_total_time_budget"
                                    name="total_time_budget"
@@ -231,7 +231,7 @@
                     <div class="row g-3">
 
                         <div class="col-md-6">
-                            <label class="form-label">Status</label>
+                            <label class="form-label"><strong>Status</strong></label>
 
                             <select id="edit_status"
                                     name="status"
@@ -249,7 +249,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Total Time</label>
+                            <label class="form-label"><strong>Total Time</strong></label>
                             <input type="text"
                                    id="edit_total_time"
                                    name="total_time"
@@ -257,7 +257,7 @@
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label">Final Remarks</label>
+                            <label class="form-label"><strong>Final Remarks</strong></label>
                             <textarea class="form-control"
                                       rows="3"
                                       id="edit_final_remarks"
