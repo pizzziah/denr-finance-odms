@@ -4,6 +4,10 @@
 
 @section('content')
 
+@php
+    $showStatusColumn = request('status', 'all') === 'all';
+@endphp
+
 <div class="container-fluid mt-3 px-0" style="min-width: 0; overflow-x: hidden;" >
   <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     @include('layouts.subtab')
@@ -73,7 +77,7 @@
               <th rowspan="2">UAC Codes</th>
               <th rowspan="2">Particulars Remark</th>
               <th rowspan="2">Amount</th>
-              <th rowspan="2" style="min-width:150px;">Status</th>
+              @if($showStatusColumn)<th rowspan="2" style="min-width:150px;">Status</th>@endif
 
               {{-- GROUP 1 --}}
               <th colspan="3" style="background-color: #EFDFFF; color: #7909FF">Returned to End User</th>
@@ -149,29 +153,33 @@
                   <td>{{ $record->particulars_remark ?? '-' }}</td>
                   <td><strong>₱{{ number_format((float) str_replace(',', '', $record->amount ?? 0), 2) }}</strong></td>
                   
-                  {{-- STATUS COLUMN WITH SPECIFIED VALUE COLOR-CODING --}}
-                  <td>
-                    @if(!empty($record->status))
-                      @php
-                        $status = trim($record->status);
-                        $statusStyles = match($status) {
-                          'Pending'                 => 'background-color: #FFEECC; color: #9D6B0B;',
-                          'Processing'              => 'background-color: #FFDEC5; color: #BB400D;',
-                          'Returned'                => 'background-color: #EFDFFF; color: #7909FF;',
-                          'Paid'                    => 'background-color: #DEF5C4; color: var(--secondary);',
-                          'For Review'              => 'background-color: #CFF0F1; color: #066B6B;',
-                          'For Obligation'          => 'background-color: #BCC3F6; color: #271ECE;',
-                          'Canceled'                => 'background-color: #FFC2C2; color: var(--error);',
-                          'Forwarded to Accounting' => 'background-color: var(--secondary-variant); color: var(--primary);',
-                          default                   => 'background-color: #F8F9FA; color: #6C757D;'
-                        };
-                      @endphp
-                      <span class="badge fw-bold" style="{{ $statusStyles }}; font-size: 1em;">{{ $status }}</span>
-                    @else
-                      <span class="text-muted">-</span>
-                    @endif
-                  </td>
+                  @if($showStatusColumn)
+                      {{-- STATUS COLUMN WITH SPECIFIED VALUE COLOR-CODING --}}
+                      <td>
+                          @if(!empty($record->status))
+                              @php
+                                  $status = trim($record->status);
+                                  $statusStyles = match($status) {
+                                      'Pending'                 => 'background-color: #FFEECC; color: #9D6B0B;',
+                                      'Processing'              => 'background-color: #FFDEC5; color: #BB400D;',
+                                      'Returned'                => 'background-color: #EFDFFF; color: #7909FF;',
+                                      'Paid'                    => 'background-color: #DEF5C4; color: var(--secondary);',
+                                      'For Review'              => 'background-color: #CFF0F1; color: #066B6B;',
+                                      'For Obligation'          => 'background-color: #BCC3F6; color: #271ECE;',
+                                      'Canceled'                => 'background-color: #FFC2C2; color: var(--error);',
+                                      'Forwarded to Accounting' => 'background-color: var(--secondary-variant); color: var(--primary);',
+                                      default                   => 'background-color: #F8F9FA; color: #6C757D;'
+                                  };
+                              @endphp
 
+                              <span class="badge fw-bold" style="{{ $statusStyles }}; font-size: 1em;">
+                                  {{ $status }}
+                              </span>
+                          @else
+                              <span class="text-muted">-</span>
+                          @endif
+                      </td>
+                  @endif
                   <td>{{ $record->date_returned_1 ?? '-' }}</td>
                   <td>{{ $record->remarks_1 ?? '-' }}</td>
                   <td>{{ $record->date_received_1 ?? '-' }}</td>
