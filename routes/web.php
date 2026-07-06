@@ -5,7 +5,6 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Accounting\AccountingLogbookController;
-use App\Http\Controllers\Accounting\AccountingQuarterlySummaryController; 
 use App\Http\Controllers\Budget\BudgetLogbookController;
 use App\Http\Controllers\DashboardController;
 
@@ -37,8 +36,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('accounting.dashboard');
         Route::get('/logbook', [AccountingLogbookController::class, 'logbook'])->name('accounting.logbook');
     
-        Route::view('/cashier-status', 'accounting.cashier-status')->name('accounting.cashier-status');
-        Route::view('/archived', 'accounting.archives')->name('accounting.archives');
+        Route::get('/cashier-status', [AccountingLogbookController::class, 'cashierStatus'])->name('accounting.cashier-status');
+        Route::put('/cashier-status/{dv_no}/pay', [AccountingLogbookController::class, 'markAsPaid'])->name('accounting.cashier-status.pay');
+
+        Route::get('/archived', [AccountingLogbookController::class, 'archives'])->name('accounting.archives');
         
         Route::get('/logbook/{dv_no}/details', [AccountingLogbookController::class, 'show'])->name('accounting.logbook.details');
         Route::get('/logbook/{dv_no}/edit', [AccountingLogbookController::class, 'edit'])->name('accounting.logbook.edit');
