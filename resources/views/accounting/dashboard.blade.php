@@ -115,16 +115,61 @@
         </div>
       </div>
 
-      {{-- ROW 3/VISUALIZATION CARD --}}
-      <div class="card glass-card card-f p-3 m-0">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h6 class="fw-bold m-0 text-uppercase" style="color: var(--primary)">
-            Top 10 Payees Breakdown (Debit + Credit)
-          </h6>
-        </div>
+      {{-- CARD H --}}
+      <div class="card glass-card card-h p-3">
+        <h6 class="fw-bold mb-0 p-0 text-center text-uppercase" style="color: var(--primary)">
+          Workflow Status
+        </h6>
+        <p class="mb-3 text-center">
+          <small><i>{{ request('year', now()->year) }}</i></small>
+        </p>
 
-        <div class="p-1" style="height: 350px; position: relative;">
-          <canvas id="payeeChart"></canvas>
+        <div class="row g-3 text-center">
+          @php
+            $statuses = [
+              ['key' => 'pending', 'label' => 'Pending', 'color' => '#9D6B0B', 'bg' => '#FFFBF3'],
+              ['key' => 'processing', 'label' => 'Processing', 'color' => '#fd7e14', 'bg' => '#FFF6EF'],
+              ['key' => 'returned', 'label' => 'Returned', 'color' => '#6f42c1', 'bg' => '#EFDFFF'],
+              ['key' => 'cancelled', 'label' => 'Cancelled', 'color' => 'var(--error)', 'bg' => '#F8E7E9'],
+              ['key' => 'forwarded', 'label' => 'Forwarded to Cashier', 'color' => 'var(--primary)', 'bg' => '#E5F2D7'],
+              ['key' => 'paid', 'label' => 'Paid', 'color' => 'var(--secondary)', 'bg' => '#EDFADF'],
+            ];
+
+            $totalSum = array_sum($metrics['statusCounts'] ?? []);
+            $totalSum = $totalSum > 0 ? $totalSum : 1;
+          @endphp
+
+          @foreach($statuses as $status)
+            @php
+              $count = $metrics['statusCounts'][$status['key']] ?? 0;
+              $percentage = ($count / $totalSum) * 100;
+              $offset = 113 - (113 * $percentage) / 100;
+            @endphp
+            <div class="col-4">
+              <div class="p-0 py-2 border rounded h-100 d-flex flex-column align-items-center justify-content-center" 
+                  style="border-color: {{ $status['color'] }} !important; background: {{ $status['bg'] }};">
+                <div class="position-relative mb-2" style="width: 60px; height: 60px;">
+                  <svg class="w-100 h-100" viewBox="0 0 40 40" style="transform: rotate(-90deg);">
+                    <circle cx="20" cy="20" r="18" fill="transparent" stroke="rgba(0,0,0,0.05)" stroke-width="3"></circle>
+                    <circle cx="20" cy="20" r="18" fill="transparent" 
+                            stroke="{{ $status['color'] }}" 
+                            stroke-width="3" 
+                            stroke-dasharray="113" 
+                            stroke-dashoffset="{{ $offset }}"
+                            stroke-linecap="round"
+                            style="transition: stroke-dashoffset 0.5s ease-in-out;">
+                    </circle>
+                  </svg>
+                  <div class="position-absolute top-50 start-50 translate-middle fw-bold" style="color: {{ $status['color'] }}; font-size: 1.1rem;">
+                    {{ $count }}
+                  </div>
+                </div>
+                 <span class="small text-muted d-block fw-semibold text-center px-1" style="font-size: 0.70rem; color: {{ $status['color'] }} !important; line-height: 1.1;">
+                  {{ $status['label'] }}
+                </span>
+              </div>
+            </div>
+          @endforeach
         </div>
       </div>
     </div>
@@ -143,63 +188,17 @@
           {{ $metrics['totalTransactions'] ?? 0 }}
         </h2>
       </div>
-      
-      {{-- CARD H --}}
-      <div class="card glass-card card-h p-3">
-        <h6 class="fw-bold mb-0 p-0 text-center text-uppercase" style="color: var(--primary)">
-          Workflow Status
-        </h6>
-        <p class="mb-3 text-center">
-          <small><i>{{ request('year', now()->year) }}</i></small>
-        </p>
 
-        <div class="row g-3 text-center">
-          @php
-            $statuses = [
-              ['key' => 'pending', 'label' => 'Pending', 'color' => '#9D6B0B', 'bg' => '#FFFBF3'],
-              ['key' => 'processing', 'label' => 'Processing', 'color' => '#fd7e14', 'bg' => '#FFF6EF'],
-              ['key' => 'returned', 'label' => 'Returned', 'color' => '#6f42c1', 'bg' => '#EFDFFF'],
-              ['key' => 'forwarded', 'label' => 'Forwarded to Cashier', 'color' => 'var(--primary)', 'bg' => '#E5F2D7'],
-              ['key' => 'paid', 'label' => 'Paid', 'color' => 'var(--secondary)', 'bg' => '#EDFADF'],
-            ];
+      {{-- ROW 3/VISUALIZATION CARD --}}
+      <div class="card glass-card card-f p-3 m-0">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="fw-bold m-0 text-uppercase" style="color: var(--primary)">
+            Top 10 Payees Breakdown
+          </h6>
+        </div>
 
-            $totalSum = array_sum($metrics['statusCounts'] ?? []);
-            $totalSum = $totalSum > 0 ? $totalSum : 1;
-          @endphp
-
-          @foreach($statuses as $status)
-            @php
-              $count = $metrics['statusCounts'][$status['key']] ?? 0;
-              $percentage = ($count / $totalSum) * 100;
-              $offset = 113 - (113 * $percentage) / 100;
-            @endphp
-            <div class="col-6">
-              <div class="p-0 py-2 border rounded h-100 d-flex flex-column align-items-center justify-content-center" 
-                  style="border-color: {{ $status['color'] }} !important; background: {{ $status['bg'] }};">
-                
-                <div class="position-relative mb-2" style="width: 60px; height: 60px;">
-                  <svg class="w-100 h-100" viewBox="0 0 40 40" style="transform: rotate(-90deg);">
-                    <circle cx="20" cy="20" r="18" fill="transparent" stroke="rgba(0,0,0,0.05)" stroke-width="3"></circle>
-                    <circle cx="20" cy="20" r="18" fill="transparent" 
-                            stroke="{{ $status['color'] }}" 
-                            stroke-width="3" 
-                            stroke-dasharray="113" 
-                            stroke-dashoffset="{{ $offset }}"
-                            stroke-linecap="round"
-                            style="transition: stroke-dashoffset 0.5s ease-in-out;">
-                    </circle>
-                  </svg>
-                  <div class="position-absolute top-50 start-50 translate-middle fw-bold" style="color: {{ $status['color'] }}; font-size: 1.1rem;">
-                    {{ $count }}
-                  </div>
-                </div>
-
-                <span class="small text-muted d-block fw-semibold text-center px-1" style="font-size: 0.70rem; color: {{ $status['color'] }} !important; line-height: 1.1;">
-                  {{ $status['label'] }}
-                </span>
-              </div>
-            </div>
-          @endforeach
+        <div class="p-1" style="height: 350px; position: relative;">
+          <canvas id="payeeChart"></canvas>
         </div>
       </div>
     </div>
@@ -239,33 +238,45 @@ document.addEventListener("DOMContentLoaded", function () {
             borderWidth: 2
           }]
         },
+        
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  return '₱' + Number(context.raw).toLocaleString('en-PH', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                  });
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return '₱' + Number(context.raw).toLocaleString('en-PH', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                        }
+                    }
                 }
-              }
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: function(value) {
-                  return '₱' + Number(value).toLocaleString();
+            },
+
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₱' + Number(value).toLocaleString();
+                        }
+                    }
+                },
+                y: {
+                    ticks: {
+                        autoSkip: false
+                    }
                 }
-              }
             }
-          }
         }
+
       });
     }
   }
