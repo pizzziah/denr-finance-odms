@@ -109,24 +109,6 @@
               
               <div class="col-10">
                 <div class="row g-2">
-
-                  <div class="col-md-4">
-                    <label class="form-label small fw-semibold">Date Returned</label>
-                    <input type="datetime-local" id="edit_date_returned_1"
-                           name="date_returned_1" class="form-control form-control-sm">
-                  </div>
-
-                  <div class="col-md-4">
-                    <label class="form-label small fw-semibold">Date Received</label>
-                    <input type="datetime-local" id="edit_date_received_1"
-                           name="date_received_1" class="form-control form-control-sm">
-                  </div>
-
-                  <div class="col-md-4">
-                    <label class="form-label small fw-semibold">Remarks</label>
-                    <input type="text" id="edit_remarks_1"
-                           name="remarks_1" class="form-control form-control-sm">
-                  </div>
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <div class="fw-semibold text-muted">Review Transactions</div>
 
