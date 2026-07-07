@@ -137,39 +137,54 @@
                     </button>
                     </div>
 
-                    {{-- Container for dynamic rows --}}
                     <div id="reviewRows1"></div>
-                </div>
-                <div id="reviewRowsContainer"></div>
+                    <div id="reviewRowsContainer" class="mt-2"></div>
 
-            <template id="reviewRowTemplate">
-            <div class="border rounded p-2 mb-2 review-row bg-light">
-                <div class="row g-2">
+                    <template id="reviewRowTemplate">
+                        <div class="border rounded p-2 mb-2 review-row bg-light">
+                            <div class="row g-2">
 
-                <div class="col-md-4">
-                    <label class="form-label small fw-semibold">Date Returned</label>
-                    <input type="datetime-local" name="review_date_returned[]" class="form-control form-control-sm">
-                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">
+                                        Date Returned
+                                    </label>
+                                    <input
+                                        type="datetime-local"
+                                        name="review_date_returned[]"
+                                        class="form-control form-control-sm">
+                                </div>
 
-                <div class="col-md-4">
-                    <label class="form-label small fw-semibold">Remarks</label>
-                    <input type="text" name="review_remarks[]" class="form-control form-control-sm">
-                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">
+                                        Remarks
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="review_remarks[]"
+                                        class="form-control form-control-sm">
+                                </div>
 
-                <div class="col-md-3">
-                    <label class="form-label small fw-semibold">Date Received</label>
-                    <input type="datetime-local" name="review_date_received[]" class="form-control form-control-sm">
-                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">
+                                        Date Received
+                                    </label>
+                                    <input
+                                        type="datetime-local"
+                                        name="review_date_received[]"
+                                        class="form-control form-control-sm">
+                                </div>
 
-                <div class="col-md-1 d-flex align-items-end">
-                    <button type="button" class="btn btn-sm btn-danger w-100 btnRemoveReview">
-                    ✕
-                    </button>
-                </div>
+                                <div class="col-md-1 d-flex align-items-end">
+                                    <button
+                                        type="button"
+                                        class="btn btn-danger btn-sm w-100 btnRemoveReview">
+                                        ✕
+                                    </button>
+                                </div>
 
-                </div>
-            </div>
-            </template>
+                            </div>
+                        </div>
+                    </template>
               </div>
             </div>
             

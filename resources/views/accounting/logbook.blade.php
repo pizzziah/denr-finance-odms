@@ -157,12 +157,12 @@
                 <td>{{ $record->date_signed ?? '-' }}</td>
                 <td>{{ $record->date_forwarded ?? '-' }}</td>
                 <td>
-                  @if(!empty($record->dv_no))
+                  @if(!empty($record->transaction_id))
                   <div class="d-flex gap-1 justify-content-center">
                       <button type="button"
                               class="btn btn-sm btn-outline-info action-btn"
                               data-action="view"
-                              data-dv="{{ $record->dv_no }}"
+                              data-dv="{{ $record->transaction_id }}"
                               data-entries="{{ $record->total_entries }}"
                               data-amount="{{ $record->total_debit }}"
                               data-payee="{{ $record->payee }}"
@@ -174,7 +174,7 @@
                       <button type="button"
                               class="btn btn-sm btn-outline-primary action-btn"
                               data-action="edit"
-                              data-dv="{{ $record->dv_no }}"
+                              data-dv="{{ $record->transaction_id }}"
                               data-status="{{ $record->status }}"
                               data-bs-toggle="modal"
                               data-bs-target="#editModal">
@@ -183,7 +183,7 @@
                       <button type="button"
                               class="btn btn-sm btn-outline-danger action-btn"
                               data-action="delete"
-                              data-dv="{{ $record->dv_no }}"
+                              data-dv="{{ $record->transaction_id }}"
                               data-bs-toggle="modal"
                               data-bs-target="#actionModal">
                           <i class="bi bi-trash"></i>

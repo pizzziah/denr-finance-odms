@@ -177,9 +177,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===================== OPEN EDIT MODAL =====================
     window.openEditModal = async (id) => {
         try {
-            const row = await getRecord(id);
 
-            $('editForm').action = `/budget/logbook/${encodeURIComponent(id)}/update`;
+            const response = await getRecord(id);
+
+            const row = response.budget;
+            const reviews = response.reviews ?? [];
+
+            $('editForm').action =
+                `/budget/logbook/${encodeURIComponent(id)}/update`;
 
             const fields = [
                 'ors_no','date_received','payee','particulars','amount',
@@ -191,30 +196,62 @@ document.addEventListener('DOMContentLoaded', () => {
             ];
 
             fields.forEach(f => {
+
                 const el = $('edit_' + f);
+
                 if (!el) return;
 
                 if (el.type === 'datetime-local') {
                     el.value = formatDateTime(row[f]);
-                } else if (el.type === 'date') {
-                    el.value = row[f]?.substring(0, 10) ?? '';
-                } else {
+                }
+                else if (el.type === 'date') {
+                    el.value = row[f]?.substring(0,10) ?? '';
+                }
+                else {
                     el.value = row[f] ?? '';
                 }
+
             });
 
-            // FIX: re-init dropdowns AFTER values are loaded
-            setTimeout(() => {
-                initTomSelect(document);
-            }, 50);
+            // ===========================
+            // LOAD REVIEW HISTORY
+            // ===========================
 
-            bootstrap.Modal.getOrCreateInstance($('editModal')).show();
+            const container = $('reviewRowsContainer');
 
-        } catch (e) {
+            container.innerHTML = '';
+
+            reviews.forEach(review => {
+
+                const clone = document
+                    .getElementById('reviewRowTemplate')
+                    .content
+                    .cloneNode(true);
+
+                clone.querySelector('[name="review_date_returned[]"]').value =
+                    formatDateTime(review.date_returned);
+
+                clone.querySelector('[name="review_date_received[]"]').value =
+                    formatDateTime(review.date_received);
+
+                clone.querySelector('[name="review_remarks[]"]').value =
+                    review.remarks ?? '';
+
+                container.appendChild(clone);
+
+            });
+
+            initTomSelect(document);
+
+            bootstrap.Modal
+                .getOrCreateInstance($('editModal'))
+                .show();
+
+        }
+        catch (e) {
             alert(e.message);
         }
     };
-
     // ===================== EDIT BUTTON =====================
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('.edit-btn');

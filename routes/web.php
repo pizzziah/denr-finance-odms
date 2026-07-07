@@ -39,15 +39,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/logbook', [AccountingLogbookController::class, 'logbook'])->name('accounting.logbook');
 
         Route::get('/cashier-status', [AccountingLogbookController::class, 'cashierStatus'])->name('accounting.cashier-status');
-        Route::put('/cashier-status/{dv_no}/pay', [AccountingLogbookController::class, 'markAsPaid'])->name('accounting.cashier-status.pay');
+        Route::put('/cashier-status/{transaction_id}/pay', [AccountingLogbookController::class, 'markAsPaid'])->name('accounting.cashier-status.pay');
 
         Route::get('/archived', [AccountingLogbookController::class, 'archives'])->name('accounting.archives');
 
-        Route::get('/logbook/{dv_no}/details', [AccountingLogbookController::class, 'show'])->name('accounting.logbook.details');
-        Route::get('/logbook/{dv_no}/edit', [AccountingLogbookController::class, 'edit'])->name('accounting.logbook.edit');
-        Route::put('/logbook/{dv_no}/update', [AccountingLogbookController::class, 'update'])->name('accounting.logbook.update');
+        Route::get('/logbook/{transaction_id}/details', [AccountingLogbookController::class, 'show'])->name('accounting.logbook.details');
+        Route::get('/logbook/{transaction_id}/edit', [AccountingLogbookController::class, 'edit'])->name('accounting.logbook.edit');
+        Route::put('/logbook/{transaction_id}/update', [AccountingLogbookController::class, 'update'])->name('accounting.logbook.update');
         Route::post('/logbook/store', [AccountingLogbookController::class, 'store'])->name('accounting.logbook.store');
-        Route::delete('/logbook/{dv_no}/destroy', [AccountingLogbookController::class, 'destroy'])->name('accounting.logbook.destroy');
+        Route::delete('/logbook/{transaction_id}/destroy', [AccountingLogbookController::class, 'destroy'])->name('accounting.logbook.destroy');
 
         Route::get('/quarterly-summary', [AccountingQuarterlySummaryController::class, 'index'])->name('accounting.quarterly-summary');
         Route::post('/quarterly-summary', [AccountingQuarterlySummaryController::class, 'store'])->name('accounting.quarterly-summary.store');
