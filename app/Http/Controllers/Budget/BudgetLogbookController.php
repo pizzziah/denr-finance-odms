@@ -133,9 +133,9 @@ class BudgetLogbookController extends Controller
             ->where('budget_id', $budget_id)
             ->first();
 
-        if (!$budget) {
+        if (! $budget) {
             return response()->json([
-                'message' => 'Record not found'
+                'message' => 'Record not found',
             ], 404);
         }
 
@@ -145,7 +145,7 @@ class BudgetLogbookController extends Controller
 
         return response()->json([
             'budget' => $budget,
-            'reviews' => $reviews
+            'reviews' => $reviews,
         ]);
     }
 
@@ -223,17 +223,17 @@ class BudgetLogbookController extends Controller
                     'final_remarks' => $request->final_remarks,
                     'due_date' => $request->due_date,
                 ]);
-                $budget = DB::table('odms_budget')
-                    ->where('budget_id', $budget_id)
-                    ->first();
+            $budget = DB::table('odms_budget')
+                ->where('budget_id', $budget_id)
+                ->first();
 
-                if ($budget->status === 'Forwarded to Accounting') {
+            if ($budget->status === 'Forwarded to Accounting') {
 
                 $exists = DB::table('odms_accounting')
                     ->where('budget_id', $budget->budget_id)
                     ->exists();
 
-                if (!$exists) {
+                if (! $exists) {
 
                     $transaction_id = $this->generateTransactionId();
                     DB::table('odms_accounting')->insert([
@@ -318,10 +318,9 @@ class BudgetLogbookController extends Controller
 
             return back()
                 ->withInput()
-                ->with('error', 'Update failed: ' . $e->getMessage());
+                ->with('error', 'Update failed: '.$e->getMessage());
         }
     }
-
 
     public function store(Request $request)
     {
@@ -427,7 +426,7 @@ class BudgetLogbookController extends Controller
             ->orderByDesc('accounting_id')
             ->first();
 
-        if (!$latest) {
+        if (! $latest) {
             return 'TXN-000001';
         }
 
@@ -435,6 +434,6 @@ class BudgetLogbookController extends Controller
             str_replace('TXN-', '', $latest->transaction_id)
         );
 
-        return 'TXN-' . str_pad($number + 1, 6, '0', STR_PAD_LEFT);
+        return 'TXN-'.str_pad($number + 1, 6, '0', STR_PAD_LEFT);
     }
 }

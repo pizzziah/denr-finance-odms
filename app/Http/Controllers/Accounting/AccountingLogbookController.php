@@ -19,21 +19,18 @@ class AccountingLogbookController extends Controller
         $query = DB::table('odms_accounting')
             ->where('status', '!=', 'Paid');
 
-
         // ================= STATUS FILTER =================
-        if ($status !== 'all' && !empty($status)) {
+        if ($status !== 'all' && ! empty($status)) {
             $query->where('status', $status);
         }
 
-
         // ================= MONTH FILTER =================
-        if ($month !== 'all' && !empty($month)) {
-            $query->whereMonth('date_received', (int)$month);
+        if ($month !== 'all' && ! empty($month)) {
+            $query->whereMonth('date_received', (int) $month);
         }
 
-
         // ================= SEARCH =================
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
 
                 $q->where('transaction_id', 'like', "%{$search}%")
@@ -47,7 +44,6 @@ class AccountingLogbookController extends Controller
             });
         }
 
-
         // ================= SORT =================
         switch ($sort) {
 
@@ -59,7 +55,6 @@ class AccountingLogbookController extends Controller
 
                 break;
 
-
             case 'obr_desc':
 
                 $query->orderByRaw(
@@ -67,7 +62,6 @@ class AccountingLogbookController extends Controller
                 );
 
                 break;
-
 
             default:
 
@@ -77,8 +71,6 @@ class AccountingLogbookController extends Controller
 
                 break;
         }
-
-
 
         $records = $query->select(
 
@@ -125,10 +117,8 @@ class AccountingLogbookController extends Controller
             ")
 
         )
-        ->groupBy('transaction_id')
-        ->get();
-
-
+            ->groupBy('transaction_id')
+            ->get();
 
         return view(
             'accounting.logbook',
@@ -142,8 +132,6 @@ class AccountingLogbookController extends Controller
         );
     }
 
-
-
     // ================= STORE NEW LOGBOOK RECORD =================
     public function store(Request $request)
     {
@@ -152,8 +140,6 @@ class AccountingLogbookController extends Controller
             'dv_no' => 'required|string',
             'payee' => 'required|string',
         ]);
-
-
 
         if ($request->status === 'Paid') {
 
@@ -167,17 +153,11 @@ class AccountingLogbookController extends Controller
 
         }
 
-
-
-        $transaction_id = 'TXN-' . $request->dv_no;
-
-
+        $transaction_id = 'TXN-'.$request->dv_no;
 
         if ($request->filled('rows')) {
 
-
             foreach ($request->rows as $row) {
-
 
                 DB::table('odms_accounting')->insert([
 
@@ -195,66 +175,45 @@ class AccountingLogbookController extends Controller
 
                     'particulars_remark' => $request->particulars_remark,
 
-                    'signed_by_accountant' =>
-                        $request->signed_by_accountant,
+                    'signed_by_accountant' => $request->signed_by_accountant,
 
-                    'status' =>
-                        $request->status ?? 'Pending',
+                    'status' => $request->status ?? 'Pending',
 
-                    'budget_year' =>
-                        $request->budget_year,
+                    'budget_year' => $request->budget_year,
 
-                    'source_month' =>
-                        $request->source_month,
+                    'source_month' => $request->source_month,
 
-                    'date_received' =>
-                        $request->date_received,
+                    'date_received' => $request->date_received,
 
-                    'date_processed' =>
-                        $request->date_processed,
+                    'date_processed' => $request->date_processed,
 
-                    'obr_date' =>
-                        $request->obr_date,
+                    'obr_date' => $request->obr_date,
 
-                    'date_signed' =>
-                        $request->date_signed,
+                    'date_signed' => $request->date_signed,
 
-                    'date_forwarded' =>
-                        $request->date_forwarded,
+                    'date_forwarded' => $request->date_forwarded,
 
-                    'returned_remarks' =>
-                        $request->returned_remarks,
+                    'returned_remarks' => $request->returned_remarks,
 
+                    'uac_codes' => $row['uac_codes'] ?? null,
 
-                    'uac_codes' =>
-                        $row['uac_codes'] ?? null,
+                    'debit' => $row['debit'] ?? 0,
 
-                    'debit' =>
-                        $row['debit'] ?? 0,
+                    'credit' => $row['credit'] ?? 0,
 
-                    'credit' =>
-                        $row['credit'] ?? 0,
+                    'tax_percent' => $row['tax_percent'] ?? null,
 
-                    'tax_percent' =>
-                        $row['tax_percent'] ?? null,
-
-                    'tax_remarks' =>
-                        $row['tax_remarks'] ?? null,
+                    'tax_remarks' => $row['tax_remarks'] ?? null,
 
                 ]);
 
             }
 
-
         } else {
-
-
 
             DB::table('odms_accounting')->insert([
 
-
                 'transaction_id' => $transaction_id,
-
 
                 'dv_no' => $request->dv_no,
 
@@ -268,52 +227,35 @@ class AccountingLogbookController extends Controller
 
                 'particulars_remark' => $request->particulars_remark,
 
-                'signed_by_accountant' =>
-                    $request->signed_by_accountant,
+                'signed_by_accountant' => $request->signed_by_accountant,
 
-                'status' =>
-                    $request->status ?? 'Pending',
+                'status' => $request->status ?? 'Pending',
 
-                'budget_year' =>
-                    $request->budget_year,
+                'budget_year' => $request->budget_year,
 
-                'source_month' =>
-                    $request->source_month,
+                'source_month' => $request->source_month,
 
-                'date_received' =>
-                    $request->date_received,
+                'date_received' => $request->date_received,
 
-                'date_processed' =>
-                    $request->date_processed,
+                'date_processed' => $request->date_processed,
 
-                'obr_date' =>
-                    $request->obr_date,
+                'obr_date' => $request->obr_date,
 
-                'date_signed' =>
-                    $request->date_signed,
+                'date_signed' => $request->date_signed,
 
-                'date_forwarded' =>
-                    $request->date_forwarded,
+                'date_forwarded' => $request->date_forwarded,
 
-                'returned_remarks' =>
-                    $request->returned_remarks,
+                'returned_remarks' => $request->returned_remarks,
 
+                'uac_codes' => $request->uac_codes,
 
-                'uac_codes' =>
-                    $request->uac_codes,
+                'debit' => $request->debit ?? 0,
 
-                'debit' =>
-                    $request->debit ?? 0,
-
-                'credit' =>
-                    $request->credit ?? 0,
-
+                'credit' => $request->credit ?? 0,
 
             ]);
 
         }
-
-
 
         return redirect()
             ->route('accounting.logbook')
@@ -323,20 +265,19 @@ class AccountingLogbookController extends Controller
             );
 
     }
-        // ================= VIEW JSON =================
+
+    // ================= VIEW JSON =================
     public function show($transaction_id)
     {
         $records = DB::table('odms_accounting')
             ->where('transaction_id', $transaction_id)
             ->get();
 
-
         if ($records->isEmpty()) {
             return response()->json([
-                'message' => 'Record not found.'
+                'message' => 'Record not found.',
             ], 404);
         }
-
 
         return response()->json([
 
@@ -344,52 +285,36 @@ class AccountingLogbookController extends Controller
 
                 'transaction_id' => $transaction_id,
 
-                'dv_no' =>
-                    optional($records->first())->dv_no,
+                'dv_no' => optional($records->first())->dv_no,
 
-                'date_received' =>
-                    optional($records->first())->date_received,
+                'date_received' => optional($records->first())->date_received,
 
-                'date_processed' =>
-                    optional($records->first())->date_processed,
+                'date_processed' => optional($records->first())->date_processed,
 
-                'obr_date' =>
-                    optional($records->first())->obr_date,
+                'obr_date' => optional($records->first())->obr_date,
 
-                'obr_no' =>
-                    optional($records->first())->obr_no,
+                'obr_no' => optional($records->first())->obr_no,
 
-                'payee' =>
-                    optional($records->first())->payee,
+                'payee' => optional($records->first())->payee,
 
-                'particulars' =>
-                    optional($records->first())->particulars,
+                'particulars' => optional($records->first())->particulars,
 
-                'remarks' =>
-                    optional($records->first())->particulars_remark,
+                'remarks' => optional($records->first())->particulars_remark,
 
-                'status' =>
-                    optional($records->first())->status,
+                'status' => optional($records->first())->status,
 
-                'signed' =>
-                    optional($records->first())->signed_by_accountant,
+                'signed' => optional($records->first())->signed_by_accountant,
 
-                'date_signed' =>
-                    optional($records->first())->date_signed,
+                'date_signed' => optional($records->first())->date_signed,
 
-                'date_forwarded' =>
-                    optional($records->first())->date_forwarded,
+                'date_forwarded' => optional($records->first())->date_forwarded,
 
             ],
 
-
-            'details' => $records
+            'details' => $records,
 
         ]);
     }
-
-
-
 
     // ================= EDIT JSON =================
     public function edit($transaction_id)
@@ -399,42 +324,32 @@ class AccountingLogbookController extends Controller
             ->where('transaction_id', $transaction_id)
             ->get();
 
-
-
         if ($details->isEmpty()) {
 
             return response()->json([
 
-                'message' => 'Record not found.'
+                'message' => 'Record not found.',
 
             ], 404);
 
         }
 
-
-
         return response()->json([
 
             'summary' => $details->first(),
 
-            'details' => $details
+            'details' => $details,
 
         ]);
 
     }
 
-
-
-
-
     // ================= UPDATE LOGBOOK RECORD =================
     public function update(Request $request, $transaction_id)
     {
 
-
         // Prevent invalid cashier forwarding
         if ($request->status === 'Forwarded to Cashier') {
-
 
             $isSigned = trim(
                 strtolower(
@@ -442,13 +357,11 @@ class AccountingLogbookController extends Controller
                 )
             );
 
-
             if (
-                !in_array($isSigned, ['yes', '1'])
+                ! in_array($isSigned, ['yes', '1'])
                 ||
                 empty($request->date_signed)
             ) {
-
 
                 return redirect()
                     ->back()
@@ -462,12 +375,8 @@ class AccountingLogbookController extends Controller
 
         }
 
-
-
-
         // Prevent direct Paid status
         if ($request->status === 'Paid') {
-
 
             return redirect()
                 ->back()
@@ -479,10 +388,6 @@ class AccountingLogbookController extends Controller
 
         }
 
-
-
-
-
         DB::table('odms_accounting')
 
             ->where(
@@ -492,79 +397,42 @@ class AccountingLogbookController extends Controller
 
             ->update([
 
+                'ors_no' => $request->ors_no,
 
-                'ors_no' =>
-                    $request->ors_no,
+                'obr_no' => $request->obr_no,
 
+                'payee' => $request->payee,
 
-                'obr_no' =>
-                    $request->obr_no,
+                'particulars' => $request->particulars,
 
+                'particulars_remark' => $request->particulars_remark,
 
-                'payee' =>
-                    $request->payee,
+                'signed_by_accountant' => $request->signed_by_accountant,
 
+                'status' => $request->status,
 
-                'particulars' =>
-                    $request->particulars,
+                'budget_year' => $request->budget_year,
 
+                'source_month' => $request->source_month,
 
-                'particulars_remark' =>
-                    $request->particulars_remark,
+                'date_received' => $request->date_received,
 
+                'date_processed' => $request->date_processed,
 
-                'signed_by_accountant' =>
-                    $request->signed_by_accountant,
+                'obr_date' => $request->obr_date,
 
+                'date_signed' => $request->date_signed,
 
-                'status' =>
-                    $request->status,
+                'date_forwarded' => $request->date_forwarded,
 
-
-                'budget_year' =>
-                    $request->budget_year,
-
-
-                'source_month' =>
-                    $request->source_month,
-
-
-                'date_received' =>
-                    $request->date_received,
-
-
-                'date_processed' =>
-                    $request->date_processed,
-
-
-                'obr_date' =>
-                    $request->obr_date,
-
-
-                'date_signed' =>
-                    $request->date_signed,
-
-
-                'date_forwarded' =>
-                    $request->date_forwarded,
-
-
-                'returned_remarks' =>
-                    $request->returned_remarks,
-
+                'returned_remarks' => $request->returned_remarks,
 
             ]);
-
-
-
-
 
         // Update accounting rows
         if ($request->filled('rows')) {
 
-
             foreach ($request->rows as $row) {
-
 
                 DB::table('odms_accounting')
 
@@ -575,36 +443,21 @@ class AccountingLogbookController extends Controller
 
                     ->update([
 
+                        'uac_codes' => $row['uac_codes'],
 
-                        'uac_codes' =>
-                            $row['uac_codes'],
+                        'debit' => $row['debit'],
 
+                        'credit' => $row['credit'],
 
-                        'debit' =>
-                            $row['debit'],
+                        'tax_percent' => $row['tax_percent'],
 
-
-                        'credit' =>
-                            $row['credit'],
-
-
-                        'tax_percent' =>
-                            $row['tax_percent'],
-
-
-                        'tax_remarks' =>
-                            $row['tax_remarks'],
-
+                        'tax_remarks' => $row['tax_remarks'],
 
                     ]);
 
             }
 
         }
-
-
-
-
 
         return redirect()
 
@@ -617,15 +470,9 @@ class AccountingLogbookController extends Controller
 
     }
 
-
-
-
-
-
     // ================= DELETE =================
     public function destroy($transaction_id)
     {
-
 
         DB::table('odms_accounting')
 
@@ -635,8 +482,6 @@ class AccountingLogbookController extends Controller
             )
 
             ->delete();
-
-
 
         return redirect()
 
@@ -648,12 +493,12 @@ class AccountingLogbookController extends Controller
             );
 
     }
-        // ================= CASHIER STATUS TAB =================
+
+    // ================= CASHIER STATUS TAB =================
     public function cashierStatus(Request $request)
     {
         $search = trim($request->search ?? '');
         $sort = $request->sort ?? 'latest';
-
 
         $query = DB::table('odms_accounting')
 
@@ -671,14 +516,10 @@ class AccountingLogbookController extends Controller
 
             ->where('date_signed', '!=', '');
 
-
-
-
         // SEARCH
-        if (!empty($search)) {
+        if (! empty($search)) {
 
             $query->where(function ($q) use ($search) {
-
 
                 $q->where('transaction_id', 'like', "%{$search}%")
 
@@ -690,17 +531,12 @@ class AccountingLogbookController extends Controller
 
                     ->orWhere('particulars', 'like', "%{$search}%");
 
-
             });
 
         }
 
-
-
-
         // SORT
         switch ($sort) {
-
 
             case 'obr_asc':
 
@@ -710,8 +546,6 @@ class AccountingLogbookController extends Controller
 
                 break;
 
-
-
             case 'obr_desc':
 
                 $query->orderByRaw(
@@ -719,8 +553,6 @@ class AccountingLogbookController extends Controller
                 );
 
                 break;
-
-
 
             default:
 
@@ -732,15 +564,9 @@ class AccountingLogbookController extends Controller
 
         }
 
-
-
-
-
         $records = $query->select(
 
-
             'transaction_id',
-
 
             DB::raw('MAX(dv_no) dv_no'),
 
@@ -778,14 +604,9 @@ class AccountingLogbookController extends Controller
                 ) as total_debit
             ")
 
-
         )
-
-        ->groupBy('transaction_id')
-
-        ->get();
-
-
+            ->groupBy('transaction_id')
+            ->get();
 
         return view(
             'accounting.cashier-status',
@@ -798,42 +619,31 @@ class AccountingLogbookController extends Controller
 
     }
 
-
-
-
-
-
     // ================= MARK AS PAID ACTION =================
     public function markAsPaid(Request $request, $transaction_id)
     {
 
-
         $eligible = DB::table('odms_accounting')
-
 
             ->where(
                 'transaction_id',
                 $transaction_id
             )
 
-
             ->where(
                 'status',
                 'Forwarded to Cashier'
             )
 
-
             ->whereIn(
                 'signed_by_accountant',
                 [
                     'Yes',
-                    '1'
+                    '1',
                 ]
             )
 
-
             ->whereNotNull('date_signed')
-
 
             ->where(
                 'date_signed',
@@ -841,15 +651,9 @@ class AccountingLogbookController extends Controller
                 ''
             )
 
-
             ->exists();
 
-
-
-
-
-        if (!$eligible) {
-
+        if (! $eligible) {
 
             return redirect()
 
@@ -862,10 +666,6 @@ class AccountingLogbookController extends Controller
 
         }
 
-
-
-
-
         DB::table('odms_accounting')
 
             ->where(
@@ -875,20 +675,11 @@ class AccountingLogbookController extends Controller
 
             ->update([
 
-
                 'status' => 'Paid',
 
-
-                'date_processed' =>
-                    now()->toDateString(),
-
+                'date_processed' => now()->toDateString(),
 
             ]);
-
-
-
-
-
 
         return redirect()
 
@@ -900,12 +691,6 @@ class AccountingLogbookController extends Controller
             );
 
     }
-
-
-
-
-
-
 
     // ================= ARCHIVES TAB =================
     public function archives(Request $request)
@@ -919,9 +704,6 @@ class AccountingLogbookController extends Controller
 
         $sort = $request->sort ?? 'latest';
 
-
-
-
         $query = DB::table('odms_accounting')
 
             ->where(
@@ -929,86 +711,63 @@ class AccountingLogbookController extends Controller
                 'Paid'
             );
 
-
-
-
-
         // YEAR FILTER
-        if ($year !== 'all' && !empty($year)) {
+        if ($year !== 'all' && ! empty($year)) {
 
             $query->whereYear(
                 'date_processed',
-                (int)$year
+                (int) $year
             );
 
         }
 
-
-
-
         // MONTH FILTER
-        if ($month !== 'all' && !empty($month)) {
+        if ($month !== 'all' && ! empty($month)) {
 
             $query->whereMonth(
                 'date_processed',
-                (int)$month
+                (int) $month
             );
 
         }
 
-
-
-
-
         // SEARCH
-        if (!empty($search)) {
-
+        if (! empty($search)) {
 
             $query->where(function ($q) use ($search) {
-
 
                 $q->where(
                     'transaction_id',
                     'like',
                     "%{$search}%"
                 )
-
-                ->orWhere(
-                    'dv_no',
-                    'like',
-                    "%{$search}%"
-                )
-
-                ->orWhere(
-                    'obr_no',
-                    'like',
-                    "%{$search}%"
-                )
-
-                ->orWhere(
-                    'payee',
-                    'like',
-                    "%{$search}%"
-                )
-
-                ->orWhere(
-                    'particulars',
-                    'like',
-                    "%{$search}%"
-                );
-
+                    ->orWhere(
+                        'dv_no',
+                        'like',
+                        "%{$search}%"
+                    )
+                    ->orWhere(
+                        'obr_no',
+                        'like',
+                        "%{$search}%"
+                    )
+                    ->orWhere(
+                        'payee',
+                        'like',
+                        "%{$search}%"
+                    )
+                    ->orWhere(
+                        'particulars',
+                        'like',
+                        "%{$search}%"
+                    );
 
             });
 
         }
 
-
-
-
-
         // SORT
         switch ($sort) {
-
 
             case 'obr_asc':
 
@@ -1018,8 +777,6 @@ class AccountingLogbookController extends Controller
 
                 break;
 
-
-
             case 'obr_desc':
 
                 $query->orderByRaw(
@@ -1027,8 +784,6 @@ class AccountingLogbookController extends Controller
                 );
 
                 break;
-
-
 
             default:
 
@@ -1038,18 +793,11 @@ class AccountingLogbookController extends Controller
 
                 break;
 
-
         }
-
-
-
-
 
         $records = $query->select(
 
-
             'transaction_id',
-
 
             DB::raw('MAX(dv_no) dv_no'),
 
@@ -1067,9 +815,7 @@ class AccountingLogbookController extends Controller
 
             DB::raw('MAX(date_processed) date_processed'),
 
-
             DB::raw('COUNT(*) total_entries'),
-
 
             DB::raw("
                 SUM(
@@ -1083,16 +829,9 @@ class AccountingLogbookController extends Controller
                 ) as total_debit
             ")
 
-
         )
-
-        ->groupBy('transaction_id')
-
-        ->get();
-
-
-
-
+            ->groupBy('transaction_id')
+            ->get();
 
         return view(
             'accounting.archives',

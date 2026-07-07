@@ -10,6 +10,6 @@ class BudgetReviewProcess extends Model
         'budget_id',
         'date_returned',
         'date_received',
-        'remarks'
+        'remarks',
     ];
 }
