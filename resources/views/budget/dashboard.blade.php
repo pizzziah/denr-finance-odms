@@ -107,35 +107,6 @@
         </div>
       </div>
 
-      {{-- ROW 3/VISUALIZATION CARD --}}
-      <div class="card glass-card card-f p-3 m-0">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h6 class="fw-bold m-0 text-uppercase" style="color: var(--primary)">
-            Amount Per Office
-          </h6>
-          </div>
-
-        <div class="p-1" style="height: 350px; position: relative;">
-          <canvas id="officeChart"></canvas>
-        </div>
-      </div>
-    </div>
-
-    {{-- RIGHT-SIDE COLUMN --}}
-    <div class="col-lg-3">
-      {{-- CARD B --}}
-      <div class="card glass-card-hover card-b p-3 border-0 text-center mb-4">
-        <h6 class="fw-bold mb-0 text-uppercase" style="color: var(--primary)">
-          Total Transactions
-        </h6>
-        <p class="mb-0">
-          <small><i>{{ request('year', now()->year) }}</i></small>
-        </p>
-        <h2 class="display-4 fw-bold p-0 m-0" style="color: var(--primary)">
-          {{ $metrics['totalTransactions'] ?? 0 }}
-        </h2>
-      </div>
-      
       {{-- CARD H --}}
       <div class="card glass-card card-h p-3">
         <h6 class="fw-bold mb-0 p-0 text-center text-uppercase" style="color: var(--primary)">
@@ -168,7 +139,7 @@
               $percentage = ($count / $totalSum) * 100;
               $offset = 113 - (113 * $percentage) / 100;
             @endphp
-            <div class="col-6">
+            <div class="col-4">
               <div class="p-0 py-2 border rounded h-100 d-flex flex-column align-items-center justify-content-center" 
                   style="border-color: {{ $status['color'] }} !important; background: {{ $status['bg'] }};">
                 
@@ -197,6 +168,36 @@
           @endforeach
         </div>
       </div>
+      
+    </div>
+
+    {{-- RIGHT-SIDE COLUMN --}}
+    <div class="col-lg-3">
+      {{-- CARD B --}}
+      <div class="card glass-card-hover card-b p-3 border-0 text-center mb-4">
+        <h6 class="fw-bold mb-0 text-uppercase" style="color: var(--primary)">
+          Total Transactions
+        </h6>
+        <p class="mb-0">
+          <small><i>{{ request('year', now()->year) }}</i></small>
+        </p>
+        <h2 class="display-4 fw-bold p-0 m-0" style="color: var(--primary)">
+          {{ $metrics['totalTransactions'] ?? 0 }}
+        </h2>
+      </div>
+      {{-- ROW 3/VISUALIZATION CARD --}}
+      <div class="card glass-card card-f p-3 m-0">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="fw-bold m-0 text-uppercase" style="color: var(--primary)">
+            Amount Per Office
+          </h6>
+          </div>
+
+        <div class="p-1" style="height: 350px; position: relative;">
+          <canvas id="officeChart"></canvas>
+        </div>
+      </div>
+      
     </div>
   </div>
 </div>
