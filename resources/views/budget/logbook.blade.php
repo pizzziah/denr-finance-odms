@@ -248,11 +248,12 @@
 </div>
 @include('budget.partials.filter-modal')
 @include('budget.partials.sort-modal')
+@include('budget.partials.add-record-modal')
 @include('budget.partials.action-modal')
 @include('budget.partials.details-modal')
 @include('budget.partials.scripts')
 @include('budget.partials.edit-modal')
-@include('budget.partials.add-record-modal')
+
 @endsection
 
 @php
