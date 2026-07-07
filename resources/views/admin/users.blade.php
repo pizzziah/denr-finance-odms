@@ -102,7 +102,7 @@
       
       <form action="{{ route('admin.users') }}" method="GET" class="d-flex align-items-center gap-2 m-0 flex-wrap flex-md-nowrap">
         <select name="department" class="form-select form-select-sm" style="min-width: 160px;" onchange="this.form.submit()">
-          <option value="">All Departments</option>
+          <option value="">All Sections</option>
           <option value="Accounting" {{ request('department') === 'Accounting' ? 'selected' : '' }}>Accounting</option>
           <option value="Budget" {{ request('department') === 'Budget' ? 'selected' : '' }}>Budget</option>
           <option value="System Administration" {{ request('department') === 'System Administration' || request('department') === 'Admin' ? 'selected' : '' }}>System Administration</option>
@@ -127,7 +127,7 @@
         <thead>
           <tr>
             <th>Email</th>
-            <th>Department</th>
+            <th>Section</th>
             <th>Role</th>
             <th>Accounting Access Scope</th> <th>Status</th>
             <th width="220">Actions</th>
@@ -190,6 +190,107 @@
   </div>
 </div>
 @include('admin.partials.add-user-modal')
+
+<script>
+document.addEventListener('hidden.bs.modal', function () {
+
+    document.body.classList.remove('modal-open');
+
+    document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
+        backdrop.remove();
+    });
+
+});
+</script>
+<script>
+document.addEventListener('shown.bs.modal', function (e) {
+
+    if (!e.target.id.startsWith('editUserModal')) {
+        return;
+    }
+
+    const id = e.target.id.replace('editUserModal', '');
+
+    const deptSel = document.getElementById('department_' + id);
+    const roleSel = document.getElementById('role_' + id);
+    const permContainer = document.getElementById('permission_level_container_' + id);
+    const permInput = document.getElementById('permission_level_' + id);
+
+    const targetRole = roleSel.dataset.role;
+
+    function injectHiddenInput(value) {
+
+        const old = document.getElementById('hidden-role-edit_' + id);
+        if (old) old.remove();
+
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'role';
+        hidden.id = 'hidden-role-edit_' + id;
+        hidden.value = value;
+
+        roleSel.form.appendChild(hidden);
+    }
+
+    function syncRoles() {
+
+        roleSel.innerHTML = '';
+
+        const old = document.getElementById('hidden-role-edit_' + id);
+        if (old) old.remove();
+
+        switch (deptSel.value) {
+
+            case 'System Administration':
+
+                roleSel.innerHTML =
+                    '<option value="admin">Admin</option>';
+
+                roleSel.disabled = true;
+
+                injectHiddenInput('admin');
+
+                permContainer.classList.add('d-none');
+
+                permInput.required = false;
+
+                break;
+
+            case 'Budget':
+
+                roleSel.innerHTML =
+                    '<option value="budget">Budget</option>';
+
+                roleSel.disabled = true;
+
+                injectHiddenInput('budget');
+
+                permContainer.classList.add('d-none');
+
+                permInput.required = false;
+
+                break;
+
+            default:
+
+                roleSel.innerHTML = `
+                    <option value="accountant">Accountant</option>
+                    <option value="bookkeeper">Book Keeper</option>
+                `;
+
+                roleSel.disabled = false;
+                roleSel.value = targetRole;
+
+                permContainer.classList.remove('d-none');
+                permInput.required = true;
+        }
+    }
+
+    syncRoles();
+
+    deptSel.onchange = syncRoles;
+});
+</script>
 @endsection
 
 @php 

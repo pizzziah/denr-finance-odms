@@ -10,20 +10,20 @@
         
         <div class="modal-body">
           <div class="mb-3">
-            <label class="fw-bold">Email</label>
+            <label class="fw-bold">Email <span class="fw-medium" style="color: var(--error);">*</span></label>
             <input type="email" name="email" class="form-control" placeholder="juandelacruz@denr.gov.ph" required>
           </div>
 
           <div class="mb-3">
-            <label class="fw-bold">Password</label>
+            <label class="fw-bold">Password <span class="fw-medium" style="color: var(--error);">*</span></label>
             <input type="password" name="password" class="form-control" placeholder="********" required>
             <small class="text-muted"><i>Password should contain at least 8 characters.</i></small>
           </div>   
 
           <div class="mb-3">
-            <label class="fw-bold">Department</label>
+            <label class="fw-bold">Section <span class="fw-medium" style="color: var(--error);">*</span></label>
             <select name="department" id="department" class="form-select" required>
-              <option value="">Select Department</option>
+              <option value="">Select Section</option>
               <option value="Accounting">Accounting</option>
               <option value="Budget">Budget</option>
               <option value="System Administration">System Administration</option>
@@ -31,7 +31,7 @@
           </div>
 
           <div class="mb-3">
-            <label class="fw-bold">Role</label>
+            <label class="fw-bold">Role <span class="fw-medium" style="color: var(--error);">*</span></label>
             <select name="role" id="role" class="form-select" required>
               <option value="">Select Role</option>
             </select>
@@ -48,7 +48,7 @@
         
         <div class="modal-footer">
           <x-button type="button" variant="secondary" data-bs-dismiss="modal">Cancel</x-button>
-          <x-button type="submit" variant="primary">Save</x-button>
+          <x-button type="submit" variant="primary">Add Entry</x-button>
         </div>
       </form>
     </div>
