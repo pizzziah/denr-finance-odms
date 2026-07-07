@@ -65,7 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         try {
-            const row = await getRecord(id);
+            const response = await getRecord(id);
+            const row = response.budget;
 
             $('transactionTitle').textContent = row.ors_no ?? '-';
             $('transactionSubtitle').textContent = row.payee ?? '-';
