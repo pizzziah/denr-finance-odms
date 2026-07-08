@@ -71,6 +71,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/users/{id}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
         Route::delete('/users/{id}/force-delete', [AdminUserController::class, 'forceDelete'])->name('admin.users.forceDelete');
 
+        Route::get('/unlock-requests', [AdminUserController::class, 'unlockRequests'])->name('admin.unlock-requests');
+        
         Route::post('/unlock-quarter/{id}', [AdminUserController::class, 'administrativeUnlockQuarter'])->name('admin.unlock-quarter');
         Route::delete('/unlock-quarter/deny/{id}', [AdminUserController::class, 'denyUnlockQuarter'])->name('admin.unlock-quarter.deny');
     });
