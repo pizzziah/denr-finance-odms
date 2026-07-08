@@ -42,19 +42,18 @@
           <div class="mb-3">
             <label class="fw-bold">Password</label>
             <input type="password" name="password" class="form-control" placeholder="Leave blank to keep existing password" autocomplete="new-password">
-            <small class="text-muted d-block mt-1">If updating, password must be at least 8 characters long.</small>
+            <div class="invalid-feedback" id="password_length_error" style="color: var(--error);"><p><i>Password must be at least 8 characters long.</i></p></div>
           </div>
         </div>
         
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+          <x-button type="button" variant="secondary" data-bs-dismiss="modal">Cancel</x-button>
+          <x-button type="submit" variant="primary">Save Changes</x-button>
         </div>
       </form>
     </div>
   </div>
 </div>
-
 <script>
 (function() {
     const deptSelect = document.getElementById("department_{{ $user->id }}");
@@ -62,7 +61,6 @@
     const scopeContainer = document.getElementById("permission_level_container_{{ $user->id }}");
     const scopeSelect = document.getElementById("permission_level_{{ $user->id }}");
 
-    // Track the initial database values
     const currentRole = "{{ $user->role }}";
 
     function updateRoleOptions(department, selectedRole) {
@@ -90,7 +88,6 @@
             let el = document.createElement("option");
             el.value = opt.value;
             el.text = opt.text;
-            // Clean values down for perfect match tracking comparisons
             if (opt.value.toLowerCase().replace(/\s+/g, '') === selectedRole.toLowerCase().replace(/\s+/g, '')) {
                 el.selected = true;
             }
@@ -99,11 +96,9 @@
     }
 
     if (deptSelect) {
-        // Initialize options on load
         updateRoleOptions(deptSelect.value, currentRole);
 
         deptSelect.addEventListener("change", function() {
-            // Update roles and default to the first available choice when switching departments
             updateRoleOptions(this.value, "");
 
             if (this.value === "Accounting") {
