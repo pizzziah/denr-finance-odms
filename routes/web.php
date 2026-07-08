@@ -62,20 +62,21 @@ Route::middleware(['auth'])->group(function () {
     /* -----------
         * ADMIN
         * -----------  */
-    Route::prefix('admin')->group(function () {
-        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-        Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users');
-        Route::post('/users', [AdminUserController::class, 'store'])->name('admin.users.store');
-        Route::get('/users/{id}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
-        Route::put('/users/{id}', [AdminUserController::class, 'update'])->name('admin.users.update');
-        Route::delete('/users/{id}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
-        Route::delete('/users/{id}/force-delete', [AdminUserController::class, 'forceDelete'])->name('admin.users.forceDelete');
+        Route::prefix('admin')->group(function () {
+            Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+            Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users');
+            Route::post('/users', [AdminUserController::class, 'store'])->name('admin.users.store');
+            Route::get('/users/{id}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
+            Route::put('/users/{id}', [AdminUserController::class, 'update'])->name('admin.users.update');
+            Route::delete('/users/{id}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+            
+            Route::delete('/users/{id}/force-delete', [AdminUserController::class, 'forceDelete'])->name('admin.users.force-delete');
 
-        Route::get('/unlock-requests', [AdminUserController::class, 'unlockRequests'])->name('admin.unlock-requests');
-        
-        Route::post('/unlock-quarter/{id}', [AdminUserController::class, 'administrativeUnlockQuarter'])->name('admin.unlock-quarter');
-        Route::delete('/unlock-quarter/deny/{id}', [AdminUserController::class, 'denyUnlockQuarter'])->name('admin.unlock-quarter.deny');
-    });
+            Route::get('/unlock-requests', [AdminUserController::class, 'unlockRequests'])->name('admin.unlock-requests');
+            
+            Route::post('/unlock-quarter/{id}', [AdminUserController::class, 'administrativeUnlockQuarter'])->name('admin.unlock-quarter');
+            Route::delete('/unlock-quarter/deny/{id}', [AdminUserController::class, 'denyUnlockQuarter'])->name('admin.unlock-quarter.deny');
+        });
 
     Route::prefix('notifications')->group(function () {
         Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');

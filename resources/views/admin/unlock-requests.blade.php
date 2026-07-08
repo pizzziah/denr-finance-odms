@@ -9,17 +9,14 @@
   @endif
 
   <div class="card glass-card p-3">
-    <!-- Header Block -->
     <div class="px-3 pt-3 pb-2 border-bottom mb-3">
       <h5 class="fw-bold text-dark m-0">
         <i class="bi bi-shield-lock-fill me-2 text-warning"></i> Pending Quarter Unlock Requests
       </h5>
     </div>
 
-    <!-- Main Content Area -->
     <div class="card-body bg-transparent">
       @if(isset($pendingUnlocks) && $pendingUnlocks->count() > 0)
-        <!-- Scroll bar active area wrapping custom table layout -->
         <div class="table-responsive" style="max-height: 550px; overflow-y: auto;">
           <table class="table table-bordered table-hover align-middle">
             <thead class="table-light">
@@ -44,7 +41,6 @@
                   </td>
                   <td>
                     <div class="d-flex gap-2 justify-content-center align-items-center">
-                      <!-- Grant Access form handler direct trigger action -->
                       <form action="{{ route('admin.unlock-quarter', $lock->id) }}" method="POST" class="m-0">
                         @csrf
                         <button type="submit" class="btn btn-sm btn-warning fw-bold px-3">
@@ -52,18 +48,16 @@
                         </button>
                       </form>
 
-                      <!-- Deny Dialog Modal Activation Switch (Excluded Backdrop overlay setup) -->
-                      <button type="button" class="btn btn-sm btn-outline-danger px-2" data-bs-toggle="modal" data-bs-backdrop="false" data-bs-target="#denyUnlockModal{{ $lock->id }}">
+                      <button type="button" class="btn btn-sm btn-outline-danger px-2" data-bs-toggle="modal" data-bs-target="#denyUnlockModal{{ $lock->id }}">
                         <i class="bi bi-x-lg me-1"></i> Deny
                       </button>
                     </div>
                   </td>
                 </tr>
 
-                <!-- Standalone Confirmation Overlay Context Modal Contexts -->
-                <div class="modal fade" id="denyUnlockModal{{ $lock->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal fade" id="denyUnlockModal{{ $lock->id }}" tabindex="-1" data-bs-backdrop="false" aria-hidden="true">
                   <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content shadow-lg border-0">
+                    <div class="modal-content shadow-lg border">
                       <div class="modal-header bg-danger text-white">
                         <h5 class="modal-title fs-6 fw-bold">Deny Unlock Request</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -95,7 +89,6 @@
           </table>
         </div>
       @else
-        <!-- Empty State display when collections register empty responses -->
         <div class="text-center py-5 text-muted">
           <i class="bi bi-check-circle-fill text-success fs-1 d-block mb-3"></i>
           <h6 class="fw-bold">All caught up!</h6>
@@ -107,11 +100,19 @@
 </div>
 
 <script>
-// Cleans background overlays cleanly upon termination calls 
-document.addEventListener('hidden.bs.modal', function () {
-    document.body.classList.remove('modal-open');
-    document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
-        backdrop.remove();
+// Force background cleanup layers when any overlay window terminates
+document.addEventListener('DOMContentLoaded', function() {
+    const clearBackdrop = () => {
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+    };
+
+    document.addEventListener('hidden.bs.modal', clearBackdrop);
+    document.addEventListener('shown.bs.modal', function() {
+        // Double-check defensive layer removal if Bootstrap injects one asynchronously
+        document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
     });
 });
 </script>

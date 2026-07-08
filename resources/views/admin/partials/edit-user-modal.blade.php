@@ -24,17 +24,6 @@
               <option value="System Administration" {{ in_array($user->department, ['System Administration', 'Admin']) ? 'selected' : '' }}>System Administration</option> 
             </select>    
           </div>  
-          
-          <div class="mb-3">
-            <label class="fw-bold">Privilege Role Profiling</label>
-            <select
-              name="role"
-              id="role_{{ $user->id }}"
-              class="form-select"
-              data-role="{{ strtolower(str_replace(' ', '', $user->role)) }}"
-              required>
-          </select>
-          </div>
 
           <div class="mb-3 d-none" id="permission_level_container_{{ $user->id }}">
             <label class="fw-bold text-primary">System Access Permission Level</label>

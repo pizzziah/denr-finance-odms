@@ -88,7 +88,7 @@
             </td>
             <td>
               <div class="d-flex gap-2 justify-content-center align-items-center">
-                <button type="button" class="btn btn-xs btn-outline-primary px-2" data-bs-toggle="modal" data-bs-backdrop="false" data-bs-target="#editUserModal{{ $user->id }}">
+                <button type="button" class="btn btn-xs btn-outline-primary px-2" data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}">
                   <i class="bi bi-pencil-square"></i>
                 </button>
 
@@ -99,7 +99,7 @@
                        <i class="bi {{ $user->is_active === 'active' ? 'bi-person-fill-lock' : 'bi-person-fill-check' }}"></i>
                     </button>
                   </form>
-                  <button type="button" class="btn btn-xs btn-outline-danger px-2" data-bs-toggle="modal" data-bs-backdrop="false" data-bs-target="#deleteUserModal{{ $user->id }}">
+                  <button type="button" class="btn btn-xs btn-outline-danger px-2" data-bs-toggle="modal" data-bs-target="#deleteUserModal{{ $user->id }}">
                     <i class="bi bi-trash3"></i>
                   </button>
                 @endif
@@ -107,6 +107,27 @@
             </td>
           </tr>
           @include('admin.partials.edit-user-modal', ['user' => $user])
+          
+          <div class="modal fade" id="deleteUserModal{{ $user->id }}" tabindex="-1" data-bs-backdrop="false" aria-hidden="true">
+             <div class="modal-dialog modal-dialog-centered">
+                 <div class="modal-content">
+                     <div class="modal-header bg-danger text-white">
+                         <h5 class="modal-title fs-6">Remove User Account</h5>
+                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                     </div>
+                     <div class="modal-body text-start">
+                         Are you completely sure you want to purge data permissions assigned to <strong>{{ $user->email }}</strong>?
+                     </div>
+                     <div class="modal-footer">
+                         <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                         <form action="{{ route('admin.users.force-delete', $user->id) }}" method="POST" class="m-0">
+                             @csrf @method('DELETE')
+                             <button type="submit" class="btn btn-sm btn-danger">Confirm Deletion</button>
+                         </form>
+                     </div>
+                 </div>
+             </div>
+          </div>
         @empty
           <tr><td colspan="6" class="text-center text-muted py-3">No user records matched query parameters.</td></tr>
         @endforelse
@@ -122,6 +143,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     const addModalEl = document.getElementById('addUserModal');
     if (addModalEl) {
+        addModalEl.setAttribute('data-bs-backdrop', 'false'); // Backup structural assurance
         const passwordInput = addModalEl.querySelector('input[name="password"]');
         const saveButton = addModalEl.querySelector('.btn-save-entry') || addModalEl.querySelector('button[type="submit"]');
         const cancelButtons = addModalEl.querySelectorAll('[data-bs-dismiss="modal"], .btn-close');
@@ -164,12 +186,18 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
-});
 
-document.addEventListener('hidden.bs.modal', function () {
-    document.body.classList.remove('modal-open');
-    document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
-        backdrop.remove();
+    // Intercept and break backdrop construction globally
+    const clearBackdrop = () => {
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+    };
+
+    document.addEventListener('hidden.bs.modal', clearBackdrop);
+    document.addEventListener('shown.bs.modal', function() {
+        document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
     });
 });
 </script>
