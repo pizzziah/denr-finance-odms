@@ -66,21 +66,31 @@ class AdminUserController extends Controller {
   public function update(Request $request, string $id) {
     $user = AdminUser::findOrFail($id);
 
+    $assignedRole = match ($request->input('department')) {
+      'System Administration', 'Admin' => 'Admin',
+      'Budget'                         => 'Budget',
+      'Accounting'                     => $user->role === 'Budget' || $user->role === 'Admin' ? 'Accountant' : $user->role, 
+      default                          => 'Book Keeper',
+    };
+
+    $request->merge(['role' => $request->input('role', $assignedRole)]);
+
     $request->validate([
-      'department' => 'required|string',
-      'role' => 'required|string',
-      'email' => [
+      'department'       => 'required|string',
+      'role'             => 'required|string',
+      'email'            => [
         'required',
         'email',
         Rule::unique('odms_admin_users', 'email')->ignore($user->id),
       ],
       'permission_level' => 'required_if:department,Accounting|nullable|in:restricted,special',
+      'password'         => 'nullable|string|min:8', // Safe field updating validation rules
     ]);
 
     $data = [
-      'email' => $request->email,
-      'department' => $request->department,
-      'role' => $request->role,
+      'email'            => $request->email,
+      'department'       => $request->department,
+      'role'             => $request->role,
       'permission_level' => $request->department === 'Accounting' ? $request->permission_level : null,
     ];
 

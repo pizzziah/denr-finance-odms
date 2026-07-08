@@ -40,7 +40,7 @@
             <th>Email</th>
             <th>Section</th>
             <th>Role</th>
-            <th style="width: 180px;">Accounting Access Scope</th> 
+            <th style="width: 180px;">Access Scope (For Accounting Only)</th> 
             <th>Status</th>
             <th width="220">Actions</th>
           </tr>
