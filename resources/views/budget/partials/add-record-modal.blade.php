@@ -1,6 +1,6 @@
 {{-- ADD RECORD MODAL --}}
 <div class="modal fade" id="addRecordModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-scrollable" style="max-width:90%;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:90%;">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="fw-bold">Add Budget Record</h4>

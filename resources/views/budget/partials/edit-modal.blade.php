@@ -1,6 +1,6 @@
 {{-- EDIT MODAL --}}
 <div class="modal fade" id="editModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-scrollable" style="max-width:90%;">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:90%;">
     <div class="modal-content">
 
       {{-- HEADER --}}

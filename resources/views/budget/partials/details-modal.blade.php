@@ -1,6 +1,6 @@
 {{-- DETAILS MODAL --}}
 <div class="modal fade" id="detailsModal" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable" style="max-width: 90%;">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable" style="max-width: 90%;">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="fw-bold">Budget Record Details</h4>
