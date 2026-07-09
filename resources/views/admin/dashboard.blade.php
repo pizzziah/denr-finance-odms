@@ -22,21 +22,39 @@
         </div>
       </div>
 
-      <div class="card shadow glass-card p-4 flex-grow-1">
+      <div class="card shadow glass-card p-2 flex-grow-1">
         <div class="card-body">
-          <h5 class="fw-bold text-warning mb-3">
-            <i class="bi bi-shield-lock-fill me-2"></i>Pending Unlock Requests
-          </h5>
+          <div class="pb-3 border-bottom mb-3 d-flex align-items-center justify-content-between">
+            <h5 class="fw-bold text-dark m-0">
+              <i class="bi bi-shield-lock-fill text-warning me-1"></i>
+              Pending Quarter Unlock Requests
+            </h5>
+            <span class="badge bg-light text-dark border fw-semibold px-3 py-2">
+              {{ $pendingUnlocks->count() }} Request(s) Pending
+            </span>
+          </div>
           
           @if(isset($pendingUnlocks) && $pendingUnlocks->count() > 0)
             <div class="d-flex flex-column gap-2" style="max-height: 400px; overflow-y: auto;">
               @foreach($pendingUnlocks as $lock)
                 <div class="p-3 border rounded d-flex align-items-center justify-content-between bg-light">
-                  <span class="small text-dark"><strong>Year {{ $lock->year }} - Q{{ $lock->quarter }}</strong></span>
+                  <div class="d-flex flex-column gap-1">
+                    <span class="small text-dark">
+                      <strong>Year {{ $lock->year }} - Q{{ $lock->quarter }}</strong>
+                    </span>
+                    <div class="d-flex flex-wrap gap-x-3 gap-y-1 align-items-center text-muted small" style="font-size: 0.8rem;">
+                      <span class="me-3">
+                        <i class="bi bi-person me-1"></i>{{ auth()->user() && auth()->user()->department === 'Accounting' ? auth()->user()->email : ($currentUser->email ?? 'accounting@system.local') }}
+                      </span>
+                      <span>
+                        <i class="bi bi-clock me-1"></i>{{ $lock->updated_at ? \Carbon\Carbon::parse($lock->updated_at)->setTimezone('Asia/Manila')->format('M d, Y h:i A') : \Carbon\Carbon::parse($lock->created_at)->setTimezone('Asia/Manila')->format('M d, Y h:i A') }}
+                      </span>
+                    </div>
+                  </div>
                   <div class="d-flex align-items-center gap-2">
                     <form action="{{ route('admin.unlock-quarter', $lock->id) }}" method="POST" class="m-0">
                       @csrf
-                      <button type="submit" class="btn btn-sm btn-warning fw-bold px-3">
+                      <button type="submit" class="btn btn-sm btn-warning fw-bold px-3 shadow-sm">
                         Grant Unlock
                       </button>
                     </form>
