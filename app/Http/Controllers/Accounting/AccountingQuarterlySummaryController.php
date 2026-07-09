@@ -55,79 +55,82 @@ class AccountingQuarterlySummaryController extends Controller {
       return ['is_locked' => false, 'reason' => 'Quarter is open for entries.'];
     }
 
-    public function index(Request $request) {
-      $now = Carbon::now();
-      $currentQuarter = ceil($now->month / 3);
-      $currentYear = $now->year;
+  public function index(Request $request) {
+    $now = Carbon::now();
+    $currentQuarter = ceil($now->month / 3);
+    $currentYear = $now->year;
 
-      $selectedQuarter = (int) $request->get('quarter', $currentQuarter);
-      $selectedYear = (int) $request->get('year', $currentYear);
+    $selectedQuarter = (int) $request->get('quarter', $currentQuarter);
+    $selectedYear = (int) $request->get('year', $currentYear);
 
-      $lockState = $this->checkQuarterLockStatus($selectedQuarter, $selectedYear);
-      $isLocked = $lockState['is_locked'];
+    $lockState = $this->checkQuarterLockStatus($selectedQuarter, $selectedYear);
+    $isLocked = $lockState['is_locked'];
+    
+    $modelInstance = new AccountingQuarterlySummary;
+    $modelInstance->setQuarterTable($selectedQuarter, $selectedYear);
+    
+    $query = $modelInstance->newQuery()->select('*');
+    
+    if ($request->filled('search')) {
+      $search = $request->input('search');
+      $query->where(function ($q) use ($search) {
+      $q->where('particulars', 'LIKE', "%{$search}%")
+        ->orWhere('amount', 'LIKE', "%{$search}%")
+        ->orWhere('nca_nta_received', 'LIKE', "%{$search}%")
+        ->orWhere('nca_nta_downloaded', 'LIKE', "%{$search}%");
+      });
+    }
 
-      $modelInstance = new AccountingQuarterlySummary;
-      $modelInstance->setQuarterTable($selectedQuarter, $selectedYear);
-      $query = $modelInstance->newQuery();
+    $pk = $modelInstance->getKeyName();
+    $this->recalculateQuarterlyBalances($selectedQuarter, $selectedYear);
 
-      if ($request->filled('search')) {
-        $search = $request->input('search');
-        $query->where(function ($q) use ($search) {
-          $q->where('particulars', 'LIKE', "%{$search}%")
-            ->orWhere('amount', 'LIKE', "%{$search}%");
-        });
-      }
+    if ($request->has('sort_date')) {
+      $sortDirection = $request->get('sort_date') === 'asc' ? 'asc' : 'desc';
+      $query->orderByRaw("STR_TO_DATE(emds_date, '%c/%e/%Y') {$sortDirection}");
+    } elseif ($request->has('sort_processed')) {
+      $sortDirection = $request->get('sort_processed') === 'asc' ? 'asc' : 'desc';
+      $query->orderByRaw("STR_TO_DATE(date_processed, '%c/%e/%Y') {$sortDirection}");
+    } else {
+      $query->orderByRaw("STR_TO_DATE(date_processed, '%c/%e/%Y') asc, {$pk} asc");
+    }
 
-        // Always recalculate balances sequentially matching primary creation order first
-      $pk = $modelInstance->getKeyName();
-      $this->recalculateQuarterlyBalances($selectedQuarter, $selectedYear);
+    $allRecords = $query->get();
 
-        // Apply sorting preferences: default sequence displays the most recent items first
-      $sortColumn = $pk;
-      $sortDirection = 'asc';
-
-      if ($request->has('sort_date')) {
-        $sortColumn = 'emds_date';
-        $sortDirection = $request->get('sort_date') === 'asc' ? 'asc' : 'desc';
-      } elseif ($request->has('sort_processed')) {
-        $sortColumn = 'date_processed';
-        $sortDirection = $request->get('sort_processed') === 'asc' ? 'asc' : 'desc';
-      }
-
-      $allRecords = $query->orderBy($sortColumn, $sortDirection)->get();
-
-      foreach ($allRecords as $record) {
-        $record->setKeyName($pk);
-      }
+    foreach ($allRecords as $record) {
+          $record->setKeyName($pk);
+        }
 
         // Totals calculations
-      $totalReceived = 0;
-      $totalDownloaded = 0;
-      foreach ($allRecords as $rec) {
-        $totalReceived += AccountingQuarterlySummary::parseMoney($rec->nca_nta_received);
-        $totalDownloaded += AccountingQuarterlySummary::parseMoney($rec->nca_nta_downloaded);
-      }
+        $totalReceived = 0;
+        $totalDownloaded = 0;
+        foreach ($allRecords as $rec) {
+          $totalReceived += AccountingQuarterlySummary::parseMoney($rec->nca_nta_received);
+          $totalDownloaded += AccountingQuarterlySummary::parseMoney($rec->nca_nta_downloaded);
+        }
 
-      $latestRow = $modelInstance->newQuery()->orderBy($pk, 'desc')->first();
-      $currentBalance = $latestRow ? number_format(AccountingQuarterlySummary::parseMoney($latestRow->balance), 2) : '0.00';
+        $latestRow = $modelInstance->newQuery()
+          ->orderByRaw("STR_TO_DATE(date_processed, '%c/%e/%Y') desc, {$pk} desc")
+          ->first();
+          
+        $currentBalance = $latestRow ? number_format(AccountingQuarterlySummary::parseMoney($latestRow->balance), 2) : '0.00';
 
         // Verify manual unlock requirement records
-      $dbLock = DB::table('odms_admin_quarter_locks')->where('year', $selectedYear)->where('quarter', $selectedQuarter)->first();
-      $requiresAdminRequest = $dbLock ? (bool) $dbLock->requires_admin_unlock : false;
+        $dbLock = DB::table('odms_admin_quarter_locks')->where('year', $selectedYear)->where('quarter', $selectedQuarter)->first();
+        $requiresAdminRequest = $dbLock ? (bool) $dbLock->requires_admin_unlock : false;
 
-      return view('accounting.quarterly-summary', [
-        'records' => $allRecords,
-        'currentQuarter' => $currentQuarter,
-        'selectedQuarter' => $selectedQuarter,
-        'selectedYear' => $selectedYear,
-        'isLocked' => $isLocked,
-        'requiresAdminRequest' => $requiresAdminRequest,
-        'currentBalance' => $currentBalance,
-        'totalReceived' => number_format($totalReceived, 2),
-        'totalDownloaded' => number_format($totalDownloaded, 2),
-      ]);
+        return view('accounting.quarterly-summary', [
+          'records' => $allRecords,
+          'currentQuarter' => $currentQuarter,
+          'selectedQuarter' => $selectedQuarter,
+          'selectedYear' => $selectedYear,
+          'isLocked' => $isLocked,
+          'requiresAdminRequest' => $requiresAdminRequest,
+          'currentBalance' => $currentBalance,
+          'totalReceived' => number_format($totalReceived, 2),
+          'totalDownloaded' => number_format($totalDownloaded, 2),
+        ]);
   }
-
+    
   public function manualLock(Request $request) {
     if (auth()->user()->department !== 'Accounting' || auth()->user()->permission_level !== 'special') {
             return redirect()->back()->with('error', 'Action denied: Your account context lacks ledger locking authorization.');
@@ -273,25 +276,26 @@ public function requestAdminUnlock(Request $request)
     $modelInstance->setQuarterTable($quarter, $year);
     $pkName = $modelInstance->getKeyName();
 
-    $records = $modelInstance->newQuery()->orderBy($pkName, 'asc')->get();
-    $runningBalance = 0;
+    $records = $modelInstance->newQuery()
+      ->orderByRaw("STR_TO_DATE(date_processed, '%c/%e/%Y') asc, {$pkName} asc")
+      ->get();
 
-    foreach ($records as $rec) {
-      $rec->setKeyName($pkName);
-      $amount = AccountingQuarterlySummary::parseMoney($rec->amount);
-      $received = AccountingQuarterlySummary::parseMoney($rec->nca_nta_received);
-      $downloaded = AccountingQuarterlySummary::parseMoney($rec->nca_nta_downloaded);
+    $runningBalance = 0.00;
 
-      $runningBalance = $runningBalance - $amount + $received - $downloaded;
-      $rec->balance = $runningBalance;
+    foreach ($records as $record) {
+      $received = AccountingQuarterlySummary::parseMoney($record->nca_nta_received);
+      $downloaded = AccountingQuarterlySummary::parseMoney($record->nca_nta_downloaded);
+      $adjustment = AccountingQuarterlySummary::parseMoney($record->amount);
+
+      $runningBalance += $received;
+      $runningBalance -= $downloaded;
+      $runningBalance += $adjustment; 
 
       DB::table($modelInstance->getTable())
-        ->where($pkName, $rec->getKey())
-        ->update([
-          'balance' => $runningBalance
-        ]);
-      }
+        ->where($pkName, $record->{$pkName})
+        ->update(['balance' => number_format($runningBalance, 2, '.', ',')]);
     }
+  }
 
   public function cancelUnlockRequest(Request $request) {
     $quarter = $request->filled('quarter') ? (int) $request->quarter : ceil(Carbon::now()->month / 3);
