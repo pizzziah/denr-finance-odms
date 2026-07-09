@@ -14,7 +14,7 @@
   <div class="card border-0 shadow-sm p-3">
     <div class="px-3 pt-3 pb-3 border-bottom mb-3 d-flex align-items-center justify-content-between">
       <h5 class="fw-bold text-dark m-0">
-        <i class="bi bi-shield-lock-fill me-2 text-warning"></i> Pending Quarter Unlock Requests
+        Pending Quarter Unlock Requests
       </h5>
       <span class="badge bg-light text-dark border fw-semibold px-3 py-2">
         {{ $pendingUnlocks->count() }} Request(s) Pending
@@ -24,8 +24,8 @@
     <div class="card-body bg-transparent p-0">
       @if(isset($pendingUnlocks) && $pendingUnlocks->count() > 0)
         <div class="table-responsive" style="max-height: 550px; overflow-y: auto;">
-          <table class="table table-hover align-middle mb-0">
-            <thead class="table-light text-secondary text-uppercase fs-7 small">
+          <table class="table table-bordered table-hover align-middle">
+            <thead>
               <tr>
                 <th class="ps-3 py-3">Target Period</th>
                 <th class="py-3">Requester</th>
@@ -35,33 +35,35 @@
             </thead>
             <tbody>
               @foreach($pendingUnlocks as $lock)
-                <tr>
-                  <td class="ps-3">
-                    <span class="fw-semibold text-dark">
-                      Year {{ $lock->year }} — Quarter {{ $lock->quarter }}
-                    </span>
-                  </td>
-                  <td>
-                    <div class="d-flex align-items-center">
-                      <div class="bg-light text-secondary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
-                        <i class="bi bi-person-fill"></i>
-                      </div>
-                      <div>
-                        <span class="text-dark fw-medium d-block small">
-                          {{ $lock->requested_by_email ?? 'accounting.dept@system.local' }}
-                        </span>
-                        <span class="text-muted tiny d-block font-monospace" style="font-size: 0.70rem;">Special Permissions Role</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="text-dark mb-0 small fw-medium">
-                      {{ $lock->updated_at ? \Carbon\Carbon::parse($lock->updated_at)->format('M d, Y') : \Carbon\Carbon::parse($lock->created_at)->format('M d, Y') }}
-                    </div>
-                    <div class="text-muted tiny text-xs" style="font-size: 0.75rem;">
-                      {{ $lock->updated_at ? \Carbon\Carbon::parse($lock->updated_at)->format('h:i A') : \Carbon\Carbon::parse($lock->created_at)->format('h:i A') }}
-                    </div>
-                  </td>
+
+              <tr>
+  <td class="ps-3">
+    <span class="fw-semibold text-dark">
+      Year {{ $lock->year }} — Quarter {{ $lock->quarter }}
+    </span>
+  </td>
+  <td>
+    <div class="d-flex align-items-center">
+      <div class="bg-light text-secondary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+        <i class="bi bi-person-fill"></i>
+      </div>
+      <div>
+        <span class="text-dark fw-medium d-block small">
+          {{ auth()->user() && auth()->user()->department === 'Accounting' ? auth()->user()->email : ($currentUser->email ?? 'accounting@system.local') }}
+        </span>
+        <span class="text-muted tiny d-block font-monospace" style="font-size: 0.70rem;">Accounting Dept Context</span>
+      </div>
+    </div>
+  </td>
+  <td>
+    <div class="text-dark mb-0 small fw-medium">
+      {{ $lock->updated_at ? \Carbon\Carbon::parse($lock->updated_at)->setTimezone('Asia/Manila')->format('M d, Y') : \Carbon\Carbon::parse($lock->created_at)->setTimezone('Asia/Manila')->format('M d, Y') }}
+    </div>
+    <div class="text-muted tiny text-xs" style="font-size: 0.75rem;">
+      {{ $lock->updated_at ? \Carbon\Carbon::parse($lock->updated_at)->setTimezone('Asia/Manila')->format('h:i A') : \Carbon\Carbon::parse($lock->created_at)->setTimezone('Asia/Manila')->format('h:i A') }}
+    </div>
+  </td>
+              
                   <td>
                     <div class="d-flex gap-2 justify-content-center align-items-center">
                       <form action="{{ route('admin.unlock-quarter', $lock->id) }}" method="POST" class="m-0">
