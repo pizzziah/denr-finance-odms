@@ -49,6 +49,10 @@ class AdminUserController extends Controller {
       'email' => 'required|email|unique:odms_admin_users,email',
       'password' => 'required|min:8',
       'permission_level' => 'required_if:department,Accounting|nullable|in:restricted,special',
+    ], [
+      'email.unique' => 'This email address is already registered.',
+      'email.email'  => 'Please enter a valid email address.',
+      'password.min' => 'Password must be at least 8 characters long.',
     ]);
 
     AdminUser::create([
@@ -144,4 +148,12 @@ class AdminUserController extends Controller {
 
     return redirect()->back()->with('success', 'Unlock request denied. Ledger access remains locked.');
   }
+  public function checkEmail(Request $request)
+{
+    $exists = AdminUser::where('email', $request->email)->exists();
+
+    return response()->json([
+        'exists' => $exists
+    ]);
+}
 }

@@ -201,6 +201,19 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+
+@if ($errors->any())
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const addUserModal = document.getElementById('addUserModal');
+
+    if (addUserModal) {
+        const modal = new bootstrap.Modal(addUserModal);
+        modal.show();
+    }
+});
+</script>
+@endif
 @endsection
 
 @php

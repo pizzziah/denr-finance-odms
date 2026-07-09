@@ -76,6 +76,8 @@ Route::middleware(['auth'])->group(function () {
             
             Route::post('/unlock-quarter/{id}', [AdminUserController::class, 'administrativeUnlockQuarter'])->name('admin.unlock-quarter');
             Route::delete('/unlock-quarter/deny/{id}', [AdminUserController::class, 'denyUnlockQuarter'])->name('admin.unlock-quarter.deny');
+
+            Route::post('/users/check-email', [AdminUserController::class, 'checkEmail'])->name('admin.users.check-email');
         });
 
     Route::prefix('notifications')->group(function () {

@@ -142,38 +142,53 @@ document.addEventListener('DOMContentLoaded', function () {
 
     department.addEventListener('change', loadRoles);
 
-    // Issue #1 Fix: Precise matching boundaries using regex patterns instead of global html tracking
-    if (emailInput) {
-        emailInput.addEventListener('input', function() {
-            const emailValue = this.value.trim();
-            
-            emailError.style.display = 'none';
-            emailError.innerText = '';
-            emailInput.classList.remove('is-invalid');
-            submitBtn.disabled = false;
+if (emailInput) {
 
-            if (emailValue === '' || emailValue.length < 5) return;
+    let timer;
 
-            fetch(`{{ route('admin.users') }}?search=${encodeURIComponent(emailValue)}`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    emailInput.addEventListener('input', function () {
+
+        clearTimeout(timer);
+
+        const email = this.value.trim();
+
+        // Reset UI every time the user types
+        emailInput.classList.remove('is-invalid');
+        emailError.style.display = 'none';
+        emailError.innerText = '';
+        submitBtn.disabled = false;
+
+        if (email === '') return;
+
+        timer = setTimeout(() => {
+
+            fetch("{{ route('admin.users.check-email') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    email: email
+                })
             })
-            .then(response => response.text())
-            .then(html => {
-                // Creates a clean regex boundary check targeting standalone text segments or cell nodes
-                const escapeRegex = emailValue.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                const emailRegex = new RegExp('(>|\\b)"?' + escapeRegex + '"?(<|\\b)', 'i');
+            .then(response => response.json())
+            .then(data => {
 
-                if (emailRegex.test(html)) {
-                    emailError.innerText = 'This email has already been taken.';
-                    emailError.style.display = 'block';
+                if (data.exists) {
                     emailInput.classList.add('is-invalid');
+                    emailError.innerText = "This email has already been taken.";
+                    emailError.style.display = "block";
                     submitBtn.disabled = true;
                 }
-            })
-            .catch(err => console.error('Verification tracking failed:', err));
-        });
-    }
 
+            });
+
+        }, 400);
+
+    });
+
+}
     function checkIfFormIsDirty() {
         let isDirty = false;
         const inputs = form.querySelectorAll('input, select');
