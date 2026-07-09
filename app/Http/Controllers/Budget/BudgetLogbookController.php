@@ -250,9 +250,9 @@ class BudgetLogbookController extends Controller
                     'particulars_remark' => $request->particulars_remark,
                     'uac_codes' => $request->uac_codes,
                     'amount' => $request->amount,
-                    'date_returned_1' => $request->date_returned_1,
-                    'date_received_1' => $request->date_received_1,
-                    'remarks_1' => $request->remarks_1,
+                    'date_returned_1' => $request->review_date_returned[0] ?? null,
+                    'date_received_1' => $request->review_date_received[0] ?? null,
+                    'remarks_1'       => $request->review_remarks[0] ?? null,
                     'date_forwarded_1' => $request->date_forwarded_1,
                     'date_ors_received' => $request->date_ors_received,
                     'date_returned_2' => $request->date_returned_2,
@@ -326,13 +326,19 @@ class BudgetLogbookController extends Controller
             }
             // ================= RESET REVIEW HISTORY =================
             BudgetReviewProcess::where('budget_id', $budget_id)->delete();
-            // ================= SAVE NEW REVIEW HISTORY =================
+
+            // ================= SAVE ADDITIONAL REVIEW HISTORY =================
+            // (Review #1 is saved in odms_budget)
             if ($request->filled('review_date_returned')) {
-                foreach ($request->review_date_returned as $index => $returned) {
-                    $received =
-                        $request->review_date_received[$index] ?? null;
-                    $remarks =
-                        $request->review_remarks[$index] ?? null;
+
+                $count = count($request->review_date_returned);
+
+                for ($index = 1; $index < $count; $index++) {
+
+                    $returned = $request->review_date_returned[$index] ?? null;
+                    $received = $request->review_date_received[$index] ?? null;
+                    $remarks  = $request->review_remarks[$index] ?? null;
+
                     if (
                         empty($returned) &&
                         empty($received) &&
@@ -342,10 +348,10 @@ class BudgetLogbookController extends Controller
                     }
 
                     BudgetReviewProcess::create([
-                        'budget_id' => $budget_id,
+                        'budget_id'     => $budget_id,
                         'date_returned' => $returned,
                         'date_received' => $received,
-                        'remarks' => $remarks,
+                        'remarks'       => $remarks,
                     ]);
                 }
             }
@@ -371,59 +377,59 @@ class BudgetLogbookController extends Controller
     }
 
     public function archives(Request $request)
-{
-    $year = $request->year ?? 'all';
-    $month = $request->month;
-    $search = $request->search;
-    $sort = $request->sort ?? 'latest';
+    {
+        $year = $request->year ?? 'all';
+        $month = $request->month;
+        $search = $request->search;
+        $sort = $request->sort ?? 'latest';
 
-    $query = DB::table('odms_budget');
+        $query = DB::table('odms_budget');
 
-    // Filter by year
-    if ($year != 'all') {
-        $query->whereYear('date_received', $year);
+        // Filter by year
+        if ($year != 'all') {
+            $query->whereYear('date_received', $year);
+        }
+        // Filter by month
+        if ($month && $month != 'all') {
+            $query->whereMonth('date_received', $month);
+        }
+
+        // Full text search handling match configurations
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('ors_no', 'like', "%{$search}%")
+                ->orWhere('payee', 'like', "%{$search}%")
+                ->orWhere('issuing_office', 'like', "%{$search}%")
+                ->orWhere('classification', 'like', "%{$search}%")
+                ->orWhere('uac_codes', 'like', "%{$search}%")
+                ->orWhere('particulars', 'like', "%{$search}%")
+                ->orWhere('status', 'like', "%{$search}%")
+                ->orWhere('final_remarks', 'like', "%{$search}%");
+            });
+        }
+
+        // Sorting matrix switch statements
+        switch ($sort) {
+            case 'latest':
+                $query->orderByDesc('date_received');
+                break;
+            case 'oldest':
+                $query->orderBy('date_received');
+                break;
+            case 'ors_asc':
+                $query->orderBy('ors_no');
+                break;
+            case 'ors_desc':
+                $query->orderByDesc('ors_no');
+                break;
+            default:
+                $query->orderByDesc('date_received');
+        }
+
+        $records = $query->get();
+
+        return view('budget.archives', compact('records', 'year', 'month', 'search', 'sort'));
     }
-    // Filter by month
-    if ($month && $month != 'all') {
-        $query->whereMonth('date_received', $month);
-    }
-
-    // Full text search handling match configurations
-    if ($search) {
-        $query->where(function ($q) use ($search) {
-            $q->where('ors_no', 'like', "%{$search}%")
-              ->orWhere('payee', 'like', "%{$search}%")
-              ->orWhere('issuing_office', 'like', "%{$search}%")
-              ->orWhere('classification', 'like', "%{$search}%")
-              ->orWhere('uac_codes', 'like', "%{$search}%")
-              ->orWhere('particulars', 'like', "%{$search}%")
-              ->orWhere('status', 'like', "%{$search}%")
-              ->orWhere('final_remarks', 'like', "%{$search}%");
-        });
-    }
-
-    // Sorting matrix switch statements
-    switch ($sort) {
-        case 'latest':
-            $query->orderByDesc('date_received');
-            break;
-        case 'oldest':
-            $query->orderBy('date_received');
-            break;
-        case 'ors_asc':
-            $query->orderBy('ors_no');
-            break;
-        case 'ors_desc':
-            $query->orderByDesc('ors_no');
-            break;
-        default:
-            $query->orderByDesc('date_received');
-    }
-
-    $records = $query->get();
-
-    return view('budget.archives', compact('records', 'year', 'month', 'search', 'sort'));
-}
 
     public function store(Request $request)
     {
