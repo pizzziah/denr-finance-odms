@@ -82,7 +82,7 @@
   @endif
 
   {{-- CONTROL FILTERS BAR INTERFACES --}}
-      <div class="card p-3 mb-3 m-0 w-100 bg-white shadow-sm">
+      <div class="card p-3 mb-3 m-0 w-100 bg-white">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
           
           <div class="d-flex align-items-center gap-2">
@@ -102,14 +102,15 @@
                   <i class="bi bi-lock-fill me-1"></i> Lock Quarter
                 </x-button>
               @else
-                {{-- FIX 1: Verify requiresAdminRequest evaluates true strictly when an actual request token is active --}}
                 @if($requiresAdminRequest)
                     <button type="button"
-                            class="btn btn-sm btn-secondary fw-bold shadow-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#cancelUnlockModal">
-                        <i class="bi bi-hourglass-split me-1"></i>
-                        Unlock Pending
+                      class="btn btn-sm fw-bold"
+                      style="color: #9D6B0B; background-color: #FFFBF3; border: 1px solid #9D6B0B;"
+                      data-bs-toggle="modal"
+                      data-bs-target="#cancelUnlockModal"
+                      title="Your unlock request is awaiting approval">
+                    <i class="bi bi-hourglass-split me-2"></i>
+                      Unlock Request Pending
                     </button>
                 @else
                     <form action="{{ route('accounting.quarterly-summary.request-unlock') }}" method="POST" class="m-0">
@@ -157,7 +158,7 @@
       </div>
 
   {{-- REORDERED LEDGER DATA TABLE --}}
-  <div class="card m-0 w-100 shadow-sm">
+  <div class="card m-0 w-100">
     <div class="card-body p-2">
       <div style="max-height: 520px; overflow-y: auto; overflow-x: auto; border: 1px solid #dee2e6;">
         <table class="table table-bordered table-hover table-sm align-middle m-0" style="min-width: 1450px;">
