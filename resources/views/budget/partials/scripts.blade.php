@@ -173,8 +173,14 @@ document.addEventListener('DOMContentLoaded', () => {
             $('view_date_received_2').textContent = row.date_received_2 ?? '-';
             $('view_date_forwarded_accounting').textContent = row.date_forwarded_accounting ?? '-';
             $('view_final_remarks').textContent = row.final_remarks ?? '-';
-            $('view_total_time_budget').textContent = row.total_time_budget ?? '-';
-            $('view_total_time').textContent = row.total_time ?? '-';
+            $('view_total_time_budget').textContent = calculateBudgetTime(row);
+            $('view_total_time').textContent =
+            formatWorkingTime(
+                calculateWorkingHours(
+                    row.date_received,
+                    row.date_forwarded_accounting
+                )
+            );
 
             // Load review history
             $('view_review_history').innerHTML = reviewHtml;
@@ -223,7 +229,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 else {
                     el.value = row[f] ?? '';
                 }
+            $('edit_total_time_budget').value =
+                calculateBudgetTime(row);
 
+
+            $('edit_total_time').value =
+                formatWorkingTime(
+                    calculateWorkingHours(
+                        row.date_received,
+                        row.date_forwarded_accounting
+                    )
+                );
             });
 
             // ===========================
@@ -300,6 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(e.message);
         }
     };
+
     // ===================== EDIT BUTTON =====================
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('.edit-btn');
@@ -500,5 +517,73 @@ document.addEventListener('DOMContentLoaded', () => {
         ors.addEventListener("input", function () {
             this.value = this.value.replace(/\D/g, "");
         });
+    }
+    // ===================== COMPUTE WORKING HOURS =====================
+    // Exclude Friday, Saturday, Sunday
+    function calculateWorkingHours(start, end) {
+
+        if (!start || !end) return 0;
+
+        let startDate = new Date(start.replace(' ', 'T'));
+        let endDate = new Date(end.replace(' ', 'T'));
+
+        if (isNaN(startDate) || isNaN(endDate)) {
+            return 0;
+        }
+
+        let hours = 0;
+
+        while (startDate < endDate) {
+
+            let day = startDate.getDay();
+
+            // Monday-Thursday only
+            if (day !== 0 && day !== 5 && day !== 6) {
+                hours++;
+            }
+
+            startDate.setHours(startDate.getHours() + 1);
+        }
+
+        return hours;
+    }
+
+
+    // ===================== FORMAT 0d0h =====================
+    function formatWorkingTime(hours) {
+
+        let days = Math.floor(hours / 24);
+        let remainingHours = hours % 24;
+
+        return `${days}d${remainingHours}h`;
+    }
+
+    function calculateBudgetTime(row) {
+
+        let total = calculateWorkingHours(
+            row.date_received,
+            row.date_forwarded_accounting
+        );
+
+
+        // Remove Returned to End User periods
+        total -= calculateWorkingHours(
+            row.date_returned_1,
+            row.date_received_1
+        );
+
+
+        total -= calculateWorkingHours(
+            row.date_returned_2,
+            row.date_received_2
+        );
+
+
+        if (total < 0) {
+            total = 0;
+        }
+
+
+        return formatWorkingTime(total);
     }
 </script>

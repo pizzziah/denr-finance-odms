@@ -198,8 +198,8 @@ $show = fn($col) => in_array('all', $visibleColumns) || in_array($col, $visibleC
                   @if($show('remarks_2'))<td>{{ $record->remarks_2 ?? '-' }}</td>@endif
                   @if($show('date_received_2'))<td>{{ $record->date_received_2 ?? '-' }}</td>@endif
                   @if($show('date_forwarded_accounting'))<td>{{ $record->date_forwarded_accounting ?? '-' }}</td>@endif
-                  @if($show('total_time_budget'))<td>{{ $record->total_time_budget ?? '-' }}</td>@endif
-                  @if($show('total_time'))<td>{{ $record->total_time ?? '-' }}</td>@endif
+                  @if($show('total_time_budget'))<td>{{ $record->display_total_time_budget ?? '-' }}</td>@endif
+                  @if($show('total_time'))<td>{{ $record->display_total_time ?? '-' }}</td>@endif
                   @if($show('final_remarks'))<td style="min-width: 300px; white-space: normal;">{{ $record->final_remarks }}</td>@endif
                   @if($show('action'))<td>
                       @if(!empty($record->payee))

@@ -248,10 +248,9 @@
                   </div>
 
                   <div class="col-md-6">
-                    <label class="form-label small fw-semibold">Total Time Budget</label>
+                    <label>Total Time in Budget</label>
                     <input type="text" id="edit_total_time_budget"
-                           name="total_time_budget"
-                           class="form-control form-control-sm">
+                        class="form-control" readonly>
                   </div>
 
                 </div>
@@ -282,10 +281,9 @@
                   </div>
 
                   <div class="col-md-6">
-                    <label class="form-label small fw-semibold">Total Time</label>
-                    <input type="text" id="edit_total_time"
-                           name="total_time"
-                           class="form-control form-control-sm">
+                      <label>Total Time</label>
+                      <input type="text" id="edit_total_time"
+                          class="form-control" readonly>
                   </div>
 
                   <div class="col-12">

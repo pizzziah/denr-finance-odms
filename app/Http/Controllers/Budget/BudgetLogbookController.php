@@ -73,7 +73,55 @@ class BudgetLogbookController extends Controller
                 $query->orderByDesc('date_received');
         }
 
-        $records = $query->get();
+        $records = $query->get()->map(function ($row) {
+
+            // TOTAL TIME
+            $totalHours = $this->calculateWorkingHours(
+                $row->date_received,
+                $row->date_forwarded_accounting
+            );
+
+            $row->display_total_time =
+                $this->formatWorkingTime($totalHours);
+
+            // TOTAL TIME IN BUDGET
+
+            $budgetHours = $totalHours;
+
+            // Remove Review #1 returned period
+            $budgetHours -= $this->calculateWorkingHours(
+                $row->date_returned_1,
+                $row->date_received_1
+            );
+
+            // Remove Review #2 returned period
+            $budgetHours -= $this->calculateWorkingHours(
+                $row->date_returned_2,
+                $row->date_received_2
+            );
+
+            // Remove additional reviews
+            $reviews = BudgetReviewProcess::where('budget_id', $row->budget_id)
+                ->get();
+
+            foreach ($reviews as $review) {
+
+                $budgetHours -= $this->calculateWorkingHours(
+                    $review->date_returned,
+                    $review->date_received
+                );
+            }
+
+            if ($budgetHours < 0) {
+                $budgetHours = 0;
+            }
+
+            $row->display_total_time_budget =
+                $this->formatWorkingTime($budgetHours);
+
+
+            return $row;
+        });
 
         $issuingOffices = DB::table('odms_dropdowns')
             ->select('issuing_office')
@@ -636,5 +684,42 @@ class BudgetLogbookController extends Controller
                 '0',
                 STR_PAD_LEFT
             );
+    }
+
+    private function calculateWorkingHours($start, $end)
+    {
+        if (!$start || !$end) {
+            return 0;
+        }
+
+        $start = Carbon::parse($start);
+        $end = Carbon::parse($end);
+
+        $hours = 0;
+
+        while ($start < $end) {
+
+            // Exclude Friday (5), Saturday (6), Sunday (0)
+            if (!in_array($start->dayOfWeek, [
+                Carbon::FRIDAY,
+                Carbon::SATURDAY,
+                Carbon::SUNDAY
+            ])) {
+                $hours++;
+            }
+
+            $start->addHour();
+        }
+
+        return $hours;
+    }
+
+
+    private function formatWorkingTime($hours)
+    {
+        $days = floor($hours / 24);
+        $remainingHours = $hours % 24;
+
+        return $days . 'd' . $remainingHours . 'h';
     }
 }
