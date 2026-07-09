@@ -275,7 +275,7 @@ class AccountingLogbookController extends Controller {
     // ================= UPDATE LOGBOOK RECORD =================
     public function update(Request $request, $transaction_id)
     {
-$request->validate([
+    $request->validate([
         'status' => 'required|in:Pending,Forwarded to Cashier,Cancelled,Returned',
         // add your other validation fields here if needed...
     ]);

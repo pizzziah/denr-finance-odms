@@ -13,7 +13,7 @@ class BudgetLogbookController extends Controller
 {
     public function logbook(Request $request)
     {
-        //$this->checkDueDateNotifications();
+        $this->checkDueDateNotifications();
 
         $year = $request->year ?? 'all';
         $month = $request->month;
