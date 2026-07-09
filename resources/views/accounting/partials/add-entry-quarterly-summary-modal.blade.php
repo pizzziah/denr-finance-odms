@@ -5,6 +5,7 @@
       <form id="addSummaryForm" method="POST" action="{{ route('accounting.quarterly-summary.store') }}">
         @csrf
         <input type="hidden" name="target_quarter" value="{{ $selectedQuarter }}">
+        <input type="hidden" name="target_year" value="{{ $selectedYear }}">        
         
         <div class="modal-header">
           <h5 class="fw-bold mb-0">Add Quarterly Summary Entry</h5>
@@ -12,13 +13,13 @@
         
         <div class="modal-body">
           <div class="mb-3">
-            <label class="fw-bold">Date Processed</label>
-            <input type="date" name="date_processed" class="form-control" readonly>
+            <label class="fw-bold">Date Processed <span class="text-danger">*</span></label>
+            <input type="date" name="date_processed" class="form-control" value="{{ now()->format('Y-m-d') }}" required>
           </div>
 
           <div class="mb-3">
-            <label class="fw-bold">DV Number</label>
-            <input type="number" name="particulars" class="form-control" readonly>
+            <label class="fw-bold">DV Number <span class="text-danger">*</span></label>
+            <input type="text" name="particulars" class="form-control" placeholder="Enter DV Number" required>
           </div>
 
           <div class="mb-3">
@@ -52,7 +53,7 @@
 
           <div class="mb-3">
             <label class="fw-bold">EMDS Date</label>
-            <input type="date" name="emds_date" class="form-control" value="{{ now()->format('Y-m-d') }}">
+            <input type="date" name="emds_date" class="form-control">
           </div>
 
           <div class="mb-3">

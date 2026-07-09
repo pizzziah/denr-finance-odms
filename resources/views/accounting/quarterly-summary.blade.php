@@ -82,90 +82,79 @@
   @endif
 
   {{-- CONTROL FILTERS BAR INTERFACES --}}
-  <div class="card p-3 mb-3 m-0 w-100 bg-white shadow-sm">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-      
-      <div class="d-flex align-items-center gap-2">
-        @if($isLocked)
-          <button type="button" class="btn btn-sm" style="background: #FFC2C2; border-color: var(--error); color: var(--error);" disabled>
-            <i class="bi bi-lock"></i> Quarter Locked
-          </button>
-        @else
-          <x-button type="button" variant="secondary" data-bs-toggle="modal" data-bs-target="#addSummaryModal">
-            <i class="bi bi-file-earmark-plus"></i> Add Entry
-          </x-button>
-        @endif
-
-        @if(auth()->user()->department === 'Accounting' && auth()->user()->permission_level === 'special')
-          @if(!$isLocked)
-            <x-button type="button" variant="alert" data-bs-toggle="modal" data-bs-target="#lockQuarterModal">
-              <i class="bi bi-lock-fill me-1"></i> Lock Quarter
-            </x-button>
-          @else
-            @if($requiresAdminRequest)
-                <button type="button"
-                        class="btn btn-sm btn-secondary fw-bold shadow-sm"
-                        data-bs-toggle="modal"
-                        data-bs-target="#cancelUnlockModal">
-                    <i class="bi bi-hourglass-split me-1"></i>
-                    Unlock Pending
-                </button>
-
-            @else
-
-                <form action="{{ route('accounting.quarterly-summary.request-unlock') }}" method="POST">
-                    @csrf
-
-                    <input type="hidden" name="quarter" value="{{ $selectedQuarter }}">
-                    <input type="hidden" name="year" value="{{ $selectedYear }}">
-
-                    <button type="submit"
-                            class="btn btn-sm btn-warning fw-bold">
-                        <i class="bi bi-unlock"></i>
-                        Request Unlock
-                    </button>
-                </form>
-            @endif
-          @endif
-        @endif
-      </div>
-
-      <form action="{{ route('accounting.quarterly-summary') }}" method="GET" class="d-flex align-items-center gap-2 flex-wrap flex-md-nowrap m-0">
-        <div class="d-flex align-items-center gap-2 flex-wrap flex-md-nowrap">
-          <label class="small fw-bold text-nowrap mb-0">Scope View:</label>
+      <div class="card p-3 mb-3 m-0 w-100 bg-white shadow-sm">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
           
-          <select name="year" class="form-select form-select-sm fw-bold border-secondary" style="min-width: 100px;" onchange="this.form.submit()">
-            @for ($y = date('Y'); $y >= date('Y') - 5; $y--)
-              <option value="{{ $y }}" @selected(($selectedYear ?? date('Y')) == $y)>{{ $y }}</option>
-            @endfor
-          </select>
+          <div class="d-flex align-items-center gap-2">
+            @if($isLocked)
+              <button type="button" class="btn btn-sm" style="background: #FFC2C2; border-color: var(--error); color: var(--error);" disabled>
+                <i class="bi bi-lock"></i> Quarter Locked
+              </button>
+            @else
+              <x-button type="button" variant="secondary" data-bs-toggle="modal" data-bs-target="#addSummaryModal">
+                <i class="bi bi-file-earmark-plus"></i> Add Entry
+              </x-button>
+            @endif
 
-          <select name="quarter" class="form-select form-select-sm fw-bold border-secondary" style="min-width: 140px;" onchange="this.form.submit()">
-            <option value="1" @selected($selectedQuarter == 1)>1st Quarter @if($currentQuarter > 1 && ($selectedYear ?? date('Y')) == date('Y')) (Locked) @endif</option>
-            <option value="2" @selected($selectedQuarter == 2)>2nd Quarter @if($currentQuarter > 2 && ($selectedYear ?? date('Y')) == date('Y')) (Locked) @endif</option>
-            <option value="3" @selected($selectedQuarter == 3)>3rd Quarter @if($currentQuarter > 3 && ($selectedYear ?? date('Y')) == date('Y')) (Locked) @endif</option>
-            <option value="4" @selected($selectedQuarter == 4)>4th Quarter @if($currentQuarter > 4 && ($selectedYear ?? date('Y')) == date('Y')) (Locked) @endif</option>
-          </select>
+            @if(auth()->user()->department === 'Accounting' && auth()->user()->permission_level === 'special')
+              @if(!$isLocked)
+                <x-button type="button" variant="alert" data-bs-toggle="modal" data-bs-target="#lockQuarterModal">
+                  <i class="bi bi-lock-fill me-1"></i> Lock Quarter
+                </x-button>
+              @else
+                {{-- FIX 1: Verify requiresAdminRequest evaluates true strictly when an actual request token is active --}}
+                @if($requiresAdminRequest)
+                    <button type="button"
+                            class="btn btn-sm btn-secondary fw-bold shadow-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#cancelUnlockModal">
+                        <i class="bi bi-hourglass-split me-1"></i>
+                        Unlock Pending
+                    </button>
+                @else
+                    <form action="{{ route('accounting.quarterly-summary.request-unlock') }}" method="POST" class="m-0">
+                        @csrf
+                        <input type="hidden" name="quarter" value="{{ $selectedQuarter }}">
+                        <input type="hidden" name="year" value="{{ $selectedYear }}">
+
+                        <button type="submit" class="btn btn-sm btn-warning fw-bold">
+                            <i class="bi bi-unlock"></i> Request Unlock
+                        </button>
+                    </form>
+                @endif
+              @endif
+            @endif
+          </div>
+
+          <form action="{{ route('accounting.quarterly-summary') }}" method="GET" class="d-flex align-items-center gap-2 flex-wrap flex-md-nowrap m-0">
+            <div class="d-flex align-items-center gap-2 flex-wrap flex-md-nowrap">
+              <label class="small fw-bold text-nowrap mb-0">Scope View:</label>
+              
+              <select name="year" class="form-select form-select-sm fw-bold border-secondary" style="min-width: 100px;" onchange="this.form.submit()">
+                @for ($y = date('Y'); $y >= date('Y') - 5; $y--)
+                  <option value="{{ $y }}" @selected(($selectedYear ?? date('Y')) == $y)>{{ $y }}</option>
+                @endfor
+              </select>
+
+              {{-- FIX 3: Dropdown strictly respects the active database $isLocked flag state rather than using hardcoded calendar math expressions --}}
+              <select name="quarter" class="form-select form-select-sm fw-bold border-secondary" style="min-width: 140px;" onchange="this.form.submit()">
+                <option value="1" @selected($selectedQuarter == 1)>1st Quarter {{ ($selectedQuarter == 1 && $isLocked) ? '(Locked)' : '' }}</option>
+                <option value="2" @selected($selectedQuarter == 2)>2nd Quarter {{ ($selectedQuarter == 2 && $isLocked) ? '(Locked)' : '' }}</option>
+                <option value="3" @selected($selectedQuarter == 3)>3rd Quarter {{ ($selectedQuarter == 3 && $isLocked) ? '(Locked)' : '' }}</option>
+                <option value="4" @selected($selectedQuarter == 4)>4th Quarter {{ ($selectedQuarter == 4 && $isLocked) ? '(Locked)' : '' }}</option>
+              </select>
+            </div>
+
+            <div class="input-group input-group-sm" style="min-width:260px;">
+              <input type="text" name="search" class="form-control" placeholder="Search Details, DV, ADA..." value="{{ request('search') }}" style="border-color:#bebebe;">
+              <button class="btn btn-dark" type="submit" style="border-color:#bebebe;"><i class="bi bi-search"></i></button>      
+              @if(request('search'))
+                <a href="{{ route('accounting.quarterly-summary', ['quarter' => $selectedQuarter, 'year' => $selectedYear ?? date('Y')]) }}" class="btn btn-outline-danger"><i class="bi bi-x-circle"></i></a>
+              @endif
+            </div>
+          </form>
         </div>
-
-        <div class="input-group input-group-sm" style="min-width:260px;">
-          <input type="text"
-                 name="search"
-                 class="form-control"
-                 placeholder="Search Details, DV, ADA..."
-                 value="{{ request('search') }}"
-                 style="border-color:#bebebe;">
-
-          <button class="btn btn-dark" type="submit" style="border-color:#bebebe;">
-            <i class="bi bi-search"></i>
-          </button>      
-          @if(request('search'))
-            <a href="{{ route('accounting.quarterly-summary', ['quarter' => $selectedQuarter, 'year' => $selectedYear ?? date('Y')]) }}" class="btn btn-outline-danger"><i class="bi bi-x-circle"></i></a>
-          @endif
-        </div>
-      </form>
-    </div>
-  </div>
+      </div>
 
   {{-- REORDERED LEDGER DATA TABLE --}}
   <div class="card m-0 w-100 shadow-sm">
@@ -268,7 +257,7 @@
                         <form action="{{ route('accounting.quarterly-summary.destroy', $rowId) }}" method="POST" class="m-0">
                           @csrf
                           @method('DELETE')
-                          <input type="hidden" name="target_quarter" value="{{ $selectedQuarter }}">
+                          <input type="hidden" name="target_year" value="{{ $selectedYear ?? date('Y') }}">
                           <x-button type="submit" variant="primary">Save Changes</x-button>
                         </form>
                       </div>
@@ -315,7 +304,10 @@
 </div>
 @endif
 
-@include('accounting.partials.add-entry-quarterly-summary-modal', ['targetQuarter' => $selectedQuarter])
+@include('accounting.partials.add-entry-quarterly-summary-modal', [
+    'targetQuarter' => $selectedQuarter,
+    'selectedYear' => $selectedYear
+])
 
 @if($requiresAdminRequest)
 <div class="modal fade" id="cancelUnlockModal" tabindex="-1" aria-hidden="true">

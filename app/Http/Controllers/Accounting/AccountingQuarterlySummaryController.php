@@ -65,7 +65,7 @@ class AccountingQuarterlySummaryController extends Controller {
 
     $lockState = $this->checkQuarterLockStatus($selectedQuarter, $selectedYear);
     $isLocked = $lockState['is_locked'];
-    
+
     $modelInstance = new AccountingQuarterlySummary;
     $modelInstance->setQuarterTable($selectedQuarter, $selectedYear);
     
@@ -168,8 +168,7 @@ public function requestAdminUnlock(Request $request)
     return redirect()->back()->with('success', 'Unlock request sent to System Administration.');
 }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request){
         $quarter = (int) $request->input('target_quarter');
         $year = (int) $request->input('target_year', Carbon::now()->year);
         $lock = $this->checkQuarterLockStatus($quarter, $year);
@@ -179,7 +178,6 @@ public function requestAdminUnlock(Request $request)
         }
 
         $request->validate([
-            'emds_date' => 'required|date',
             'date_processed' => 'required|date',
             'particulars' => 'required|string|max:255',
             'transaction_type' => 'required|in:received,downloaded,adjustment',
@@ -220,7 +218,6 @@ public function requestAdminUnlock(Request $request)
         }
 
         $request->validate([
-            'emds_date' => 'required|date',
             'date_processed' => 'required|date',
             'particulars' => 'required|string|max:255',
             'transaction_type' => 'required|in:received,downloaded,adjustment',
