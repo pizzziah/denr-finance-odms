@@ -14,7 +14,7 @@ class AccountingLogbookController extends Controller {
     $sort = $request->sort ?? 'latest';
 
     $query = DB::table('odms_accounting')
-      ->where('status', '!=', 'Paid');
+      ->whereIn('status', ['Pending', 'Returned', 'Forwarded to Cashier', 'Cancelled']);
       
     if ($status !== 'all' && ! empty($status)) {
       $query->where('status', $status);
@@ -275,7 +275,10 @@ class AccountingLogbookController extends Controller {
     // ================= UPDATE LOGBOOK RECORD =================
     public function update(Request $request, $transaction_id)
     {
-
+$request->validate([
+        'status' => 'required|in:Pending,Forwarded to Cashier,Cancelled,Returned',
+        // add your other validation fields here if needed...
+    ]);
         // Prevent invalid cashier forwarding
         if ($request->status === 'Forwarded to Cashier') {
 
