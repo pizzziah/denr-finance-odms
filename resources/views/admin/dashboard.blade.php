@@ -5,22 +5,9 @@
 @section('content')
 <div class="container-fluid mt-4 px-4">
   <div class="row g-4">
-
     <div class="col-12 col-lg-9 d-flex flex-column gap-3">
-
-      <div class="card glass-card-green card-a p-4" style="color: var(--background);">
-        <div class="card-body">
-          <h4 class="fw-bold mb-1">
-            Welcome Back,
-            {{ ucwords(str_replace('_', ' ', $currentUser->role ?? 'Admin')) }}!
-          </h4>
-
-          <h6 class="date mb-0 opacity-75">
-            <i class="bi bi-calendar3 me-2"></i>
-            {{ now()->format('F d, Y') }}
-          </h6>
-        </div>
-      </div>
+      {{-- WELCOME CARD --}}
+      <x-main-card-dashboard :user="$currentUser" />
 
       <div class="card shadow glass-card p-2 flex-grow-1">
         <div class="card-body">

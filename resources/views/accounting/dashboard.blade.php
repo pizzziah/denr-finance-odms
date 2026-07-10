@@ -13,55 +13,13 @@
 
 <div class="container-fluid mt-4 px-4">
   <div class="row">
-
-    {{-- WELCOME CARD & MASTER CONTROL ROW --}}
     <div class="col-lg-9">
-      <div class="card glass-card-green card-a p-4 mb-4 text-white">
-        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
-          <div>
-            <h4 class="fw-bold mb-1">
-              Welcome Back,
-              @php
-                $displayRole = $user->role ?? 'accounting';
-                if (in_array(strtolower($displayRole), ['accountant', 'bookkeeper'])) {
-                  $displayRole = ucwords(strtolower($displayRole));
-                } else {
-                  $displayRole = 'Accounting Team';
-                }
-              @endphp
-              {{ $displayRole }}!
-            </h4>
-            <h6 class="date mb-0 opacity-75">
-              <i class="bi bi-calendar3-range"></i> {{ \Carbon\Carbon::now('Asia/Manila')->format('F d, Y') }} | {{ \Carbon\Carbon::now('Asia/Manila')->format('h:i A') }}
-            </h6>
-          </div>
+      {{-- WELCOME CARD --}}
+      <x-main-card-dashboard :user="$user">
+        <x-main-card-dashboard-filter :selected-year="$selectedYear" :selected-month="$selectedMonth" />
+      </x-main-card-dashboard>
 
-          {{-- FILTER CONTROLS --}}
-          <div class="bg-white p-2 rounded shadow-sm d-flex flex-column flex-sm-row align-items-sm-center gap-2 m-0" style="min-width: 320px;">
-            <form method="GET" class="m-0 d-flex gap-2 flex-grow-1 align-items-center">
-              <select name="year" class="form-select form-select-sm border-0 fw-bold bg-light" style="color: #044709; cursor: pointer;">
-                @for($year = now()->year; $year >= 2025; $year--)
-                  <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>
-                    {{ $year }}
-                  </option>
-                @endfor
-              </select>
-              <select name="month" class="form-select form-select-sm border-0 fw-bold bg-light" style="color: #044709; cursor: pointer;">
-                <option value="">—</option>
-                @for($m = 1; $m <= 12; $m++)
-                  @php $mVal = sprintf('%02d', $m); @endphp
-                  <option value="{{ $mVal }}" {{ $selectedMonth == $mVal ? 'selected' : '' }}>
-                    {{ DateTime::createFromFormat('!m', $m)->format('F') }}
-                  </option>
-                @endfor
-              </select>
-              <x-button variant="primary" type="submit" class="fw-bold">
-                Filter
-              </x-button>
-            </form>
-          </div>
-        </div>
-      </div>
+
 
       {{-- ROW 2/METRICS CARD --}}
       <div class="row mb-4">
