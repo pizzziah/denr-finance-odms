@@ -7,7 +7,7 @@
   <div class="row g-4">
     <div class="col-12 col-lg-9 d-flex flex-column gap-3">
       {{-- WELCOME CARD --}}
-      <x-main-card-dashboard :user="$currentUser" />
+      <x-db-main-card :user="$currentUser" />
 
       <div class="card shadow glass-card p-2 flex-grow-1">
         <div class="card-body">
