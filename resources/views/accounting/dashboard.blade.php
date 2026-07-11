@@ -21,30 +21,9 @@
 
       {{-- METRICS CARD --}}
       <div class="row mb-4">
-        <x-db-amount-card
-          title="Amount in Process" 
-          :value="$metrics['amountInProcess'] ?? 0"
-          icon="bi-database-exclamation"
-          :timeline-label="$timelineLabel"
-          color-var="primary"
-        />
-        
-        <x-db-amount-card
-          title="Forwarded to Cashier" 
-          :value="$metrics['amountForwarded'] ?? 0"
-          icon="bi-database-fill-up"
-          :timeline-label="$timelineLabel"
-          color-var="secondary"
-          :cancelled-amount="$metrics['totalAmountCancelled'] ?? 0"
-        />
-        
-        <x-db-amount-card
-          title="Total Amount Paid" 
-          :value="$metrics['totalAmountPaid'] ?? 0"
-          icon="bi-database-fill-check"
-          :timeline-label="$timelineLabel"
-          color-var="primary-variant"
-        />
+        <x-db-amount-card title="Amount in Process" :value="$metrics['amountInProcess'] ?? 0" icon="bi-database-exclamation" :timeline-label="$timelineLabel" color-var="primary" />
+        <x-db-amount-card title="Forwarded to Cashier" :value="$metrics['amountForwarded'] ?? 0" icon="bi-database-fill-up" :timeline-label="$timelineLabel" color-var="secondary" :cancelled-amount="$metrics['totalAmountCancelled'] ?? 0" />
+        <x-db-amount-card title="Total Amount Paid" :value="$metrics['totalAmountPaid'] ?? 0" icon="bi-database-fill-check" :timeline-label="$timelineLabel" color-var="primary-variant" />
       </div>
       
       {{-- WORKFLOW STATUS --}}
@@ -59,16 +38,12 @@
       ];
       @endphp
 
-      <x-db-workflow-status 
-        :statuses="$accountingStatuses" 
-        :metrics="$metrics" 
-        :timeline-label="$timelineLabel" 
-      />
+      <x-db-workflow-status :statuses="$accountingStatuses" :metrics="$metrics" :timeline-label="$timelineLabel" />
     </div>
 
     {{-- RIGHT-SIDE COLUMN --}}
     <div class="col-lg-3">
-      {{-- CARD B --}}
+      {{-- TOTAL COUNT CARD --}}
       <div class="card glass-card-hover card-b p-3 border-0 text-center mb-4">
         <h6 class="fw-bold mb-0 text-uppercase" style="color: var(--primary)">
           Total Transactions
@@ -81,7 +56,7 @@
         </h2>
       </div>
 
-      {{-- ROW 3/VISUALIZATION CARD --}}
+      {{-- VISUALIZATION CARD --}}
       <div class="card glass-card card-f p-3 m-0">
         <div class="text-center mb-3">
           <h6 class="fw-bold m-0 text-uppercase" style="color: var(--primary)">
@@ -102,69 +77,7 @@
 @endsection
 
 @section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  Chart.defaults.font.family = "'Montserrat', 'Inter', sans-serif";
-
-  const payeeCtx = document.getElementById('payeeChart');
-  if (payeeCtx) {
-    const payeeAmountsData = {!! json_encode($metrics['payeeAmounts'] ?? json_decode('{}')) !!};
-    
-    const payeeLabels = Object.keys(payeeAmountsData);
-    const payeeData = Object.values(payeeAmountsData);
-
-    if (payeeLabels.length === 0) {
-      payeeCtx.style.display = 'none';
-      const noDataDiv = document.createElement('div');
-      noDataDiv.className = 'text-center py-5 text-muted';
-      noDataDiv.innerHTML = '<i class="bi bi-graph-down display-6 d-block mb-2"></i> No data recorded for this filtered timeline.';
-      payeeCtx.parentNode.appendChild(noDataDiv);
-    } else {
-      new Chart(payeeCtx, {
-        type: 'bar',
-        data: {
-          labels: payeeLabels,
-          datasets: [{
-            label: 'Total Combined Amount (Debit)',
-            data: payeeData,
-            backgroundColor: 'rgb(240, 255, 230)',
-            borderColor: '#044709',
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  return '₱' + Number(context.raw).toLocaleString('en-PH', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                  });
-                }
-              }
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: function(value) {
-                  return '₱' + Number(value).toLocaleString();
-                }
-              }
-            }
-          }
-        }
-      });
-    }
-  }
-});
-</script>
+    @include('accounting.partials.dashboard-charts')
 @endsection
 
 @php
