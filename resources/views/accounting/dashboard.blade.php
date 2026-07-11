@@ -77,7 +77,7 @@
 @endsection
 
 @section('scripts')
-    @include('accounting.partials.dashboard-charts')
+  @include('accounting.partials.dashboard-charts')
 @endsection
 
 @php
