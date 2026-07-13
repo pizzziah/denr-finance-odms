@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
       $('editForm').action = `/budget/logbook/${encodeURIComponent(id)}/update`;
 
       const fields = [
-        'ors_no','date_received','payee','particulars','amount','due_date',
+        'ors_no','date_received','payee','particulars','particulars_remark','amount','due_date',
         'date_returned_1','date_received_1','remarks_1',
         'date_forwarded_1','date_ors_received','remarks_2',
         'date_returned_2','date_received_2',
@@ -421,21 +421,72 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btn) openEditModal(btn.dataset.budgetId);
   });
 
-  // ===================== ORS VALIDATION =====================
-  $('editForm')?.addEventListener('submit', (e) => {
-    const ors = $('edit_ors_no');
-    const err = $('editError');
+  
+// ===================== SAVE (AJAX) =====================
+$('editForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-    err?.classList.add('d-none');
+  const form = e.target;
+  const ors = $('edit_ors_no');
+  const err = $('editError');
+  const saveBtn = document.querySelector('#editModal .modal-footer button[type="submit"]');
 
-    if (ors.value.trim() && !/^\d+$/.test(ors.value.trim())) {
-      e.preventDefault();
-      err.innerHTML = 'ORS No. must be numeric.';
-      err.classList.remove('d-none');
-      ors.focus();
-    }
+  err?.classList.add('d-none');
+
+  if (ors.value.trim() && !/^\d+$/.test(ors.value.trim())) {
+    err.innerHTML = 'ORS No. must be numeric.';
+    err.classList.remove('d-none');
+    ors.focus();
+    return;
+  }
+
+  form.querySelectorAll('input, select, textarea').forEach(el => {
+    el.disabled = false;
+    if (el.tomselect) el.tomselect.enable();
   });
 
+  const formData = new FormData(form);
+  formData.append('_method', 'PUT');
+
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+  }
+
+  try {
+    const res = await fetch(form.action, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      const msg = data.message
+        || (data.errors ? Object.values(data.errors).flat().join(' ') : 'Update failed.');
+      err.innerHTML = msg;
+      err.classList.remove('d-none');
+      return;
+    }
+
+    bootstrap.Modal.getOrCreateInstance($('editModal')).hide();
+    window.location.reload();
+
+  } catch (ex) {
+    console.error('Save error:', ex);
+    err.innerHTML = 'Could not save changes: ' + ex.message;
+    err.classList.remove('d-none');
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save Changes';
+    }
+  }
+});
   // ===================== DELETE =====================
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('.delete-btn');

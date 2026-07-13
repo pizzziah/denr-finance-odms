@@ -67,10 +67,9 @@
                   <div class="col-md-3">
                     <label class="form-label small fw-semibold">UACS Code <span class="text-danger">*</span></label>
                     <select id="edit_uac_codes" name="uac_codes" class="form-select form-select-sm" required>
+                      <option value="">Select UACS Code</option>
                       @foreach($uacs as $uac)
-                        <option value="{{ $uac->new_uac }}">
-                          {{ $uac->old_uac }} → {{ $uac->new_uac }}
-                        </option>
+                        <option value="{{ $uac->new_uac }}">{{ $uac->old_uac }} → {{ $uac->new_uac }}</option>
                       @endforeach
                     </select>
                   </div>

@@ -212,9 +212,10 @@ use Illuminate\Support\Facades\DB;
       'reviews' => $reviews,
     ]);
   }
+  
 
   public function update(Request $request, $budget_id) {
-    $request->validate([
+    $validated = $request->validate([
       'ors_no' => 'nullable|regex:/^[0-9]+$/',
       'date_received' => 'nullable|date',
       'due_date' => 'nullable|date', 
@@ -243,50 +244,59 @@ use Illuminate\Support\Facades\DB;
       'total_time' => 'nullable|string|max:255',
     ]);
 
+    $exists = DB::table('odms_budget')->where('budget_id', $budget_id)->exists();
+    if (! $exists) {
+      $message = "Record #{$budget_id} was not found. It may have been deleted.";
+      if ($request->wantsJson()) {
+        return response()->json(['success' => false, 'message' => $message], 404);
+      }
+      return back()->withInput()->with('error', $message);
+    }
+
     DB::beginTransaction();
     try {
       // ================= UPDATE BUDGET =================
       DB::table('odms_budget')
-        ->where('budget_id', $budget_id)
-        ->update([
-          'ors_no' => $request->ors_no,
-          'date_received' => $request->date_received,
-          'due_date' => $request->due_date,
-          'payee' => $request->payee,
-          'issuing_office' => $request->issuing_office,
-          'classification' => $request->classification,
-          'particulars' => $request->particulars,
-          'particulars_remark' => $request->particulars_remark,
-          'uac_codes' => $request->uac_codes,
-          'amount' => $request->amount,
-          'date_returned_1' => $request->review_date_returned[0] ?? null,
-          'date_received_1' => $request->review_date_received[0] ?? null,
-          'remarks_1'       => $request->review_remarks[0] ?? null,
-          'date_forwarded_1' => $request->date_forwarded_1,
-          'date_ors_received' => $request->date_ors_received,
-          'date_returned_2' => $request->date_returned_2,
-          'date_received_2' => $request->date_received_2,
-          'remarks_2' => $request->remarks_2,
-          'date_forwarded_accounting' => $request->date_forwarded_accounting,
-          'final_remarks' => $request->final_remarks,
-          'status' => $request->status,
-          'total_time_budget' => $request->total_time_budget,
-          'total_time' => $request->total_time,
-        ]);
-
+          ->where('budget_id', $budget_id)
+          ->update([
+              'ors_no' => $request->ors_no,
+              'date_received' => $request->date_received,
+              'due_date' => $request->due_date,
+              'payee' => $request->payee,
+              'issuing_office' => $request->issuing_office,
+              'classification' => $request->classification,
+              'particulars' => $request->particulars,
+              'particulars_remark' => $request->particulars_remark,
+              'uac_codes' => $request->uac_codes,
+              'amount' => $request->amount,
+              'date_returned_1' => $request->review_date_returned[0] ?? $request->date_returned_1,
+              'date_received_1' => $request->review_date_received[0] ?? $request->date_received_1,
+              'remarks_1'       => $request->review_remarks[0] ?? $request->remarks_1,
+              'date_forwarded_1' => $request->date_forwarded_1,
+              'date_ors_received' => $request->date_ors_received,
+              'date_returned_2' => $request->date_returned_2,
+              'date_received_2' => $request->date_received_2,
+              'remarks_2' => $request->remarks_2,
+              'date_forwarded_accounting' => $request->date_forwarded_accounting,
+              'final_remarks' => $request->final_remarks,
+              'status' => $request->status,
+              // total_time_budget / total_time intentionally omitted —
+              // these are recalculated server-side in updateWorkingTimes()
+              // and stored in display_total_time_budget / display_total_time.
+          ]);
+      
       $budget = DB::table('odms_budget')
         ->where('budget_id', $budget_id)
         ->first();
-        
+
       // ================= SEND TO ACCOUNTING =================
       if ($budget->status === 'Forwarded to Accounting') {
-        $exists = DB::table('odms_accounting')
+        $accExists = DB::table('odms_accounting')
           ->where('budget_id', $budget->budget_id)
           ->exists();
 
-        if (! $exists) {
-          DB::table('odms_accounting')
-            ->insert([
+        if (! $accExists) {
+          DB::table('odms_accounting')->insert([
               'budget_id' => $budget->budget_id,
               'transaction_id' => $this->generateTransactionId(),
               'ors_no' => $budget->ors_no,
@@ -312,27 +322,25 @@ use Illuminate\Support\Facades\DB;
               'returned_remarks' => null,
             ]);
         }
-        
+
         $notificationExists = Notification::where('type', 'accounting')
-          ->where('related_id', $budget->budget_id)
-          ->where('is_read', 0)
-          ->exists();
+    ->where('related_id', $budget->budget_id)
+    ->where('is_read', 0)
+    ->exists();
 
-                if (! $notificationExists) {
-
-                    Notification::create([
-                        'title' => 'New Accounting Transaction',
-                        'message' => "ORS No. {$budget->ors_no} ({$budget->payee}) has been forwarded from Budget.",
-                        'type' => 'accounting',
-                        'related_id' => $budget->budget_id,
-                        'reference_id' => $budget->budget_id,
-                        'target_role' => 'accountant',
-                        'priority' => 'Medium',
-                        'is_read' => 0,
-                    ]);
-
-                }
-            }
+if (! $notificationExists) {
+    Notification::create([
+        'title' => 'New Accounting Transaction',
+        'message' => "ORS No. {$budget->ors_no} ({$budget->payee}) has been forwarded from Budget.",
+        'type' => 'accounting',
+        'related_id' => $budget->budget_id,
+        'target_role' => 'accountant',
+        'priority' => 'Medium',
+        'is_read' => 0,
+    ]);
+}
+        
+      }
 
       // ================= RESET REVIEW HISTORY =================
       BudgetReviewProcess::where('budget_id', $budget_id)->delete();
@@ -340,7 +348,6 @@ use Illuminate\Support\Facades\DB;
       // ================= SAVE ADDITIONAL REVIEW HISTORY =================
       if ($request->filled('review_date_returned')) {
         $count = count($request->review_date_returned);
-
         for ($index = 1; $index < $count; $index++) {
           $returned = $request->review_date_returned[$index] ?? null;
           $received = $request->review_date_received[$index] ?? null;
@@ -358,22 +365,43 @@ use Illuminate\Support\Facades\DB;
           ]);
         }
       }
-      
+
       DB::commit();
       $this->updateWorkingTimes($budget_id);
 
-      return redirect()
-        ->route('budget.logbook')
-        ->with('success', 'Record updated successfully.');
+      // Re-fetch the fresh row + reviews to hand straight back to the modal/table
+      $freshBudget = DB::table('odms_budget')->where('budget_id', $budget_id)->first();
+      $freshReviews = BudgetReviewProcess::where('budget_id', $budget_id)->orderBy('id')->get();
 
-    } catch (\Exception $e) {
+      if ($request->wantsJson()) {
+        return response()->json([
+          'success' => true,
+          'message' => 'Record updated successfully.',
+          'budget' => $freshBudget,
+          'reviews' => $freshReviews,
+        ]);
+      }
+
+      return back()->with('success', 'Record updated successfully.');
+
+    } catch (\Throwable $e) {
       DB::rollBack();
 
-      return back()
-        ->withInput()
-        ->with('error', 'Update failed: '.$e->getMessage());
+      \Log::error('Budget update failed', [
+        'budget_id' => $budget_id,
+        'error' => $e->getMessage(),
+      ]);
+
+      if ($request->wantsJson()) {
+        return response()->json([
+          'success' => false,
+          'message' => 'Update failed: '.$e->getMessage(),
+        ], 500);
+      }
+
+      return back()->withInput()->with('error', 'Update failed: '.$e->getMessage());
     }
-  }
+}
 
   public function archives(Request $request) {
     $year = $request->year ?? 'all';
@@ -452,8 +480,6 @@ use Illuminate\Support\Facades\DB;
       'date_received_2' => 'nullable|date',
       'date_forwarded_accounting' => 'nullable|date',
       'status' => 'required|string|max:255',
-      'total_time_budget' => 'nullable|string',
-      'total_time' => 'nullable|string',
       'final_remarks' => 'nullable|string',
     ]);
     
@@ -482,8 +508,9 @@ use Illuminate\Support\Facades\DB;
         'date_forwarded_accounting' => $request->date_forwarded_accounting,
         'final_remarks' => $request->final_remarks,
         'status' => $request->status,
-        'total_time_budget' => $request->total_time_budget,
-        'total_time' => $request->total_time,
+        // total_time_budget / total_time intentionally omitted —
+        // these are recalculated server-side in updateWorkingTimes()
+        // and stored in display_total_time_budget / display_total_time.
       ]);
 
       $budgetId = DB::getPdo()->lastInsertId();
@@ -514,14 +541,16 @@ use Illuminate\Support\Facades\DB;
         ->route('budget.logbook')
         ->with('success', 'Budget record added successfully.');
 
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
       DB::rollBack();
+
+      \Log::error('Budget store failed', ['error' => $e->getMessage()]);
 
       return back()
         ->withInput()
         ->with('error', 'Insert failed: '.$e->getMessage());
     }
-  }
+}
 
   public function destroy($budget_id) {
     $command = DB::table('odms_budget')
@@ -571,22 +600,21 @@ use Illuminate\Support\Facades\DB;
       }
 
       $exists = Notification::where('related_id', $record->budget_id)
-        ->where('title', $title)
-        ->exists();
+    ->where('title', $title)
+    ->exists();
 
-            if (!$exists) {
-                Notification::create([
-                    'title'      => $title,
-                    'message'    => $message,
-                    'type'       => 'due_date',
-                    'related_id' => $record->budget_id,
-                    'reference_id' => $record->budget_id,
-                    'user_id'    => auth()->id(),
-                    'due_date'   => $record->due_date,
-                    'priority'   => $priority,
-                    'is_read'    => 0,
-                ]);
-            }
+if (!$exists) {
+    Notification::create([
+        'title'      => $title,
+        'message'    => $message,
+        'type'       => 'due_date',
+        'related_id' => $record->budget_id,
+        'user_id'    => auth()->id(),
+        'due_date'   => $record->due_date,
+        'priority'   => $priority,
+        'is_read'    => 0,
+    ]);
+}
         }
     }
 
