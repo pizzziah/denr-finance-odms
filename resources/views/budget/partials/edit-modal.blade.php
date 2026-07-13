@@ -97,7 +97,7 @@
 
             {{-- REVIEW PROCESSING --}}
             <div class="row section-review-processing">
-              <div class="col-2 fw-bold fs-4">Review<br>Processing</div>
+              <div class="col-2 fw-bold fs-5">Review<br>Processing</div>
               <div class="col-10">
                 <div class="row g-2">
                   <div class="d-flex justify-content-between align-items-center mb-2">
@@ -136,7 +136,7 @@
 
             {{-- OBLIGATION PROCESSING --}}
             <div class="row section-obligation-processing">
-              <div class="col-2 fw-bold fs-4">Obligation<br>Processing</div>
+              <div class="col-2 fw-bold fs-5">Obligation<br>Processing</div>
               <div class="col-10">
                 <div class="row g-2">
                   <div class="col-md-4">
@@ -159,7 +159,7 @@
 
             {{-- RETURNED BY ACCOUNTING --}}
             <div class="row section-returned-accounting">
-              <div class="col-2 fw-bold fs-4">Returned<br>Accounting</div>
+              <div class="col-2 fw-bold fs-5">Returned<br>Accounting</div>
               <div class="col-10">
                 <div class="row g-2">
                   <div class="col-md-6">
@@ -178,7 +178,7 @@
 
             {{-- FORWARDED TO ACCOUNTING --}}
             <div class="row section-forwarded-accounting">
-              <div class="col-2 fw-bold fs-4">Forwarded<br>Accounting</div>
+              <div class="col-2 fw-bold fs-5">Forwarded<br>Accounting</div>
               <div class="col-10">
                 <div class="row g-2">
                   <div class="col-md-6">
@@ -197,7 +197,7 @@
 
             {{-- STATUS --}}
             <div class="row section-status">
-              <div class="col-2 fw-bold fs-4">Status</div>
+              <div class="col-2 fw-bold fs-5">Status</div>
               <div class="col-10">
                 <div class="row g-2">
                   <div class="col-md-6">
@@ -205,7 +205,6 @@
                     <select id="edit_status" name="status" class="form-select form-select-sm" required>
                       <option value="Pending">Pending</option>
                       <option value="Processing">Processing</option>
-                      <option value="For Review">For Review</option>
                       <option value="Returned to End User">Returned to End User</option>
                       <option value="For Obligation">For Obligation</option>
                       <option value="Forwarded to Accounting">Forwarded to Accounting</option>

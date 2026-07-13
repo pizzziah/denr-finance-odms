@@ -1,21 +1,21 @@
 {{-- ADD MODAL --}}
 <div class="modal fade" id="addRecordModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:90%;">
-    <div class="modal-content">
-
-      {{-- HEADER --}}
-      <div class="modal-header">
-        <h4 class="fw-bold">Add Budget Record</h4>
-        <button class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-
-      {{-- ERROR --}}
-      <div id="addError" class="alert alert-danger d-none mx-3"></div>
-
-      {{-- BODY --}}
-      <div class="modal-body">
-        <form id="addForm" method="POST" action="{{ route('budget.logbook.store') }}">
-          @csrf
+  <div class="modal-dialog modal-dialog-centered" style="max-width:90%;">
+    <div class="modal-content" style="height:60vh;">
+      
+    {{-- HEADER --}}
+    <div class="modal-header">
+      <h4 class="fw-bold">Add Budget Record</h4>
+      <button class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    
+    {{-- ERROR --}}
+    <div id="addError" class="alert alert-danger d-none mx-3"></div>
+    
+    {{-- BODY --}}
+    <div class="modal-body">
+      <form id="addForm" method="POST" action="{{ route('budget.logbook.store') }}">
+        @csrf
           <div class="container-fluid">
 
             {{-- REQUEST INFORMATION --}}
