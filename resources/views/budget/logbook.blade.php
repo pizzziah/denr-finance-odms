@@ -122,7 +122,7 @@ $show = fn($col) => in_array('all', $visibleColumns) || in_array($col, $visibleC
           </thead>
             <tbody>
               @forelse($records as $record)
-                <tr @if(request('highlight') == $record->budget_id) id="highlighted" class="table-warning" @endif>
+                <tr>
                   @if($show('ors_no'))<td style="color: var(--primary); background-color:var(--secondary-variant)"><strong>{{ $record->ors_no ?? '-' }}</strong></td>@endif
                   @if($show('date_received'))<td>{{ $record->date_received ?? '-' }}</td>@endif
                   

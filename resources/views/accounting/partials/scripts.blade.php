@@ -441,4 +441,23 @@ document.addEventListener('DOMContentLoaded', function () {
             printWindow.close();
         },500)
 }
+document.addEventListener('DOMContentLoaded', function () {
+
+    const params = new URLSearchParams(window.location.search);
+
+    const id = params.get('view');
+
+    if (!id) return;
+
+    const btn = document.querySelector(
+        `.action-btn[data-action="view"][data-dv="${id}"]`
+    );
+
+    if (btn) {
+        btn.click();
+
+        history.replaceState({}, '', window.location.pathname);
+    }
+
+});
 </script>

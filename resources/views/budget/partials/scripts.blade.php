@@ -489,45 +489,21 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 
-// ===================== NOTIFICATIONS POLLING MANAGEMENT =====================
-document.addEventListener('DOMContentLoaded', function () {
-    const readAllBtn = document.getElementById('readAllBtn');
-    
-    loadNotifications();
-    setInterval(loadNotifications, 30000);
+document.addEventListener('DOMContentLoaded', () => {
 
-    if (readAllBtn) {
-        readAllBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            fetch('/notifications/read-all', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(() => loadNotifications());
-        });
+    const params = new URLSearchParams(window.location.search);
+
+    const budgetId = params.get('view');
+
+    if (!budgetId) return;
+
+    const btn = document.querySelector(
+        `.view-btn[data-budget-id="${budgetId}"]`
+    );
+
+    if (btn) {
+        btn.click();
     }
+
 });
-
-function loadNotifications() {
-    fetch("{{ route('notifications.index') }}?type=due_date")
-        .then(res => res.json())
-        .then(data => {
-            const badge = document.getElementById('notificationBadge');
-            const list = document.getElementById('notificationList');
-
-            if (badge) {
-                if (data.unreadCount > 0) {
-                    badge.classList.remove('d-none');
-                    badge.textContent = data.unreadCount;
-                } else {
-                    badge.classList.add('d-none');
-                }
-            }
-        })
-        .catch(err => console.error("Error pulling notification metrics:", err));
-}
 </script>

@@ -88,4 +88,16 @@ class NotificationController extends Controller
             'success' => true,
         ]);
     }
+
+    public function read($id)
+    {
+        $notification = \App\Models\Notification::findOrFail($id);
+
+        $notification->is_read = 1;
+        $notification->save();
+
+        return response()->json([
+            'success' => true
+        ]);
+    }
 }

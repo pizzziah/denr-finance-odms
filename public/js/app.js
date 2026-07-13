@@ -49,7 +49,7 @@ function loadNotifications() {
                     badgeColor = 'primary';
 
                 html += `
-                    <a href="${notification.url}"
+                    <a href="${notification.url}&view=${notification.related_id}"
                        class="dropdown-item notification-item border-bottom ${notification.is_read ? '' : 'bg-light'}"
                        data-id="${notification.id}">
 
@@ -80,7 +80,6 @@ function loadNotifications() {
         });
 
 }
-
 document.addEventListener('click', function (e) {
 
     const item = e.target.closest('.notification-item');
@@ -89,6 +88,10 @@ document.addEventListener('click', function (e) {
 
     e.preventDefault();
 
+    console.log('Notification clicked');
+    console.log(item.href);
+    console.log(item.dataset.id);
+
     fetch('/notifications/read/' + item.dataset.id, {
         method: 'POST',
         headers: {
@@ -96,8 +99,14 @@ document.addEventListener('click', function (e) {
             'Accept': 'application/json'
         }
     })
-    .then(() => {
+    .then(res => {
+        console.log(res.status);
+        return res.json();
+    })
+    .then(data => {
+        console.log(data);
         window.location.href = item.href;
-    });
+    })
+    .catch(err => console.log(err));
 
 });

@@ -115,7 +115,7 @@
 
           <tbody>
             @forelse($records as $record)
-               <tr @if(request('highlight') == $record->transaction_id) id="highlighted" class="table-warning" @endif>
+               <tr>
                 <td>{{ $record->date_received ?? '-' }}</td>
                 <td style="color: var(--primary); background-color:var(--secondary-variant)"><strong>{{ $record->dv_no ?? '-' }}</strong></td>
                 <td>{{ $record->date_processed ?? '-' }}</td>

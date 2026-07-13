@@ -104,10 +104,6 @@ class AccountingLogbookController extends Controller {
             ->groupBy('transaction_id')
             ->get();
 
-        $records = AccountingRecord::query()
-            ->latest()
-            ->get();
-
         return view(
             'accounting.logbook',
             compact(

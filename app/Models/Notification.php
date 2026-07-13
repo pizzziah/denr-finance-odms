@@ -13,6 +13,7 @@ class Notification extends Model
         'message',
         'type',
         'related_id',
+        'reference_id',
         'target_role',
         'user_id',
         'due_date',
