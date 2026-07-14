@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\AdminUser;
+use App\Models\Notification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -135,6 +136,20 @@ class AdminUserController extends Controller {
         'updated_at' => Carbon::now(),
       ]);
 
+      $lock = DB::table('odms_admin_quarter_locks')
+        ->where('id', $id)
+        ->first();
+
+      Notification::create([
+          'title'       => 'Unlock Request Approved',
+          'message'     => "Your request to unlock Year {$lock->year}, Quarter {$lock->quarter} has been approved.",
+          'target_role' => 'accountant',
+          'type'        => 'unlock_approved',
+          'priority'    => 'Medium',
+          'related_id'  => $lock->id,
+          'is_read'     => 0,
+      ]);
+
     return redirect()->back()->with('success', 'Quarter access granted and unlocked successfully.');
   }
 
@@ -144,6 +159,20 @@ class AdminUserController extends Controller {
       ->update([
         'requires_admin_unlock' => false,
         'updated_at' => Carbon::now(),
+      ]);
+
+      $lock = DB::table('odms_admin_quarter_locks')
+        ->where('id', $id)
+        ->first();
+
+      Notification::create([
+          'title'       => 'Unlock Request Denied',
+          'message'     => "Your request to unlock Year {$lock->year}, Quarter {$lock->quarter} has been denied.",
+          'target_role' => 'accountant',
+          'type'        => 'unlock_denied',
+          'priority'    => 'Medium',
+          'related_id'  => $lock->id,
+          'is_read'     => 0,
       ]);
 
     return redirect()->back()->with('success', 'Unlock request denied. Ledger access remains locked.');
