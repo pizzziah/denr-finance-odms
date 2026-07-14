@@ -104,10 +104,10 @@
                   <div class="col-md-6">
                     <label class="form-label small fw-semibold">Status <span class="text-danger">*</span></label>
                     <select id="add_status" name="status" class="form-select form-select-sm" required>
-                      <option value="Pending" selected>Pending</option>
+                      <option value="Pending">Pending</option>
                       <option value="Processing">Processing</option>
                       <option value="For Review">For Review</option>
-                      <option value="For Obligation">For Obligation</option>
+                      <option value="For Obligation"selected>For Obligation</option>
                     </select>
                   </div>
                 </div>
