@@ -34,7 +34,9 @@ use Illuminate\Support\Facades\DB;
         default                     => null,
       };
 
-      $query = DB::table('odms_budget');
+      $query = DB::table('odms_budget')
+      ->whereYear('date_received', '!=', 2025)
+      ->where('status', '!=', 'Cancelled');
 
       if ($year != 'all') {
         $query->whereYear('date_received', $year);
@@ -53,7 +55,7 @@ use Illuminate\Support\Facades\DB;
             ->orWhere('issuing_office', 'like', "%{$search}%")
             ->orWhere('classification', 'like', "%{$search}%")
             ->orWhere('uac_codes', 'like', "%{$search}%")
-            ->orWhere('particulars', 'like', "%{$search}%")
+            ->orWhere('particulars', 'like', "%{$search}%")   
             ->orWhere('status', 'like', "%{$search}%")
             ->orWhere('final_remarks', 'like', "%{$search}%");
         });
@@ -344,14 +346,13 @@ if (! $notificationExists) {
     $sort = $request->sort ?? 'latest';
 
     $query = DB::table('odms_budget')
-      ->whereIn('status', ['Paid', 'Cancelled']);
-
-    if ($year != 'all') {
-      $query->whereYear('date_received', $year);
-    }
+        ->where(function ($q) {
+            $q->whereYear('date_received', 2025)
+              ->orWhere('status', 'Cancelled');
+        });
 
     if ($month && $month != 'all') {
-      $query->whereMonth('date_received', $month);
+        $query->whereMonth('date_received', $month);
     }
 
     if ($search) {
