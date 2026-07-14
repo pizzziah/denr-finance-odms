@@ -64,7 +64,7 @@
                   </div>
 
                   <div class="col-md-3">
-                    <label class="form-label small fw-semibold">UACS Code <span class="text-danger">*</span></label>
+                    <label class="form-label small fw-semibold">UACS Code</label>
                     <select id="add_uac_codes" name="uac_codes" class="form-select form-select-sm" required>
                       <option value="">Select UACS Code</option>
                       @foreach($uacs as $uac)
