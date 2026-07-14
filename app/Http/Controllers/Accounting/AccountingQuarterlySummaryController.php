@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Accounting;
 
 use App\Http\Controllers\Controller;
 use App\Models\Accounting\AccountingQuarterlySummary;
+use App\Models\Notification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -143,6 +144,21 @@ class AccountingQuarterlySummaryController extends Controller {
           ['year' => $year, 'quarter' => $quarter],
           ['status' => 'locked', 'requires_admin_unlock' => false, 'updated_at' => Carbon::now()]
         );
+        $lock = DB::table('odms_admin_quarter_locks')
+            ->where('year', $year)
+            ->where('quarter', $quarter)
+            ->first();
+
+        Notification::create([
+            'title'       => 'Quarter Locked',
+            'message'     => auth()->user()->name .
+                            " locked Year {$year}, Quarter {$quarter}.",
+            'target_role' => 'admin',
+            'type'        => 'quarter_locked',
+            'priority'    => 'Medium',
+            'related_id'  => $lock?->id,
+            'is_read'     => 0,
+        ]);
 
         return redirect()->back()->with('success', "Quarter {$quarter} manual lock completed.");
     }
@@ -163,6 +179,22 @@ public function requestAdminUnlock(Request $request)
         ->update([
             'requires_admin_unlock' => true,
             'updated_at'            => \Carbon\Carbon::now() // Captures exactly July 09, 2026 8:42AM
+        ]);
+
+        $lock = DB::table('odms_admin_quarter_locks')
+          ->where('year', $year)
+          ->where('quarter', $quarter)
+          ->first();
+
+        Notification::create([
+            'title'       => 'Quarter Unlock Request',
+            'message'     => auth()->user()->name .
+                            " requested to unlock Year {$year}, Quarter {$quarter}.",
+            'target_role' => 'admin',
+            'type'        => 'unlock_request',
+            'priority'    => 'High',
+            'related_id'  => $lock?->id,
+            'is_read'     => 0,
         ]);
 
     return redirect()->back()->with('success', 'Unlock request sent to System Administration.');
