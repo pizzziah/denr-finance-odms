@@ -12,8 +12,6 @@
   }
 </style>
 
-
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -348,7 +346,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     switch (currentStatus) {
       case 'Pending':
-        disableFields(reviewFields);
         disableFields(obligationFields);
         disableFields(returnedAccountingFields);
         disableFields(forwardedAccountingFields);
@@ -356,14 +353,12 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
 
       case 'Processing':
-        disableFields(reviewFields);
         disableFields(returnedAccountingFields);
         disableFields(forwardedAccountingFields);
         disableFields(statusFields);
         break;
 
       case 'For Obligation':
-        disableFields(reviewFields);
         disableFields(returnedAccountingFields);
         disableFields(forwardedAccountingFields);
         disableFields(statusFields);
@@ -382,7 +377,6 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
 
       case 'Returned by Accounting':
-        disableFields(reviewFields);
         disableFields(returnedAccountingFields);
         disableFields(forwardedAccountingFields);
         disableFields(statusFields);
@@ -515,39 +509,34 @@ $('editForm')?.addEventListener('submit', async (e) => {
 
   // ===================== INITIAL LOAD =====================
   initTomSelect(document);
-});
 
-// ===================== REVIEW HISTORY DOM MANAGEMENT =====================
-document.addEventListener('DOMContentLoaded', function () {
-  const container = document.getElementById('reviewRowsContainer');
-  const template = document.getElementById('reviewRowTemplate');
-  const addBtn = document.getElementById('btnAddReviewRow');
+  // ===================== REVIEW HISTORY DOM MANAGEMENT =====================
+const container = document.getElementById('reviewRowsContainer');
+const template = document.getElementById('reviewRowTemplate');
+const addBtn = document.getElementById('btnAddReviewRow');
 
-  if (addBtn && container && template) {
+if (addBtn && container && template) {
     addBtn.addEventListener('click', function () {
-      const clone = template.content.cloneNode(true);
-      container.appendChild(clone);
+        const clone = template.content.cloneNode(true);
+        container.appendChild(clone);
 
-      const status = document.getElementById('edit_status').value;
-      handleStatusFieldDependencies(status);
+        // Apply current status rules to the newly added row
+        const status = document.getElementById('edit_status').value;
+        handleStatusFieldDependencies(status);
     });
 
     container.addEventListener('click', function (e) {
-      if (e.target.classList.contains('btnRemoveReview')) {
-        e.target.closest('.review-row').remove();
-      }
+        if (e.target.classList.contains('btnRemoveReview')) {
+            e.target.closest('.review-row').remove();
+        }
     });
-  }
-});
+}
 
-document.addEventListener('DOMContentLoaded', () => {
+// ===================== AUTO OPEN VIEW MODAL =====================
+const params = new URLSearchParams(window.location.search);
+const budgetId = params.get('view');
 
-    const params = new URLSearchParams(window.location.search);
-
-    const budgetId = params.get('view');
-
-    if (!budgetId) return;
-
+if (budgetId) {
     const btn = document.querySelector(
         `.view-btn[data-budget-id="${budgetId}"]`
     );
@@ -555,6 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btn) {
         btn.click();
     }
-
+}
 });
+
 </script>
