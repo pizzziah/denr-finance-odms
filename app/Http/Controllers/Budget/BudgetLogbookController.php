@@ -548,6 +548,7 @@ if (!$exists) {
         'message'    => $message,
         'type'       => 'due_date',
         'related_id' => $record->budget_id,
+        'target-role'  => 'budget',
         'user_id'    => auth()->id(),
         'due_date'   => $record->due_date,
         'priority'   => $priority,
