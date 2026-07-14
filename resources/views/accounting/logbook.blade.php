@@ -4,9 +4,25 @@
 
 @section('content')
 @php
-    $showStatusColumn = request('status', 'all') === 'all';
+  $showStatusColumn = request('status', 'all') === 'all';
 @endphp
 <div class="container-fluid mt-3 px-0" style="min-width: 0; overflow-x: hidden;">
+  {{-- ERROR / SUCCESS MESSAGES --}}
+  @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+  @endif
+  @if(session('error'))
+    <div class="alert alert-danger">{{ session('error') }}</div>
+  @endif
+  @if($errors->any())
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        @foreach($errors->all() as $error)
+          <li>{{ $error }}</li>
+        @endforeach
+      </ul>
+    </div>
+  @endif
 
   {{-- TOP BAR --}}
   <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
@@ -89,10 +105,8 @@
   {{-- 2ND CARD --}}
   <div class="card m-0 w-100" style="min-height: 55vh; display: grid; min-width: 0;">
     <div class="card-body p-3" style="min-width: 0;">
-      
       <div class="table-responsive" style="max-height: 60vh; overflow-y: auto; overflow-x: auto; -webkit-overflow-scrolling: touch;">
-        <table class="table table-bordered table-hover table-sm align-middle m-0">
-
+        <table class="table table-bordered table-hover table-sm align-middle m-0" id="accountingTable">
           <thead class="table-dark sticky-top" style="z-index: 5;">
             <tr>
               <th style="min-width:100px;">Date Received</th>
@@ -115,17 +129,33 @@
 
           <tbody>
             @forelse($records as $record)
-               <tr>
-                <td>{{ $record->date_received ?? '-' }}</td>
+               <tr 
+               @if(request('highlight')==$record->transaction_id) class="table-warning" @endif
+               >
+                <td>
+                  {{-- Display Date with Time --}}
+                  @if(!empty($record->date_received) && $record->date_received !== '-')
+                    {{ date('Y-m-d h:i A', strtotime($record->date_received)) }}
+                  @else
+                    -
+                  @endif
+                </td>
                 <td style="color: #9D6B0B; background-color:#FFEECC"><strong>{{ $record->dv_no ?? '-' }}</strong></td>
-                <td>{{ $record->date_processed ?? '-' }}</td>
+                <td>
+                  {{-- Display Date with Time --}}
+                  @if(!empty($record->date_processed) && $record->date_processed !== '-')
+                    {{ date('Y-m-d h:i A', strtotime($record->date_processed)) }}
+                  @else
+                    -
+                  @endif
+                </td>
                 <td>{{ $record->obr_date ?? '-' }}</td>
-                <td style="color: var(--primary); background-color:var(--secondary-variant)"><strong>{{ $record->obr_no ?? '-' }}</strong></td>
+                <td style="color: var(--primary); background-color:var(--secondary-variant)"><strong>{{ $record->ors_no ?? $record->obr_no }}</strong></td>
                 <td><strong>{{ $record->payee ?? '-' }}</strong></td>
                 <td><strong>{{ $record->particulars ?? '-' }}</strong></td>
                 <td><i>{{ $record->particulars_remark ?? '-' }}</i></td>
                 <td class="fw-bold">
-                    ₱{{ number_format((float) str_replace(',', '', $record->total_debit ?? 0), 2) }}
+                    ₱{{ number_format((float) str_replace(',', '', $record->total_credit ?? 0), 2) }}
                 </td>
                 {{-- STATUS COLUMN --}}
                 <td>
@@ -135,7 +165,8 @@
                       $statusStyles = match($status) {
                         'Pending'              => 'background-color: #FFEECC; color: #9D6B0B;',
                         'Processing'           => 'background-color: #FFDEC5; color: #BB400D;',
-                        'Returned'             => 'background-color: #EFDFFF; color: #7909FF;',
+                        'Returned to End User' => 'background-color: #EFDFFF; color: #7909FF;',
+                        'Returned to Budget'   => 'background-color: #EBFEFF; color: #0B879D;',
                         'Paid'                 => 'background-color: #DEF5C4; color: var(--secondary);',
                         'Forwarded to Cashier' => 'background-color: var(--secondary-variant); color: var(--primary);',
                         default                => 'background-color: #F8F9FA; color: #6C757D;'
@@ -148,7 +179,7 @@
                 </td>
 
                 <td class="text-center">
-                    <span class="badge bg-primary">
+                    <span class="badge fw-bold" style="{{ $statusStyles }}; background-color: #BCC3F6; color: #271ECE; font-size: 1em;">
                         {{ $record->total_entries }} Entries
                     </span>
                 </td>
@@ -171,8 +202,22 @@
                   @endif
                 </td>
 
-                <td>{{ $record->date_signed ?? '-' }}</td>
-                <td>{{ $record->date_forwarded ?? '-' }}</td>
+                <td>
+                  {{-- Display Date with Time --}}
+                  @if(!empty($record->date_signed) && $record->date_signed !== '-')
+                    {{ date('Y-m-d h:i A', strtotime($record->date_signed)) }}
+                  @else
+                    -
+                  @endif
+                </td>
+                <td>
+                  {{-- Display Date with Time --}}
+                  @if(!empty($record->date_forwarded) && $record->date_forwarded !== '-')
+                    {{ date('Y-m-d h:i A', strtotime($record->date_forwarded)) }}
+                  @else
+                    -
+                  @endif
+                </td>
                 <td>
                   @if(!empty($record->transaction_id))
                   <div class="d-flex gap-1 justify-content-center">
@@ -181,7 +226,7 @@
                               data-action="view"
                               data-dv="{{ $record->transaction_id }}"
                               data-entries="{{ $record->total_entries }}"
-                              data-amount="{{ $record->total_debit }}"
+                              data-amount="{{ $record->total_credit }}"
                               data-payee="{{ $record->payee }}"
                               data-status="{{ $record->status }}"
                               data-bs-toggle="modal"
@@ -194,7 +239,7 @@
                               data-dv="{{ $record->transaction_id }}"
                               data-status="{{ $record->status }}"
                               data-bs-toggle="modal"
-                              data-bs-target="#editModal">
+                              data-bs-target="#editRecordModal">
                           <i class="bi bi-pencil"></i>
                       </button>
                       <button type="button"
@@ -212,8 +257,8 @@
                 </td>
               </tr>
             @empty
-              <tr>
-                <td colspan="14" class="text-center text-muted py-3">
+              <tr class="empty-row-placeholder">
+                <td colspan="15" class="text-center text-muted py-3">
                   No records found matching parameters.
                 </td>
               </tr>
@@ -240,5 +285,5 @@
 @endsection
 
 @php
-    $pageTitle = 'Logbook';
+  $pageTitle = 'Logbook';
 @endphp
