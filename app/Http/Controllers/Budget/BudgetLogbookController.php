@@ -59,21 +59,23 @@ use Illuminate\Support\Facades\DB;
         });
       }
 
-      switch ($sort) {
-        case 'latest':
-          $query->orderByDesc('date_received');
-          break;
-        case 'oldest':
-          $query->orderBy('date_received');
-          break;
-        case 'ors_asc':
+      $sortColumn = match ($status) {
+          'returned_to_end_user'    => 'date_returned_1',
+          'returned_by_accounting'  => 'date_forwarded_1',
+          'forwarded_to_accounting' => 'date_forwarded_accounting',
+          default                   => 'date_received',
+      };
+
+      if ($sort === 'latest') {
+          $query->orderByRaw("{$sortColumn} IS NULL")
+                ->orderByDesc($sortColumn);
+      } elseif ($sort === 'oldest') {
+          $query->orderByRaw("{$sortColumn} IS NULL")
+                ->orderBy($sortColumn);
+      } elseif ($sort === 'ors_asc') {
           $query->orderBy('ors_no');
-          break;
-        case 'ors_desc':
+      } elseif ($sort === 'ors_desc') {
           $query->orderByDesc('ors_no');
-          break;
-        default:
-          $query->orderByDesc('date_received');
       }
 
       $records = $query->get();
