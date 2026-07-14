@@ -95,20 +95,20 @@
 
           <thead class="table-dark sticky-top" style="z-index: 5;">
             <tr>
-              <th>Date Received</th>
-              <th style="min-width: 80px;">DV No.</th>
-              <th>Date Processed</th>
-              <th>OBR Date</th>
+              <th style="min-width:100px;">Date Received</th>
+              <th style="min-width: 70px;">DV No.</th>
+              <th style="min-width:100px;">Date Processed</th>
+              <th style="min-width:100px;">OBR Date</th>
               <th style="min-width: 70px;">OBR No.</th>
               <th style="min-width: 160px;">Payee</th>
-              <th style="min-width: 300px;">Particulars</th>
-              <th style="min-width: 160px;">Particulars Remark</th>
-              <th style="min-width:130px;">Amount</th>
+              <th style="min-width: 280px;">Particulars</th>
+              <th style="min-width: 210px;">Particulars Remark</th>
+              <th style="min-width: 130px;">Amount</th>
               <th style="min-width: 150px;">Status</th>
               <th style="min-width:120px;">Accounting Entries</th>
               <th style="min-width: 100px;">Signed</th>
-              <th>Date Signed</th>
-              <th>Date Forwarded</th>
+              <th style="min-width:100px;">Date Signed</th>
+              <th style="min-width:100px;">Date Forwarded</th>
               <th style="min-width: 150px;">Action</th>
             </tr>
           </thead>
@@ -117,14 +117,14 @@
             @forelse($records as $record)
                <tr>
                 <td>{{ $record->date_received ?? '-' }}</td>
-                <td style="color: var(--primary); background-color:var(--secondary-variant)"><strong>{{ $record->dv_no ?? '-' }}</strong></td>
+                <td style="color: #9D6B0B; background-color:#FFEECC"><strong>{{ $record->dv_no ?? '-' }}</strong></td>
                 <td>{{ $record->date_processed ?? '-' }}</td>
                 <td>{{ $record->obr_date ?? '-' }}</td>
                 <td style="color: var(--primary); background-color:var(--secondary-variant)"><strong>{{ $record->obr_no ?? '-' }}</strong></td>
                 <td><strong>{{ $record->payee ?? '-' }}</strong></td>
                 <td><strong>{{ $record->particulars ?? '-' }}</strong></td>
                 <td><i>{{ $record->particulars_remark ?? '-' }}</i></td>
-                <td class="text-end fw-bold">
+                <td class="fw-bold">
                     ₱{{ number_format((float) str_replace(',', '', $record->total_debit ?? 0), 2) }}
                 </td>
                 {{-- STATUS COLUMN --}}
@@ -141,7 +141,7 @@
                         default                => 'background-color: #F8F9FA; color: #6C757D;'
                       };
                     @endphp
-                    <span class="badge px-2 py-1 small fw-bold" style="{{ $statusStyles }}">{{ $status }}</span>
+                    <span class="badge fw-bold" style="{{ $statusStyles }}; font-size: 1em;" >{{ $status }}</span>
                   @else
                     <span class="text-muted">-</span>
                   @endif

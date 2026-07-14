@@ -101,75 +101,7 @@ use Illuminate\Support\Facades\DB;
         ->orderBy('new_uac')
         ->get();
 
-      $baseColumns = [
-        'date_received',
-        'issuing_office',
-        'payee',
-        'classification',
-        'particulars',
-        'amount',
-        'status',
-      ];
-
-      $visibleColumns = match ($status) {
-        'pending' => array_merge($baseColumns, [
-          'action',
-        ]),
-
-        'processing' => array_merge($baseColumns, [
-          'date_returned_1',
-          'returned_to_end_user',
-          'remarks_1',
-          'date_received_1',
-          'ors_no',
-          'forwarded',
-          'date_forwarded_1',
-          'date_ors_received',
-          'remarks_2',
-          'action',
-        ]),
-
-        'for_obligation' => array_merge($baseColumns, [
-          'date_returned_1',
-          'returned_to_end_user',
-          'remarks_1',
-          'date_received_1',
-          'ors_no',
-          'forwarded',
-          'date_forwarded_1',
-          'date_ors_received',
-          'remarks_2',
-          'action',
-        ]),
-
-        'returned' => array_merge($baseColumns, [
-          'date_returned_1',
-          'returned_to_end_user',
-          'remarks_1',
-          'date_received_1',
-          'ors_no',
-          'forwarded',
-          'date_forwarded_1',
-          'date_ors_received',
-          'remarks_2',
-          'action',
-        ]),
-
-        // Swapped out ['all'] for explicit mappings so status renders predictably
-        'forwarded_to_accounting' => array_merge($baseColumns, [
-          'date_forwarded_accounting',
-          'final_remarks',
-        ]),
-        
-        'paid' => array_merge($baseColumns, [
-          'final_remarks',
-        ]),
-        
-        default => array_merge($baseColumns, [
-          'ors_no',
-          'action',
-        ]),
-      };
+      
 
       return view('budget.logbook', compact(
         'records',
@@ -181,7 +113,7 @@ use Illuminate\Support\Facades\DB;
         'issuingOffices',
         'classifications',
         'uacs',
-        'visibleColumns',
+    
         'highlight'
       ));
     }
