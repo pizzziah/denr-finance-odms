@@ -119,6 +119,7 @@
               <th style="min-width: 210px;">Particulars Remark</th>
               <th style="min-width: 130px;">Amount</th>
               <th style="min-width: 150px;">Status</th>
+              <th style="min-width: 200px;">Returned Remarks</th>
               <th style="min-width:120px;">Accounting Entries</th>
               <th style="min-width: 100px;">Signed</th>
               <th style="min-width:100px;">Date Signed</th>
@@ -129,6 +130,19 @@
 
           <tbody>
             @forelse($records as $record)
+            
+            @php
+                      $status = trim($record->status);
+                      $statusStyles = match($status) {
+                        'Pending'              => 'background-color: #FFEECC; color: #9D6B0B;',
+                        'Processing'           => 'background-color: #FFDEC5; color: #BB400D;',
+                        'Returned to End User' => 'background-color: #EFDFFF; color: #7909FF;',
+                        'Returned to Budget'   => 'background-color: #EBFEFF; color: #0B879D;',
+                        'Paid'                 => 'background-color: #DEF5C4; color: var(--secondary);',
+                        'Forwarded to Cashier' => 'background-color: var(--secondary-variant); color: var(--primary);',
+                        default                => 'background-color: #F8F9FA; color: #6C757D;'
+                      };
+                    @endphp
                <tr 
                @if(request('highlight')==$record->transaction_id) class="table-warning" @endif
                >
@@ -155,28 +169,20 @@
                 <td><strong>{{ $record->particulars ?? '-' }}</strong></td>
                 <td><i>{{ $record->particulars_remark ?? '-' }}</i></td>
                 <td class="fw-bold">
-                    ₱{{ number_format((float) str_replace(',', '', $record->total_credit ?? 0), 2) }}
+                    ₱{{ number_format((float) str_replace(',', '', $record->total_debit ?? 0), 2) }}
                 </td>
                 {{-- STATUS COLUMN --}}
                 <td>
                   @if(!empty($record->status))
-                    @php
-                      $status = trim($record->status);
-                      $statusStyles = match($status) {
-                        'Pending'              => 'background-color: #FFEECC; color: #9D6B0B;',
-                        'Processing'           => 'background-color: #FFDEC5; color: #BB400D;',
-                        'Returned to End User' => 'background-color: #EFDFFF; color: #7909FF;',
-                        'Returned to Budget'   => 'background-color: #EBFEFF; color: #0B879D;',
-                        'Paid'                 => 'background-color: #DEF5C4; color: var(--secondary);',
-                        'Forwarded to Cashier' => 'background-color: var(--secondary-variant); color: var(--primary);',
-                        default                => 'background-color: #F8F9FA; color: #6C757D;'
-                      };
-                    @endphp
+                    
                     <span class="badge fw-bold" style="{{ $statusStyles }}; font-size: 1em;" >{{ $status }}</span>
                   @else
                     <span class="text-muted">-</span>
                   @endif
                 </td>
+
+                {{-- RETURNED REMARKS COLUMN --}}
+                <td><i>{{ $record->returned_remarks ?? '-' }}</i></td>
 
                 <td class="text-center">
                     <span class="badge fw-bold" style="{{ $statusStyles }}; background-color: #BCC3F6; color: #271ECE; font-size: 1em;">
@@ -258,7 +264,7 @@
               </tr>
             @empty
               <tr class="empty-row-placeholder">
-                <td colspan="15" class="text-center text-muted py-3">
+                <td colspan="16" class="text-center text-muted py-3">
                   No records found matching parameters.
                 </td>
               </tr>
@@ -275,8 +281,6 @@
     </div>
   </div>
 </div>
-@include('accounting.partials.filter-modal')
-@include('accounting.partials.sort-modal')
 @include('accounting.partials.action-modal')
 @include('accounting.partials.details-modal')
 @include('accounting.partials.scripts')
