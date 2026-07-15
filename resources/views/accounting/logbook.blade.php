@@ -147,7 +147,6 @@
                @if(request('highlight')==$record->transaction_id) class="table-warning" @endif
                >
                 <td>
-                  {{-- Display Date with Time --}}
                   @if(!empty($record->date_received) && $record->date_received !== '-')
                     {{ date('Y-m-d h:i A', strtotime($record->date_received)) }}
                   @else
@@ -156,7 +155,6 @@
                 </td>
                 <td style="color: #9D6B0B; background-color:#FFEECC"><strong>{{ $record->dv_no ?? '-' }}</strong></td>
                 <td>
-                  {{-- Display Date with Time --}}
                   @if(!empty($record->date_processed) && $record->date_processed !== '-')
                     {{ date('Y-m-d h:i A', strtotime($record->date_processed)) }}
                   @else

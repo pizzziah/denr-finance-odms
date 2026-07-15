@@ -244,21 +244,26 @@ class AccountingLogbookController extends Controller {
     $request->validate([
       'date_received'        => 'nullable|date',
       'obr_date'             => 'nullable|date',
-      'particulars_remark'    => 'nullable|string',
-      'date_processed'        => 'required|date',
-      'dv_no'                 => 'nullable|string|max:255',
-      'credit_uac_codes'      => 'nullable|array',
-      'credit_uac_codes.*'    => 'nullable|string|max:255',
-      'credit_amounts'        => 'nullable|array',
-      'credit_amounts.*'      => 'nullable|numeric',
-      'credit_tax_percent'    => 'nullable|array',
-      'credit_tax_remarks'    => 'nullable|array',
-      'signed'                => 'required|in:Yes,No',
-      'signed_by_accountant'  => 'required_if:signed,Yes|nullable|string|max:255',
-      'date_signed'           => 'required_if:signed,Yes|nullable|date',
-      'status'                => 'required|string|max:255',
-      'date_forwarded'        => 'nullable|date',
-      'returned_remarks'      => 'nullable|string',
+      'particulars_remark'   => 'nullable|string',
+      'date_processed'       => 'required|date',
+      'dv_no'                => 'nullable|string|max:255',
+      'payee'                => 'required|string|max:255',
+      'particulars'          => 'required|string',
+      'debit'                => 'required|numeric',
+      'uac_codes'            => 'nullable|string|max:255',
+      'obr_no'               => 'nullable|string|max:255',
+      'credit_uac_codes'     => 'nullable|array',
+      'credit_uac_codes.*'   => 'nullable|string|max:255',
+      'credit_amounts'       => 'nullable|array',
+      'credit_amounts.*'     => 'nullable|numeric',
+      'credit_tax_percent'   => 'nullable|array',
+      'credit_tax_remarks'   => 'nullable|array',
+      'signed'               => 'required|in:Yes,No',
+      'signed_by_accountant' => 'required_if:signed,Yes|nullable|string|max:255',
+      'date_signed'          => 'required_if:signed,Yes|nullable|date',
+      'status'               => 'required|string|max:255',
+      'date_forwarded'       => 'nullable|date',
+      'returned_remarks'     => 'nullable|string',
     ]);
 
     $entries = DB::table('odms_accounting')->where('transaction_id', $transaction_id)->get();
@@ -274,6 +279,9 @@ class AccountingLogbookController extends Controller {
     DB::beginTransaction();
     try {
       $debitRow = $entries->first(fn ($e) => (float) $e->debit > 0) ?? $entries->first();
+
+      // Determine if the record originated from Budget
+      $isBudgetSourced = !empty($debitRow->budget_id);
 
       // Fields Accounting IS allowed to edit; shared across every row
       // of the transaction so the grouped/aggregated logbook view
@@ -291,6 +299,15 @@ class AccountingLogbookController extends Controller {
         'status'                => $request->status,
         'date_forwarded'        => $request->date_forwarded,
       ];
+
+      // Conditionally merge fields only if it is NOT budget-sourced
+      if (!$isBudgetSourced) {
+        $shared['payee']       = $request->payee;
+        $shared['particulars'] = $request->particulars;
+        $shared['debit']       = $request->debit;
+        $shared['uac_codes']   = $request->uac_codes;
+        $shared['obr_no']      = $request->obr_no;
+      }
 
       // LOCKED, untouched on the debit row: payee, particulars,
       // obr_no, ors_no, uac_codes, debit.

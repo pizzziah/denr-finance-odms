@@ -154,6 +154,18 @@ document.addEventListener('DOMContentLoaded', function () {
       // Extract raw record properties securely
       const record = data.record || data || {};
 
+      const isBudgetSourced = (record.budget_id !== null && record.budget_id !== undefined && record.budget_id !== '');
+      const fieldsToLock = ['edit_payee', 'edit_particulars', 'edit_debit', 'edit_uac_codes', 'edit_obr_no'];
+
+
+      fieldsToLock.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.readOnly = isBudgetSourced;
+          el.style.backgroundColor = isBudgetSourced ? '#e9ecef' : '';
+        }
+      });
+
       const safelySet = (id, value) => {
         const el = document.getElementById(id);
         if (el) el.value = value ?? '';
@@ -238,21 +250,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (actionFooter) {
-    // 1. Get the token from the meta tag
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    
-    // 2. Construct the URL specifically for your route
     const deleteUrl = `/accounting/logbook/${dbId}/destroy`;
 
     actionFooter.innerHTML = `
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-        <form action="${deleteUrl}" method="POST" class="d-inline">
-            <input type="hidden" name="_token" value="${csrfToken}">
-            <input type="hidden" name="_method" value="DELETE">
-            <button type="submit" class="btn btn-danger btn-sm">Yes, Delete</button>
-        </form>
+    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+    <form action="${deleteUrl}" method="POST" class="d-inline">
+      <input type="hidden" name="_token" value="${csrfToken}">
+      <input type="hidden" name="_method" value="DELETE">
+      <button type="submit" class="btn btn-danger btn-sm">Yes, Delete</button>
+    </form>
     `;
-}
+    }
   });
 
   /* ---------------------------------------------------------------- *
