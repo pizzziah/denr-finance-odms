@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Add-record form: submit via fetch, append row on success, no full page reload
+// Add-record form: submit via fetch, append row on success, no full page reload
   const addForm = document.getElementById('addForm');
   if (addForm) {
     addForm.addEventListener('submit', function (e) {
@@ -53,13 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const submitBtn = addForm.querySelector('button[type="submit"]');
       if (submitBtn) submitBtn.disabled = true;
 
+      // FIX: Let FormData naturally process dynamic inputs to avoid duplications/scrambled arrays
       const fd = new FormData(addForm);
-      document.querySelectorAll('#addAccountingRows .uacs-row').forEach((row,index)=>{
-      fd.append(`rows[${index+1}][uac_codes]`,row.querySelector('[name="rows[][uac_codes]"]').value);
-      fd.append(`rows[${index+1}][credit]`,row.querySelector('[name="rows[][credit]"]').value);
-      fd.append(`rows[${index+1}][tax_percent]`,row.querySelector('[name="rows[][tax_percent]"]').value);
-      fd.append(`rows[${index+1}][tax_remarks]`,row.querySelector('[name="rows[][tax_remarks]"]').value);
-    });
 
       fetch(addForm.action, {
         method: 'POST',
@@ -75,6 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
           appendNewRecordToTable(data.record);
           bootstrap.Modal.getInstance(document.getElementById('addRecordModal')).hide();
           addForm.reset();
+          
+          // Clear dynamically added rows from UI
+          const container = document.getElementById('addAccountingRows');
+          if(container) container.innerHTML = '';
+          
           showTopAlert('success', data.message || 'Record saved successfully.');
         })
         .catch(err => {

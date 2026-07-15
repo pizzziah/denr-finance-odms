@@ -107,105 +107,7 @@ class AccountingLogbookController extends Controller {
       );
   }
 
-// ================= STORE NEW LOGBOOK RECORD =================
-  public function store(Request $request) {
-    $request->validate([
-      'payee'  => 'required|string',
-      'status' => 'nullable|string',
-    ]);
-
-    $status = $request->status ?? 'Pending';
-
-    if ($status === 'Paid') {
-      $message = 'Paid status can only be assigned through Cashier workflow.';
-
-      if ($request->wantsJson()) {
-        return response()->json(['error' => $message], 422);
-      }
-
-      return redirect()->back()->withInput()->with('error', $message);
-    }
-
-    $transaction_id = 'TXN-' . $request->dv_no;
-
-    $parseDate = function($value) {
-      return $value ? date('Y-m-d H:i:s', strtotime($value)) : null;
-    };
-
-    $baseData = [
-      'transaction_id'       => $transaction_id,
-      'dv_no'                => $request->dv_no,
-      'ors_no'               => $request->ors_no,
-      'obr_no'               => $request->obr_no,
-      'payee'                => $request->payee,
-      'particulars'          => $request->particulars,
-      'particulars_remark'   => $request->particulars_remark,
-      'signed_by_accountant' => $request->signed_by_accountant ?? $request->signed,
-      'status'               => $status,
-      'budget_year'          => $request->budget_year,
-      'source_month'         => $request->source_month,
-      'date_received'        => $request->date_received ? $parseDate($request->date_received) : now(),
-      'date_processed'       => $parseDate($request->date_processed),
-      'obr_date'             => $parseDate($request->obr_date),
-      'date_signed'          => $parseDate($request->date_signed),
-      'date_forwarded'       => $parseDate($request->date_forwarded),
-      'returned_remarks'     => $request->returned_remarks,
-    ];
-
-
-if (!$request->filled('rows')) {
-  $request->merge([
-    'rows' => [[
-      'uac_codes' => $request->uacs_code,
-      'debit' => $request-> total_credit,
-      'credit' => 0,
-      'tax_percent' => $request->tax_percentage,
-      'tax_remarks' => $request->tax_remarks
-    ]]
-  ]);
-}
-$rows = $request->rows;
-
-    if (count($rows)) {
-      foreach ($rows as $index => $row) {
-        DB::table('odms_accounting')->insert(array_merge(
-          $baseData,
-          [
-            'uac_codes' => $row['uac_codes'],
-            'debit' => $index == 0
-              ? ($row['debit'] ?? 0)
-              : 0,
-            'credit' => $row['credit'] ?? 0,
-            'tax_percent' => $row['tax_percent'],
-            'tax_remarks' => $row['tax_remarks']
-          ]
-        ));
-      }
-    }
-
-    if ($request->wantsJson()) {
-      $record = DB::table('odms_accounting')
-        ->where('transaction_id', $transaction_id)
-        ->selectRaw('
-          transaction_id, MAX(dv_no) dv_no, MAX(payee) payee, MAX(status) status,
-          MAX(date_received) date_received, COUNT(*) total_entries,
-          SUM(CAST(REPLACE(COALESCE(debit,0), \',\', \'\') AS DECIMAL(15,2)))  total_credit
-        ')
-        ->groupBy('transaction_id')
-        ->first();
-
-      return response()->json([
-        'success' => true,
-        'message' => 'New record saved successfully.',
-        'record'  => $record,
-      ]);
-    }
-
-    return redirect()
-      ->route('accounting.logbook')
-      ->with('success', 'New record saved successfully.');
-}
-
+  
   // ================= VIEW JSON =================
   public function show($transaction_id) {
     $records = DB::table('odms_accounting as a')
@@ -252,6 +154,207 @@ DB::raw('b.ors_date')
     ]);
   }
 
+  // ================= STORE NEW LOGBOOK RECORD =================
+  public function store(Request $request) {
+    $request->validate([
+      'payee'  => 'required|string',
+      'status' => 'nullable|string',
+    ]);
+
+    $status = $request->status ?? 'Pending';
+
+    if ($status === 'Paid') {
+      $message = 'Paid status can only be assigned through Cashier workflow.';
+
+      if ($request->wantsJson()) {
+        return response()->json(['error' => $message], 422);
+      }
+
+      return redirect()->back()->withInput()->with('error', $message);
+    }
+
+    $dv_suffix = $request->filled('dv_no') ? $request->dv_no : 'TMP-' . strtoupper(bin2hex(random_bytes(4))); 
+    $transaction_id = 'TXN-' . $dv_suffix;
+
+    $parseDate = function($value) {
+      return $value ? date('Y-m-d H:i:s', strtotime($value)) : null;
+    };
+
+    $baseData = [
+      'transaction_id'       => $transaction_id,
+      'dv_no'                => $request->dv_no,
+      'ors_no'               => $request->ors_no,
+      'obr_no'               => $request->obr_no,
+      'payee'                => $request->payee,
+      'particulars'          => $request->particulars,
+      'particulars_remark'   => $request->particulars_remark,
+      'signed_by_accountant' => $request->signed_by_accountant ?? $request->signed,
+      'status'               => $status,
+      'budget_year'          => $request->budget_year,
+      'source_month'         => $request->source_month,
+      'date_received'        => $request->date_received ? $parseDate($request->date_received) : now(),
+      'date_processed'       => $parseDate($request->date_processed),
+      'obr_date'             => $parseDate($request->obr_date),
+      'date_signed'          => $parseDate($request->date_signed),
+      'date_forwarded'       => $parseDate($request->date_forwarded),
+      'returned_remarks'     => $request->returned_remarks,
+    ];
+
+    // FIX: Changed $request->total_credit to $request->total_debit to match input field
+    if (!$request->filled('rows')) {
+      $request->merge([
+        'rows' => [[
+          'uac_codes' => $request->uacs_code,
+          'debit' => $request->total_debit, 
+          'credit' => $request->credit ?? 0,
+          'tax_percent' => $request->tax_percentage,
+          'tax_remarks' => $request->tax_remarks
+        ]]
+      ]);
+    }
+    $rows = $request->rows;
+
+    if (count($rows)) {
+      foreach ($rows as $index => $row) {
+        DB::table('odms_accounting')->insert(array_merge(
+          $baseData,
+          [
+            'uac_codes' => $row['uac_codes'],
+            'debit' => $index == 0 ? ($row['debit'] ?? 0) : 0,
+            'credit' => $row['credit'] ?? 0,
+            'tax_percent' => $row['tax_percent'],
+            'tax_remarks' => $row['tax_remarks']
+          ]
+        ));
+      }
+    }
+
+    if ($request->wantsJson()) {
+      // FIX: total_credit calculations aligned to match logbook() view aggregation (SUM of credit)
+      $record = DB::table('odms_accounting')
+        ->where('transaction_id', $transaction_id)
+        ->selectRaw('
+          transaction_id, MAX(dv_no) dv_no, MAX(payee) payee, MAX(status) status,
+          MAX(date_received) date_received, COUNT(*) total_entries,
+          SUM(CAST(REPLACE(COALESCE(credit,0), \',\', \'\') AS DECIMAL(15,2))) as total_credit
+        ')
+        ->groupBy('transaction_id')
+        ->first();
+
+      return response()->json([
+        'success' => true,
+        'message' => 'New record saved successfully.',
+        'record'  => $record,
+      ]);
+    }
+
+    return redirect()
+      ->route('accounting.logbook')
+      ->with('success', 'New record saved successfully.');
+  }
+
+// ================= UPDATE LOGBOOK RECORD =================
+  public function update(Request $request, $transaction_id) {
+    $request->validate([
+      'status' => 'required|string',
+    ]);
+    
+    $status = $request->status;
+    $signedValue = $request->signed_by_accountant ?? $request->signed ?? '';
+
+    if ($status === 'Forwarded to Cashier') {
+      $isSigned = trim(strtolower($signedValue));
+
+      if (!in_array($isSigned, ['yes', '1']) || empty($request->date_signed)) {
+        return redirect()
+          ->back()
+          ->withInput()
+          ->with('error', 'Cannot forward without signature and date signed.');
+      }
+    }
+
+    if ($status === 'Paid') {
+      return redirect()
+        ->back()
+        ->withInput()
+        ->with('error', 'Paid status can only be assigned through Cashier workflow.');
+    }
+
+    $parseDate = function($value) {
+      return $value ? date('Y-m-d H:i:s', strtotime($value)) : null;
+    };
+
+    // FIX: Removed broken duplicate text blocks and isolated syntax fragments
+    DB::table('odms_accounting')
+      ->where('transaction_id', $transaction_id)
+      ->delete();
+
+    $rows = $request->rows ?? [];
+
+    if (empty($rows)) {
+      $rows[] = [
+        'uac_codes' => $request->uacs_code,
+        'debit' => $request->total_debit,
+        'credit' => 0,
+        'tax_percent' => $request->tax_percentage,
+        'tax_remarks' => $request->tax_remarks
+      ];
+    }
+    
+    foreach ($rows as $index => $row) {
+      DB::table('odms_accounting')
+        ->insert([
+          'transaction_id' => $transaction_id,
+          'dv_no' => $request->dv_no,
+          'ors_no' => $request->ors_no,
+          'obr_no' => $request->obr_no,
+          'budget_id' => $request->budget_id,
+          'payee' => $request->payee,
+          'particulars' => $request->particulars,
+          'particulars_remark' => $request->particulars_remark,
+          'status' => $request->status,
+          'date_received' => $parseDate($request->date_received),
+          'date_processed' => $parseDate($request->date_processed),
+          'obr_date' => $parseDate($request->obr_date),
+          'date_signed' => $parseDate($request->date_signed),
+          'date_forwarded' => $parseDate($request->date_forwarded),
+          'signed_by_accountant' => $signedValue,
+          'uac_codes' => $row['uac_codes'],
+          'debit' => $index == 0 ? ($row['debit'] ?? 0) : 0,
+          'credit' => $row['credit'] ?? 0,
+          'tax_percent' => $row['tax_percent'],
+          'tax_remarks' => $row['tax_remarks']
+        ]);
+    }
+      
+    $accounting = DB::table('odms_accounting')->where('transaction_id', $transaction_id)->first();
+
+    if ($accounting && $status == 'Returned to Budget') {
+      DB::table('odms_budget')
+        ->where('budget_id', $accounting->budget_id)
+        ->update([
+          'status'        => 'Returned',
+          'final_remarks' => $request->returned_remarks,
+        ]);
+
+      if (class_exists(\App\Models\Notification::class)) {
+        \App\Models\Notification::create([
+          'title'       => 'Transaction Returned',
+          'message'     => "ORS No. {$accounting->obr_no} ({$accounting->payee}) was returned by Accounting.",
+          'type'        => 'returned',
+          'related_id'  => $accounting->budget_id,
+          'target_role' => 'budget',
+          'priority'    => 'High',
+          'is_read'     => 0,
+        ]);
+      }
+    }
+
+    return redirect()
+      ->route('accounting.logbook')
+      ->with('success', 'Transaction updated successfully.');
+  }
+
   // ================= EDIT JSON =================
   public function edit($transaction_id) {
     $records = DB::table('odms_accounting as a')
@@ -287,117 +390,6 @@ DB::raw('b.ors_date')
       'summary' => $records->first(),
       'details' => $records->values(),
     ]);
-  }
-
-// ================= UPDATE LOGBOOK RECORD =================
-  public function update(Request $request, $transaction_id) {
-    // Relaxed validation to prevent strict string dropouts causing silent update failures
-    $request->validate([
-      'status' => 'required|string',
-    ]);
-    
-    $status = $request->status;
-    $signedValue = $request->signed_by_accountant ?? $request->signed ?? '';
-
-    // Prevent invalid cashier forwarding
-    if ($status === 'Forwarded to Cashier') {
-      $isSigned = trim(strtolower($signedValue));
-
-      if (!in_array($isSigned, ['yes', '1']) || empty($request->date_signed)) {
-        return redirect()
-          ->back()
-          ->withInput()
-          ->with('error', 'Cannot forward without signature and date signed.');
-      }
-    }
-
-    if ($status === 'Paid') {
-      return redirect()
-        ->back()
-        ->withInput()
-        ->with('error', 'Paid status can only be assigned through Cashier workflow.');
-    }
-
-    $parseDate = function($value) {
-      return $value ? date('Y-m-d H:i:s', strtotime($value)) : null;
-    };
-
-    DB::table('odms_accounting')
-      ->where('transaction_id', $transaction_id)
-      ;
-delete();
-    DB::table('odms_accounting')
-      ->where(
-        'transaction_id',
-        $transaction_id
-      )
-      ->delete();
-$rows = $request->rows ?? [];
-
-if (empty($rows)) {
-  $rows[] = [
-    'uac_codes' => $request->uacs_code,
-    'debit' => $request->total_debit,
-    'credit' => 0,
-    'tax_percent' => $request->tax_percentage,
-    'tax_remarks' => $request->tax_remarks
-  ];
-}
-    foreach ($request->rows as $index => $row) {
-      DB::table('odms_accounting')
-        ->insert([
-          'transaction_id' => $transaction_id,
-          'dv_no' => $request->dv_no,
-          'ors_no' => $request->ors_no,
-          'obr_no' => $request->obr_no,
-          'budget_id' => $request->budget_id,
-          'payee' => $request->payee,
-          'particulars' => $request->particulars,
-          'particulars_remark' => $request->particulars_remark,
-          'status' => $request->status,
-          'date_received' => $parseDate($request->date_received),
-          'date_processed' => $parseDate($request->date_processed),
-          'obr_date' => $parseDate($request->obr_date),
-          'date_signed' => $parseDate($request->date_signed),
-          'date_forwarded' => $parseDate($request->date_forwarded),
-          'signed_by_accountant' => $signedValue,
-          'uac_codes' => $row['uac_codes'],
-          'debit' => $index == 0
-            ? ($row['debit'] ?? 0)
-            : 0,
-          'credit' => $row['credit'] ?? 0,
-          'tax_percent' => $row['tax_percent'],
-          'tax_remarks' => $row['tax_remarks']
-        ]);
-    }
-      
-    
-    $accounting = DB::table('odms_accounting')->where('transaction_id', $transaction_id)->first();
-
-    if ($accounting && $status == 'Returned to Budget') {
-      DB::table('odms_budget')
-        ->where('budget_id', $accounting->budget_id)
-        ->update([
-          'status'        => 'Returned',
-          'final_remarks' => $request->returned_remarks,
-        ]);
-
-      if (class_exists(\App\Models\Notification::class)) {
-        \App\Models\Notification::create([
-          'title'       => 'Transaction Returned',
-          'message'     => "ORS No. {$accounting->obr_no} ({$accounting->payee}) was returned by Accounting.",
-          'type'        => 'returned',
-          'related_id'  => $accounting->budget_id,
-          'target_role' => 'budget',
-          'priority'    => 'High',
-          'is_read'     => 0,
-        ]);
-      }
-    }
-
-    return redirect()
-      ->route('accounting.logbook')
-      ->with('success', 'Transaction updated successfully.');
   }
   
   // ================= DELETE =================

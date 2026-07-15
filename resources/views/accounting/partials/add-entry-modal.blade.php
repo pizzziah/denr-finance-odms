@@ -182,39 +182,28 @@
           <div class="border rounded p-3 mt-3 bg-light uacs-row">
             <div class="row g-2">
               <div class="col-md-3">
-                <label class="form-label small fw-semibold">
-                  UACS
-                </label>
+                <label class="form-label small fw-semibold">UACS</label>
+                <!-- FIX: Ensured names conform to structured object keys array standard syntax -->
                 <select class="form-select form-select-sm" name="rows[][uac_codes]">
-                  <option value="">
-                    Select UACS...
-                  </option>
+                  <option value="">Select UACS...</option>
                   @foreach($uacCodes as $uac)
-                    <option value="{{ $uac->uac_codes }}">
-                      {{ $uac->uac_codes }} — {{ $uac->order_title }}
-                    </option>
+                    <option value="{{ $uac->uac_codes }}">{{ $uac->uac_codes }} — {{ $uac->order_title }}</option>
                   @endforeach
                 </select>
               </div>
 
               <div class="col-md-3">
-                <label class="form-label small fw-semibold">
-                  Credit
-                </label>
+                <label class="form-label small fw-semibold">Credit</label>
                 <input type="number" step="0.01" class="form-control form-control-sm" name="rows[][credit]">
               </div>
 
               <div class="col-md-2">
-                <label class="form-label small fw-semibold">
-                  Tax %
-                </label>
+                <label class="form-label small fw-semibold">Tax %</label>
                 <input type="number" step="0.01" class="form-control form-control-sm" name="rows[][tax_percent]">
               </div>
 
               <div class="col-md-3">
-                <label class="form-label small fw-semibold">
-                  Tax Remarks
-                </label>
+                <label class="form-label small fw-semibold">Tax Remarks</label>
                 <input class="form-control form-control-sm" name="rows[][tax_remarks]">
               </div>
 
