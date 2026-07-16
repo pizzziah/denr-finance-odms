@@ -213,7 +213,6 @@
             <tr>
               <td class="small">{{ $record->date_processed ?? '-' }}</td>
               <td style="color: var(--primary);"><strong>{{ $record->particulars ?? '-' }}</strong></td>
-              <td style="color: #20c997;"><strong>{{ !empty($record->signed_dv) ? '₱' . number_format((float)str_replace(',', '', $record->signed_dv), 2) : '-' }}</strong></td>
               <td style="color: #7909FF;">{{ !empty($record->amount) ? '₱' . number_format((float)str_replace(',', '', $record->amount), 2) : '-' }}</td>
               <td style="color: #9D6B0B;"><strong>{{ $cleanReceived > 0 ? '₱' . number_format($cleanReceived, 2) : '-' }}</strong></td>
               <td style="color: var(--error);"><strong>{{ $cleanDownloaded > 0 ? '₱' . number_format($cleanDownloaded, 2) : '-' }}</strong></td>
@@ -255,14 +254,18 @@
                         <p class="text-danger small mt-2 mb-0 fw-bold"><i class="bi bi-info-circle-fill"></i> Balance transaction histories down the stream will automatically calculate and shift.</p>
                       </div>
                       <div class="modal-footer bg-light py-2 gap-2 d-flex justify-content-end">
-                        <x-button type="button" variant="secondary" data-bs-dismiss="modal">Cancel</x-button>
-                        <form action="{{ route('accounting.quarterly-summary.destroy', $rowId) }}" method="POST" class="m-0">
-                          @csrf
-                          @method('DELETE')
-                          <input type="hidden" name="target_year" value="{{ $selectedYear ?? date('Y') }}">
-                          <x-button type="submit" variant="primary">Save Changes</x-button>
-                        </form>
-                      </div>
+    <x-button type="button" variant="secondary" data-bs-dismiss="modal">Cancel</x-button>
+    <form action="{{ route('accounting.quarterly-summary.destroy', $rowId) }}" method="POST" class="m-0">
+        @csrf
+        @method('DELETE')
+        
+        <!-- Pass both context values so the controller knows which quarter table to delete from -->
+        <input type="hidden" name="target_quarter" value="{{ $selectedQuarter }}">
+        <input type="hidden" name="target_year" value="{{ $selectedYear ?? date('Y') }}">
+        
+        <x-button type="submit" variant="danger">Delete Entry</x-button>
+    </form>
+</div>
                     </div>
                   </div>
                 </div>

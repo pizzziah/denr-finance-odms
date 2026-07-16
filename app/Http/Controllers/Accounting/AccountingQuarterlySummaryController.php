@@ -218,7 +218,7 @@ class AccountingQuarterlySummaryController extends Controller {
       'date_processed'   => 'required|date',
       'particulars'      => 'required|string|max:255',
       'transaction_type' => 'required|in:adjustment,signed_dv,received,downloaded',
-      'amount'           => 'required|numeric|min:0',
+      'amount'           => 'required|numeric',
       'emds_date'        => 'nullable|date',
       'ada_no'           => 'nullable|string|max:50',
       'remarks'          => 'nullable|string|max:255',
@@ -460,7 +460,7 @@ private function recalculateQuarterlyBalances($quarter, $year = null) {
       $downloaded = AccountingQuarterlySummary::parseMoney($record->nca_nta_downloaded);
       $amount     = AccountingQuarterlySummary::parseMoney($record->amount); // adjustment / signed_dv
 
-      // Math Formula Implementation
+      // The math handles signs out-of-the-box: 100 + (-50) becomes 50.
       if ($downloaded > 0) {
           $runningBalance = ($runningBalance + $amount) - $downloaded;
       } else {
