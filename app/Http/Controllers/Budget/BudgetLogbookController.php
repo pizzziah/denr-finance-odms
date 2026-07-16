@@ -269,22 +269,38 @@ use Illuminate\Support\Facades\DB;
             ]);
         }
 
-              $notificationExists = Notification::where('type', 'accounting')
-          ->where('related_id', $budget->budget_id)
-          ->where('is_read', 0)
-          ->exists();
+        if ($request->status === 'Forwarded to Accounting') {
 
-      if (! $notificationExists) {
-          Notification::create([
-              'title' => 'New Accounting Transaction',
-              'message' => "ORS No. {$budget->ors_no} ({$budget->payee}) has been forwarded from Budget.",
-              'type' => 'accounting',
-              'related_id' => $budget->budget_id,
-              'target_role' => 'accountant',
-              'priority' => 'Medium',
-              'is_read' => 0,
-          ]);
+          DB::table('odms_accounting')
+              ->where('budget_id', $budget->budget_id)
+              ->update([
+                  'status' => 'Processing',
+                  'payee' => $budget->payee,
+                  'particulars' => $budget->particulars,
+                  'debit' => $budget->amount,
+                  'ors_no' => $budget->ors_no
+              ]);
+
+          $notificationExists = Notification::where('type', 'accounting')
+            ->where('related_id', $budget->budget_id)
+            ->where('is_read', 0)
+            ->exists();
+
+        Notification::updateOrCreate(
+            [
+                'type'        => 'accounting',
+                'related_id'  => $budget->budget_id,
+                'target_role' => 'accountant',
+            ],
+            [
+                'title'       => 'New Accounting Transaction',
+                'message'     => "ORS No. {$budget->ors_no} ({$budget->payee}) has been forwarded from Budget.",
+                'priority'    => 'Medium',
+                'is_read'     => 0,
+            ]
+        );
       }
+    
         
       }
 
