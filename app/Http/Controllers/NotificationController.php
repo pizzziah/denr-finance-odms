@@ -67,9 +67,13 @@ class NotificationController extends Controller
                     break;
                     
                 case 'admin':
-                    $notification->url = route(
-                        'admin.unlock-requests'
-                    );
+                    if ($notification->type === 'unlock_request') {
+                        $notification->url = route('admin.unlock-requests', [
+                            'highlight' => $notification->related_id
+                        ]);
+                    } else {
+                        $notification->url = route('admin.dashboard'); // or wherever other admin notifications go
+                    }
                     break;
 
                 default:

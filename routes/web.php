@@ -80,6 +80,8 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/unlock-quarter/deny/{id}', [AdminUserController::class, 'denyUnlockQuarter'])->name('admin.unlock-quarter.deny');
     
     Route::post('/users/check-email', [AdminUserController::class, 'checkEmail'])->name('admin.users.check-email');
+    Route::post('/notifications/read/{id}', [NotificationController::class, 'read'])->name('notifications.read');
+    Route::get('/admin/unlock-requests', [AdminUserController::class, 'unlockRequests'])->name('admin.unlock-requests');
   });
   
   Route::prefix('notifications')->group(function () {
