@@ -562,10 +562,10 @@ class AccountingLogbookController extends Controller {
         $query->orderBy('date_received');
         break;
       case 'ors_asc':
-        $query->orderBy('ors_no');
+        $query->orderBy('dv_no');
         break;
       case 'ors_desc':
-        $query->orderByDesc('ors_no');
+        $query->orderByDesc('dv_no');
         break;
       default:
         $query->orderByDesc('date_received');
