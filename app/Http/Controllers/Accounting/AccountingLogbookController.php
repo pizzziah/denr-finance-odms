@@ -28,6 +28,18 @@ class AccountingLogbookController extends Controller {
     $search    = $request->search;
     $sort      = $request->sort ?? 'latest';
     $highlight = $request->highlight;
+    $view = $request->view;
+
+    if ($view) {
+        $transaction = DB::table('odms_accounting')
+            ->where('budget_id', $view)
+            ->first();
+
+        if ($transaction) {
+            $highlight = $transaction->transaction_id;
+            $view = $transaction->transaction_id;
+        }
+    }
 
     $statusText = match ($status) {
       'pending'              => 'Pending',
@@ -105,7 +117,7 @@ class AccountingLogbookController extends Controller {
     $records = $query->get();
 
     return view('accounting.logbook', compact(
-      'records', 'year', 'month', 'day', 'status', 'search', 'sort', 'highlight'
+      'records', 'year', 'month', 'day', 'status', 'search', 'sort', 'highlight', 'view'
     ));
   }
 
@@ -426,6 +438,33 @@ class AccountingLogbookController extends Controller {
             'is_read'     => 0,
           ]);
         }
+      }
+
+      if ($request->status === 'Returned to Budget') {
+
+          DB::table('odms_budget')
+              ->where('budget_id', $debitRow->budget_id)
+              ->update([
+                  'status' => 'Returned by Accounting'
+              ]);
+
+          $budget = DB::table('odms_budget')
+              ->where('budget_id', $debitRow->budget_id)
+              ->first();
+
+          Notification::updateOrCreate(
+              [
+                  'type'        => 'returned_by_accounting',
+                  'related_id'  => $budget->budget_id,
+                  'target_role' => 'budget',
+              ],
+              [
+                  'title'       => 'Returned by Accounting',
+                  'message'     => "ORS No. {$budget->ors_no} ({$budget->payee}) has been returned by Accounting.",
+                  'priority'    => 'High',
+                  'is_read'     => 0,
+              ]
+          );
       }
 
       DB::commit();

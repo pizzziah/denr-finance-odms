@@ -59,9 +59,8 @@ class NotificationController extends Controller
                             $notification->url = route('accounting.quarterly-summary');
                         }
                     } else {
-
                         $notification->url = route('accounting.logbook', [
-                            'highlight' => $notification->related_id
+                            'view'      => $notification->related_id,
                         ]);
                     }
                     break;

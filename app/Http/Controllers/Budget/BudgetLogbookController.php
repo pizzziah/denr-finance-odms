@@ -269,22 +269,22 @@ use Illuminate\Support\Facades\DB;
             ]);
         }
 
-        $notificationExists = Notification::where('type', 'accounting')
-    ->where('related_id', $budget->budget_id)
-    ->where('is_read', 0)
-    ->exists();
+              $notificationExists = Notification::where('type', 'accounting')
+          ->where('related_id', $budget->budget_id)
+          ->where('is_read', 0)
+          ->exists();
 
-if (! $notificationExists) {
-    Notification::create([
-        'title' => 'New Accounting Transaction',
-        'message' => "ORS No. {$budget->ors_no} ({$budget->payee}) has been forwarded from Budget.",
-        'type' => 'accounting',
-        'related_id' => $budget->budget_id,
-        'target_role' => 'accountant',
-        'priority' => 'Medium',
-        'is_read' => 0,
-    ]);
-}
+      if (! $notificationExists) {
+          Notification::create([
+              'title' => 'New Accounting Transaction',
+              'message' => "ORS No. {$budget->ors_no} ({$budget->payee}) has been forwarded from Budget.",
+              'type' => 'accounting',
+              'related_id' => $budget->budget_id,
+              'target_role' => 'accountant',
+              'priority' => 'Medium',
+              'is_read' => 0,
+          ]);
+      }
         
       }
 

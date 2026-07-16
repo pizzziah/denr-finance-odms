@@ -368,5 +368,23 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  const viewId = "{{ $view ?? '' }}";
+  if (viewId) {
+      const viewButton = document.querySelector(
+          `.action-btn[data-action="view"][data-id="${viewId}"]`
+      );
+      if (viewButton) {
+          // Scroll to the highlighted row
+          viewButton.closest("tr")?.scrollIntoView({
+              behavior: "smooth",
+              block: "center"
+          });
+
+          // Open the View modal
+          setTimeout(() => {
+              viewButton.click();
+          }, 500);
+      }
+  }
 });
 </script>
