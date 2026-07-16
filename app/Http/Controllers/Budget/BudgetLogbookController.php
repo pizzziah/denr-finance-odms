@@ -278,7 +278,8 @@ use Illuminate\Support\Facades\DB;
                   'payee' => $budget->payee,
                   'particulars' => $budget->particulars,
                   'debit' => $budget->amount,
-                  'ors_no' => $budget->ors_no
+                  'ors_no' => $budget->ors_no,
+                  'particulars_remark' => $budget->particulars_remark,
               ]);
 
           $notificationExists = Notification::where('type', 'accounting')
