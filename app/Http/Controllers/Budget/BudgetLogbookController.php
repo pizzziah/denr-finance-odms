@@ -385,11 +385,9 @@ use Illuminate\Support\Facades\DB;
     $search = $request->search;
     $sort = $request->sort ?? 'latest';
 
-    $query = DB::table('odms_budget_archive')
-        ->where(function ($q) {
-            $q->whereYear('date_received', 2025)
-              ->orWhere('status', 'Cancelled');
-        });
+    $query = DB::table('odms_budget_archive');
+
+    $year = $request->year ?? 2025;
 
     if ($month && $month != 'all') {
         $query->whereMonth('date_received', $month);
@@ -426,8 +424,9 @@ use Illuminate\Support\Facades\DB;
     }
 
     $records = $query->get();
+    $metrics = \App\Models\Budget\BudgetDashboard::getMetrics('odms_budget_archive');
 
-    return view('budget.archives', compact('records', 'year', 'month', 'search', 'sort'));
+    return view('budget.archives', compact('records','metrics','year', 'month', 'search', 'sort'));
   }
 
   public function store(Request $request) {

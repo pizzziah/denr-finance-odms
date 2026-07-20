@@ -7,20 +7,38 @@ use Carbon\Carbon;
 
 class BudgetDashboard
 {
-    public static function getMetrics()
+    public static function getMetrics($table = 'odms_budget')
     {
         // Capture both year and month filters from the request
-        $selectedYear = request('year');
-        $selectedMonth = request('month');
+        $selectedYear = request('year', now()->year);
+        $selectedMonth = request('month', 'all');
+
+        // Choose the table first
+        $table = ((int)$selectedYear === 2025)
+            ? 'odms_budget_archive'
+            : 'odms_budget';
+
+        $query = DB::table($table);
+
+        // Filter by year
+        if ($selectedYear !== 'all') {
+            $query->whereYear('date_received', $selectedYear);
+        }
+
+        // Filter by month
+        if ($selectedMonth !== 'all') {
+            $query->whereMonth('date_received', $selectedMonth);
+        }
         
-        $currentYear = intval($selectedYear ?: Carbon::now()->year);
+        $currentYear = $selectedYear;
 
         // BASE QUERY
-        $query = DB::table('odms_budget');
+        $query = DB::table($table);
+        
 
         // YEAR FILTER (Applied unless explicitly set to 'all')
-        if ($selectedYear && $selectedYear !== 'all') {
-            $query->whereYear('date_received', $currentYear);
+        if (!empty($currentYear) && $currentYear !== 'all') {
+            $query->whereYear('date_received', (int) $currentYear);
         }
 
         // MONTH FILTER

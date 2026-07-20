@@ -17,7 +17,7 @@ class DashboardController extends Controller
             'bookkeeper' => view('accounting.dashboard'),
             'budget' => view('budget.dashboard', [
                 'user' => $user,
-                'metrics' => BudgetDashboard::getMetrics(),
+                'metrics' => BudgetDashboard::getMetrics('odms_budget'),
             ]),
             default => abort(403, 'Unauthorized role'),
         };
