@@ -602,12 +602,34 @@ if ($entries->isNotEmpty()) {
     }
   }
 
-  public function destroy($transaction_id) {
-    DB::table('odms_accounting')->where('transaction_id', $transaction_id)->delete();
+  public function destroy($transaction_id)
+  {
+      // Get one record from the transaction
+      $record = DB::table('odms_accounting')
+          ->where('transaction_id', $transaction_id)
+          ->first();
 
-    return redirect()
-      ->route('accounting.logbook')
-      ->with('success', 'Record deleted successfully.');
+      if (!$record) {
+          return redirect()
+              ->route('accounting.logbook')
+              ->with('error', 'Record not found.');
+      }
+
+      // Prevent deletion if the transaction originated from Budget
+      if (!empty($record->budget_id)) {
+          return redirect()
+              ->route('accounting.logbook')
+              ->with('error', 'This record was forwarded from Budget and cannot be deleted.');
+      }
+
+      // Delete all rows belonging to the transaction
+      DB::table('odms_accounting')
+          ->where('transaction_id', $transaction_id)
+          ->delete();
+
+      return redirect()
+          ->route('accounting.logbook')
+          ->with('success', 'Record deleted successfully.');
   }
 
   private function generateTransactionId() {
