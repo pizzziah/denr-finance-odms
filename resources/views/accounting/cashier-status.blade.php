@@ -173,7 +173,7 @@
 </div>
 
 @include('accounting.partials.action-modal')
-@include('accounting.partials.details-modal-cashier-status')
+@include('accounting.partials.details-modal')
 @include('accounting.partials.scripts')
 @endsection
 

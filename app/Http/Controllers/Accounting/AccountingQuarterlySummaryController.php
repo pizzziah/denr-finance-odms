@@ -85,6 +85,7 @@ class AccountingQuarterlySummaryController extends Controller {
     $pk = $modelInstance->getKeyName();
     $this->recalculateQuarterlyBalances($selectedQuarter, $selectedYear);
 
+    
     if ($request->has('sort_date')) {
       $sortDirection = $request->get('sort_date') === 'asc' ? 'asc' : 'desc';
       $query->orderByRaw("STR_TO_DATE(emds_date, '%c/%e/%Y') {$sortDirection}");
@@ -213,7 +214,20 @@ class AccountingQuarterlySummaryController extends Controller {
     }
 
     // 2. Dynamic validation rules based on selected transaction type
-    $amountRule = 'required|numeric';
+    $txType = $request->input('transaction_type');
+
+    if ($txType === 'adjustment') {
+        // Adjustment can be positive or negative
+        $amountRule = 'required|numeric';
+    } elseif ($txType === 'signed_dv') {
+        // Signed DV must always be negative
+        $amountRule = 'required|numeric|lt:0';
+    } else {
+        // Received and Downloaded cannot be negative
+        $amountRule = 'required|numeric|min:0';
+    }
+
+
     if ($request->input('transaction_type') !== 'adjustment') {
         $amountRule .= '|min:0'; // Only "adjustment" can bypass minimum 0 rule
     }
@@ -236,6 +250,7 @@ class AccountingQuarterlySummaryController extends Controller {
     $data = [
       'date_processed'     => Carbon::parse($request->input('date_processed'))->format('n/j/Y'), // Matches format: %c/%e/%Y
       'particulars'        => $request->input('particulars'),
+      'transaction_type'   => $txType,
       'emds_date'          => $request->filled('emds_date') ? Carbon::parse($request->input('emds_date'))->format('n/j/Y') : null,
       'ada_no'             => $request->input('ada_no'),
       'remarks'            => $request->input('remarks'),
@@ -283,7 +298,19 @@ class AccountingQuarterlySummaryController extends Controller {
     }
 
     // 2. Dynamic validation rules: Allow negative values for "adjustment" only
+     $txType = $request->input('transaction_type');
+
+if ($txType === 'adjustment') {
+    // Adjustment can be positive or negative
     $amountRule = 'required|numeric';
+} elseif ($txType === 'signed_dv') {
+    // Signed DV must always be negative
+    $amountRule = 'required|numeric|lt:0';
+} else {
+    // Received and Downloaded cannot be negative
+    $amountRule = 'required|numeric|min:0';
+}
+
     if ($request->input('transaction_type') !== 'adjustment') {
         $amountRule .= '|min:0'; // Enforce min 0 on other types (signed_dv, received, downloaded)
     }
@@ -308,6 +335,7 @@ class AccountingQuarterlySummaryController extends Controller {
     $data = [
       'date_processed'     => Carbon::parse($request->input('date_processed'))->format('n/j/Y'),
       'particulars'        => $request->input('particulars'),
+      'transaction_type'   => $txType,
       'emds_date'          => $request->filled('emds_date') ? Carbon::parse($request->input('emds_date'))->format('n/j/Y') : null,
       'ada_no'             => $request->input('ada_no'),
       'remarks'            => $request->input('remarks'),
@@ -342,7 +370,7 @@ class AccountingQuarterlySummaryController extends Controller {
     }
   }
 
-  private function recalculateQuarterlyBalances($quarter, $year = null) {
+  public function recalculateQuarterlyBalances($quarter, $year = null) {
       $modelInstance = new AccountingQuarterlySummary;
       $modelInstance->setQuarterTable($quarter, $year);
       $pkName = $modelInstance->getKeyName();
@@ -361,13 +389,37 @@ class AccountingQuarterlySummaryController extends Controller {
         $amount     = AccountingQuarterlySummary::parseMoney($record->amount); 
 
         // Math Logic Implementation:
-        if ($downloaded > 0) {
-            // (Current Balance + Signed DV/Adjustment) - NCA/NTA Downloaded
-            $runningBalance = ($runningBalance + $amount) - $downloaded;
-        } else {
-            // (Current Balance + Signed DV/Adjustment) + NCA/NTA Received
-            $runningBalance = ($runningBalance + $amount) + $received;
-        }
+        foreach ($records as $record) {
+
+    $received   = AccountingQuarterlySummary::parseMoney($record->nca_nta_received);
+    $downloaded = AccountingQuarterlySummary::parseMoney($record->nca_nta_downloaded);
+    $amount     = AccountingQuarterlySummary::parseMoney($record->amount);
+
+    // Determine transaction type
+    if ($record->nca_nta_received !== null && $record->nca_nta_received !== '') {
+
+        // NCA/NTA Received
+        $runningBalance += $received;
+
+    } elseif ($record->nca_nta_downloaded !== null && $record->nca_nta_downloaded !== '') {
+
+        // NCA/NTA Downloaded
+        $runningBalance -= $downloaded;
+
+    } else {
+      if ($record->transaction_type === 'adjustment') {
+        $runningBalance -= $amount;
+      } elseif ($record->transaction_type === 'signed_dv') {
+        $runningBalance += $amount;
+      }
+    }
+
+    DB::table($modelInstance->getTable())
+        ->where($pkName, $record->{$pkName})
+        ->update([
+            'balance' => number_format($runningBalance, 2, '.', '')
+        ]);
+}
 
         DB::table($modelInstance->getTable())
           ->where($pkName, $record->{$pkName})

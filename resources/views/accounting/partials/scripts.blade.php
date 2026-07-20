@@ -309,35 +309,25 @@ document.addEventListener('DOMContentLoaded', function () {
    * View Action: Populate dynamic #actionModal (Bonus)
    * ---------------------------------------------------------------- */
   document.addEventListener('click', function (e) {
-    const btn = e.target.closest('.action-btn[data-action="view"]');
+    // Listens for elements targeting either .view-details-btn or standard view action targets
+    const btn = e.target.closest('.view-details-btn') || e.target.closest('.action-btn[data-action="view"]');
     if (!btn) return;
 
-    // Support both logbook views (data-id) and cashier status views (data-dv fallback)
-    const dbId = btn.dataset.id || btn.dataset.dv;
-    const dvCode = btn.dataset.dv || 'Record';
+    const dbId = btn.dataset.id;
     if (!dbId) return;
 
-    const actionTitle  = document.getElementById('actionTitle');
-    const actionBody   = document.getElementById('actionBody');
-    const actionFooter = document.getElementById('actionFooter');
+    const loading = document.getElementById('modalLoading');
+    const content = document.getElementById('modalContent');
+    const errorMsg = document.getElementById('modalError');
+    const creditContainer = document.getElementById('view-credit-entries');
 
-    if (actionTitle) {
-      actionTitle.innerHTML = `<i class="bi bi-info-circle-fill text-info me-2"></i>Transaction Details: ${dvCode}`;
-    }
+    // Reset UI Visibility elements inside the details layout framework
+    if (loading) loading.classList.remove('d-none');
+    if (content) content.classList.add('d-none');
+    if (errorMsg) errorMsg.classList.add('d-none');
+    if (creditContainer) creditContainer.innerHTML = '';
 
-    if (actionBody) {
-      actionBody.innerHTML = `
-        <div class="text-center my-3" id="viewLoading">
-          <div class="spinner-border text-info" role="status"></div>
-          <p class="text-muted mt-2">Loading details...</p>
-        </div>
-      `;
-    }
-
-    if (actionFooter) {
-      actionFooter.innerHTML = `<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>`;
-    }
-
+    // Utilize self-healing routing paths mapping definitions matching your controller framework definitions
     const restfulUrl = `${showUrlBase}/${dbId}`;
     const customUrl  = `${showUrlBase}/${dbId}/show`;
 
@@ -349,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function () {
       return fetch(customUrl, {
         headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
       }).then(res2 => {
-        if (!res2.ok) throw new Error();
+        if (!res2.ok) throw new Error('Data endpoint execution failed.');
         return res2.json();
       });
     })
@@ -357,56 +347,61 @@ document.addEventListener('DOMContentLoaded', function () {
       const record = data.record || data || {};
       const creditEntries = data.credit_entries || record.credit_entries || [];
 
-      let creditRowsHtml = '';
-      if (creditEntries.length > 0) {
-        creditRowsHtml = creditEntries.map(entry => `
-          <tr>
-            <td>${entry.uac_codes ?? '-'}</td>
-            <td class="text-end">₱${parseFloat(entry.credit ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-            <td>${entry.tax_percent ?? '-'}</td>
-            <td>${entry.tax_remarks ?? '-'}</td>
-          </tr>
-        `).join('');
-      } else {
-        creditRowsHtml = `<tr><td colspan="4" class="text-center text-muted">No credit breakdown entries logged.</td></tr>`;
+      // Safely inject metadata elements into layout DOM targets
+      const safelyText = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val ?? '-';
+      };
+
+      safelyText('view-txn-id', data.transaction_id);
+      safelyText('view-dv-no', record.dv_no);
+      safelyText('view-obr-no', record.obr_no);
+      safelyText('view-payee', record.payee);
+      safelyText('view-particulars', record.particulars);
+
+      // Total aggregated calculations updates injection
+      const totalDebit = parseFloat(data.total_debit || record.debit || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+      safelyText('view-debit', totalDebit);
+
+      // Handle custom style classes decoration matching dynamic statuses parameters variations
+      const statusEl = document.getElementById('view-status');
+      if (statusEl) {
+        const status = (record.status || 'Pending').trim();
+        statusEl.textContent = status;
+        
+        let badgeClass = 'bg-secondary text-white';
+        if (status === 'Paid') badgeClass = 'bg-success text-white';
+        if (status === 'Forwarded to Cashier') badgeClass = 'bg-primary text-white';
+        if (status === 'Pending') badgeClass = 'bg-warning text-dark';
+        if (status === 'Cancelled') badgeClass = 'bg-danger text-white';
+        
+        statusEl.className = `badge ${badgeClass}`;
       }
 
-      if (actionBody) {
-        actionBody.innerHTML = `
-          <div class="table-responsive">
-            <table class="table table-sm table-bordered">
-              <tbody>
-                <tr><th style="width:35%;">Payee</th><td>${record.payee ?? '-'}</td></tr>
-                <tr><th>Particulars</th><td>${record.particulars ?? '-'}</td></tr>
-                <tr><th>UACS (Debit)</th><td>${record.uac_codes ?? '-'}</td></tr>
-                <tr><th>Debit Amount</th><td class="fw-bold text-success">₱${parseFloat(record.debit ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td></tr>
-                <tr><th>Status</th><td><span class="badge bg-dark">${record.status ?? 'Pending'}</span></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <h6 class="mt-3 fw-bold text-uppercase small text-muted">Credit Split Breakdown</h6>
-          <div class="table-responsive">
-            <table class="table table-sm table-striped table-bordered mt-1">
-              <thead class="table-light">
-                <tr>
-                  <th>UACS Code</th>
-                  <th class="text-end">Credit Amount</th>
-                  <th>Tax %</th>
-                  <th>Tax Remarks</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${creditRowsHtml}
-              </tbody>
-            </table>
-          </div>
-        `;
+      // Populate credit items matrix loop arrays mapping definitions rows
+      if (creditContainer) {
+        if (creditEntries.length > 0) {
+          creditContainer.innerHTML = creditEntries.map(entry => `
+            <tr>
+              <td><code>${entry.uac_codes ?? '-'}</code></td>
+              <td class="text-end fw-bold">₱${parseFloat(entry.credit ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+              <td class="text-center">${entry.tax_percent ? entry.tax_percent + '%' : '-'}</td>
+              <td>${entry.tax_remarks ?? '-'}</td>
+            </tr>
+          `).join('');
+        } else {
+          creditContainer.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-2">No credit allocations split for this layout row.</td></tr>`;
+        }
       }
+
+      // Display metrics state changes toggling completion handles
+      if (loading) loading.classList.add('d-none');
+      if (content) content.classList.remove('d-none');
     })
-    .catch(() => {
-      if (actionBody) {
-        actionBody.innerHTML = `<span class="text-danger fw-bold">Could not fetch data.</span>`;
-      }
+    .catch((error) => {
+      console.error('View details parsing crash context:', error);
+      if (loading) loading.classList.add('d-none');
+      if (errorMsg) errorMsg.classList.remove('d-none');
     });
   });
 

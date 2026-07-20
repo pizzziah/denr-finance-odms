@@ -163,14 +163,13 @@
                 <td>{{ $record->date_forwarded ?? '-' }}</td>
                 <td class="text-center">
                   @if(!empty($record->dv_no))
-                      <button type="button"
-                              class="btn btn-sm btn-outline-info action-btn"
-                              data-action="view"
-                              data-dv="{{ $record->dv_no }}"
-                              data-bs-toggle="modal"
-                              data-bs-target="#actionModal">
-                          <i class="bi bi-eye"></i> View
-                      </button>
+                    <button type="button"
+                            class="btn btn-sm btn-outline-info view-details-btn"
+                            data-id="{{ $record->transaction_id }}"
+                            data-bs-toggle="modal"
+                            data-bs-target="#detailsModal">
+                        <i class="bi bi-eye"></i>
+                    </button>
                   @else
                       <span class="text-muted">-</span>
                   @endif

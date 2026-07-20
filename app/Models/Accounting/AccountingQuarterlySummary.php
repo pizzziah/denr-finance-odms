@@ -18,6 +18,7 @@ class AccountingQuarterlySummary extends Model
         'emds_date',
         'date_processed',
         'particulars',
+        'transaction_type',
         'amount',
         'nca_nta_received',
         'nca_nta_downloaded',
@@ -58,6 +59,7 @@ class AccountingQuarterlySummary extends Model
                 $table->string('emds_date', 100)->nullable();
                 $table->string('date_processed', 100)->nullable();
                 $table->string('particulars', 255)->nullable();
+                $table->string('transaction_type', 50)->nullable();
                 $table->string('amount', 50)->nullable();
                 $table->string('nca_nta_received', 100)->nullable();
                 $table->string('nca_nta_downloaded', 100)->nullable();
@@ -66,6 +68,17 @@ class AccountingQuarterlySummary extends Model
                 $table->string('remarks', 255)->nullable();
             });
         }
+
+        if (
+  Schema::hasTable($tableName) &&
+  ! Schema::hasColumn($tableName, 'transaction_type')
+) {
+  Schema::table($tableName, function (Blueprint $table) {
+    $table->string('transaction_type', 50)
+      ->nullable()
+      ->after('particulars');
+  });
+}
     }
 
     /**

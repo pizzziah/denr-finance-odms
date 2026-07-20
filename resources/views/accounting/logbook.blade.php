@@ -235,7 +235,7 @@
                               data-payee="{{ $record->payee }}"
                               data-status="{{ $record->status }}"
                               data-bs-toggle="modal"
-                              data-bs-target="#actionModal">
+                              data-bs-target="#detailsModal">
                           <i class="bi bi-eye"></i>
                       </button>
                       <button type="button"
