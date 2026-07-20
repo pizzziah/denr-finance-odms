@@ -7,9 +7,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class AccountingDashboard {
-  public static function getMetrics() {
-    $currentYear = intval(request('year', now()->year));
-    $currentMonth = request('month'); 
+  public static function getMetrics()
+{ 
+    $currentYear = (int) request('year', now()->year);
+    $currentMonth = request('month');
+
     $table = 'odms_accounting';
 
     $payeeAmounts = [];
@@ -18,129 +20,107 @@ class AccountingDashboard {
     $amountInProcess = 0;
     $amountForwarded = 0;
     $totalAmountPaid = 0;
-    $totalAmountCancelled = 0; 
+    $totalAmountCancelled = 0;
 
     $statusCounts = [
-      'pending' => 0,
-      'processing' => 0,
-      'returned' => 0,
-      'cancelled' => 0,
-      'forwarded' => 0,
-      'paid' => 0,
+        'pending' => 0,
+        'processing' => 0,
+        'returned' => 0,
+        'cancelled' => 0,
+        'forwarded' => 0,
+        'paid' => 0,
     ];
 
-    if (! Schema::hasTable($table)) {
-      return self::emptyMetrics($statusCounts);
+    if (!Schema::hasTable($table)) {
+        return self::emptyMetrics($statusCounts);
     }
 
-    $rows = DB::table($table)->get();
-    
+    $query = DB::table($table)
+        ->whereYear('date_received', $currentYear);
+
+    if (!empty($currentMonth) && $currentMonth != 'all') {
+        $query->whereMonth('date_received', $currentMonth);
+    }
+
+    $rows = $query->get();
+
     foreach ($rows as $row) {
-      if (empty($row->date_received)) {          
-        continue;
-      }
 
-      $cleanedDate = trim($row->date_received);
-      $parsedDate = null;
-      $recordYear = null;
+        $totalTransactions++;
 
-      if (preg_match('/\b(20\d{2})\b/', $cleanedDate, $matches)) {
-        $recordYear = (int) $matches[1];
-      }
+        $debit = (float) str_replace(
+            [',', '₱', ' '],
+            '',
+            $row->debit ?? 0
+        );
 
-      try {
-        $parsedDate = Carbon::parse($cleanedDate);
-      } catch (\Exception $e) {
-        if (! $recordYear) {
-          continue;
-        }
-      }
+        $combinedAmount = $debit;
 
-      $actualYear = $parsedDate ? $parsedDate->year : $recordYear;
+        $totalRequestedAmount += $combinedAmount;
 
-      if ($actualYear !== $currentYear) {
-        continue;
-      }
+        $payee = strtoupper(trim($row->payee ?? ''));
+        $status = strtolower(trim($row->status ?? ''));
 
-      if (!empty($currentMonth)) {
-        if ($parsedDate) {
-          if ($parsedDate->format('m') !== $currentMonth) {
+        if (in_array($status, ['cancelled', 'canceled'])) {
+
+            $totalAmountCancelled += $combinedAmount;
+            $statusCounts['cancelled']++;
+
             continue;
-          }
-        } else {
+        }
+
+        // 2025 logic
+        if ($currentYear == 2025) {
+
+            $totalAmountPaid += $combinedAmount;
+            $statusCounts['paid']++;
+
+            if (!empty($payee)) {
+                $payeeAmounts[$payee] =
+                    ($payeeAmounts[$payee] ?? 0) + $combinedAmount;
+            }
+
             continue;
-          }
-      }
-
-      if ($actualYear >= 2026 && $parsedDate && $parsedDate->greaterThanOrEqualTo(Carbon::create(2026, 5, 1, 0, 0, 0))) {
-        continue;
-      }
-
-      $totalTransactions++;
-
-      $rawDebit = trim($row->debit ?? '0');
-      $debit = (float) str_replace([',', '₱', ' '], '', $rawDebit);
-      $combinedAmount = $debit;
-
-      $totalRequestedAmount += $combinedAmount;
-      $payee = strtoupper(trim($row->payee ?? ''));
-      $status = strtolower(trim($row->status ?? ''));
-
-      if ($status === 'cancelled' || $status === 'canceled') {
-        $totalAmountCancelled += $combinedAmount;
-        $statusCounts['cancelled']++;
-        continue; 
-      }
-
-      if ($actualYear === 2025) {
-        $totalAmountPaid += $combinedAmount;
-        $statusCounts['paid']++;
-
-        if (! empty($payee)) {
-          $payeeAmounts[$payee] = ($payeeAmounts[$payee] ?? 0) + $combinedAmount;
-        }
-          continue; 
-        }
-
-        if (($status === 'forwarded to cashier' || $status === 'forwarded') && ! empty($payee)) {
-          $payeeAmounts[$payee] = ($payeeAmounts[$payee] ?? 0) + $combinedAmount;
         }
 
         if (in_array($status, ['pending', 'processing', 'returned'])) {
-          $amountInProcess += $combinedAmount;
+            $amountInProcess += $combinedAmount;
         }
 
-        if ($status === 'forwarded to cashier' || $status === 'forwarded') {
-          $amountForwarded += $combinedAmount;
-        }
+        if (in_array($status, ['forwarded', 'forwarded to cashier'])) {
 
-        $isPaid = ($status === 'paid');
-    
-        if ($isPaid && $parsedDate && $parsedDate->greaterThanOrEqualTo(Carbon::create(2026, 3, 1, 0, 0, 0))) {
-          $isPaid = false;
-        }
+            $amountForwarded += $combinedAmount;
 
-        if ($isPaid) {
-          $totalAmountPaid += $combinedAmount;
-        }
+            if (!empty($payee)) {
+                $payeeAmounts[$payee] =
+                    ($payeeAmounts[$payee] ?? 0) + $combinedAmount;
+            }
 
-        if ($status === 'pending') {
-          $statusCounts['pending']++;
-        } elseif ($status === 'processing') {
-          $statusCounts['processing']++;
-        } elseif (str_contains($status, 'returned')) {
-            $statusCounts['returned']++;
-        } elseif ($status === 'forwarded to cashier' || $status === 'forwarded') {
             $statusCounts['forwarded']++;
-        } elseif ($isPaid) {
-          $statusCounts['paid']++;
         }
-      }
 
-      arsort($payeeAmounts);
-      $topPayees = array_slice($payeeAmounts, 0, 10, true);
+        if ($status == 'paid') {
 
-      return [
+            $totalAmountPaid += $combinedAmount;
+            $statusCounts['paid']++;
+        }
+
+        if ($status == 'pending') {
+            $statusCounts['pending']++;
+        }
+
+        if ($status == 'processing') {
+            $statusCounts['processing']++;
+        }
+
+        if (str_contains($status, 'returned')) {
+            $statusCounts['returned']++;
+        }
+    }
+
+    arsort($payeeAmounts);
+
+    return [
         'totalTransactions' => $totalTransactions,
         'totalRequestedAmount' => $totalRequestedAmount,
         'amountInProcess' => $amountInProcess,
@@ -148,9 +128,9 @@ class AccountingDashboard {
         'totalAmountPaid' => $totalAmountPaid,
         'totalAmountCancelled' => $totalAmountCancelled,
         'statusCounts' => $statusCounts,
-        'payeeAmounts' => $topPayees,
-      ];
-  }
+        'payeeAmounts' => array_slice($payeeAmounts, 0, 10, true),
+    ];
+}
 
   private static function emptyMetrics($statusCounts) {
     return [
