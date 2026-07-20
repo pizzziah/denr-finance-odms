@@ -29,8 +29,13 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/logbook/{budget_id}/destroy', [BudgetLogbookController::class, 'destroy'])->name('budget.logbook.destroy');
 
     Route::get('/archived', [BudgetLogbookController::class, 'archives'])->name('budget.archives');
-
     Route::post('/notifications/read/{id}', [NotificationController::class, 'read'])->name('notifications.read');
+
+    Route::post('/budget/settings/classification', [BudgetSettingsController::class, 'storeClassification'])->name('budget.classification.store');
+    Route::delete('/budget/settings/classification/{id}', [BudgetSettingsController::class, 'deleteClassification'])->name('budget.classification.delete');
+    Route::post('/budget/settings/office', [BudgetSettingsController::class, 'storeOffice'])->name('budget.office.store');
+    Route::delete('/budget/settings/office/{id}', [BudgetSettingsController::class, 'deleteOffice'])->name('budget.office.delete');
+    Route::post('/budget/settings/archive', [BudgetSettingsController::class, 'archiveYear'])->name('budget.archive.year');
   });
 
   /* -----------

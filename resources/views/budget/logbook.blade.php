@@ -25,7 +25,18 @@
                   Add Record
               </x-button>
           @endif
+
+                {{--SETTINGS MODAL --}}
+      <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-toggle="modal"
+            data-bs-target="#settingsModal">
+            <i class="fas fa-cogs me-1"></i>
+            Settings
+        </button>
       </div>
+
       
       {{-- SEARCH AND FILTER CONTAINER --}}
       <form action="{{ route('budget.logbook') }}" method="GET" class="d-flex align-items-center gap-2 m-0 flex-wrap flex-md-nowrap">
@@ -251,6 +262,7 @@
 @include('budget.partials.sort-modal')
 @include('budget.partials.action-modal')
 @include('budget.partials.details-modal')
+@include('budget.partials.settings-modal')
 @include('budget.partials.scripts')
 
 @endsection
