@@ -140,6 +140,7 @@
                       <button type="button"
                           class="btn btn-sm btn-outline-info view-btn"
                           data-budget-id="{{ $record->budget_id }}"
+                          data-bs-target="detailsModal"
                           data-archive="true">
                           <i class="bi bi-eye"></i> View
                       </button>

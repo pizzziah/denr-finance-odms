@@ -5,6 +5,7 @@ use App\Http\Controllers\Accounting\AccountingQuarterlySummaryController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Budget\BudgetSettingsController;
+use App\Http\Controllers\Budget\BudgetArchiveController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Budget\BudgetLogbookController;
 use App\Http\Controllers\DashboardController;
@@ -30,6 +31,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/logbook/{budget_id}/destroy', [BudgetLogbookController::class, 'destroy'])->name('budget.logbook.destroy');
 
     Route::get('/archived', [BudgetLogbookController::class, 'archives'])->name('budget.archives');
+    Route::get('/archives/{budget_id}/details',[BudgetArchiveController::class, 'details'])->name('budget.archive.details');
     Route::post('/notifications/read/{id}', [NotificationController::class, 'read'])->name('notifications.read');
 
     Route::post('/budget/settings/classification', [BudgetSettingsController::class, 'storeClassification'])->name('budget.classification.store');

@@ -66,18 +66,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ===================== GET RECORD =====================
-  async function getRecord(id) {
-    const url = `/budget/logbook/${encodeURIComponent(id)}/details`;
-    console.log("Fetching:", url);
-    const res = await fetch(url);
-    console.log("Status:", res.status);
+  async function getRecord(id, isArchive = false) {
 
-    if (!res.ok) {
-      const text = await res.text();
-      console.log(text);
-      throw new Error("HTTP " + res.status);
-    }
-    return await res.json();
+      const url = isArchive
+          ? `/budget/archives/${encodeURIComponent(id)}/details`
+          : `/budget/logbook/${encodeURIComponent(id)}/details`;
+
+      console.log("Fetching:", url);
+
+      const res = await fetch(url, {
+          headers: {
+              "Accept": "application/json",
+              "X-Requested-With": "XMLHttpRequest"
+          }
+      });
+
+      if (!res.ok) {
+          const text = await res.text();
+          console.error(text);
+          throw new Error(`HTTP ${res.status}`);
+      }
+
+      return await res.json();
   }
 
   // ===================== VIEW =====================
@@ -96,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('detailsContent').classList.add('d-none');
 
     try {
-        const response = await getRecord(id);
+        const response = await getRecord(id, isArchive);
         const row = response.budget;
         const reviews = response.reviews ?? [];
 
@@ -564,6 +574,38 @@ if (budgetId) {
         btn.click();
     }
 }
+});
+
+$(document).on('click', '.view-btn', function () {
+
+    let budgetId = $(this).data('budget-id');
+    let isArchive = $(this).data('archive');
+
+    let url = isArchive
+        ? `/budget/archives/${budgetId}/details`
+        : `/budget/logbook/${budgetId}/details`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+
+            let budget = data.budget;
+
+            $('#details-ors').text(budget.ors_no);
+            $('#details-payee').text(budget.payee);
+            $('#details-particulars').text(budget.particulars);
+            $('#details-status').text(budget.status);
+            $('#details-amount').text(
+                Number(budget.amount).toLocaleString()
+            );
+
+            $('#detailsModal').modal('show');
+        })
+        .catch(error => {
+            console.error(error);
+            alert('Failed to load details.');
+        });
+
 });
 
 </script>
