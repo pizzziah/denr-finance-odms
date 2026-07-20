@@ -189,6 +189,20 @@ class AccountingLogbookController extends Controller {
       'returned_remarks'      => 'nullable|string',
     ]);
 
+    // Validate that Debit equals the sum of all Credits
+    $totalCredit = collect($request->credit_amounts ?? [])
+        ->sum(fn($amount) => (float) $amount);
+
+    $debit = (float) ($request->debit ?? 0);
+
+    if (round($debit, 2) !== round($totalCredit, 2)) {
+        return back()
+            ->withInput()
+            ->withErrors([
+                'credit_amounts' => 'The total Credit amount must be equal to the Debit amount.'
+            ]);
+    }
+
     DB::beginTransaction();
     try {
       $transactionId = $this->generateTransactionId();
@@ -439,6 +453,20 @@ if ($entries->isNotEmpty()) {
       'date_forwarded'       => 'nullable|date',
       'returned_remarks'     => 'nullable|string',
     ]);
+
+    // Validate that Debit equals the sum of all Credits
+    $totalCredit = collect($request->credit_amounts ?? [])
+        ->sum(fn($amount) => (float) $amount);
+
+    $debit = (float) ($request->debit ?? 0);
+
+    if (round($debit, 2) !== round($totalCredit, 2)) {
+        return back()
+            ->withInput()
+            ->withErrors([
+                'credit_amounts' => 'The total Credit amount must be equal to the Debit amount.'
+            ]);
+    }
 
     $entries = DB::table('odms_accounting')->where('transaction_id', $transaction_id)->get();
 
