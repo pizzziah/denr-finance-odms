@@ -8,6 +8,7 @@
     <x-subtab-link status="Returned to Budget" label="Returned to Budget"/>
     <x-subtab-link status="Forwarded to Cashier" label="Forwarded to Cashier"/>
     <x-subtab-link status="Paid" label="Paid"/>
+    <x-subtab-link status="Cancelled" label="Cancelled"/>
   @endif
 
   {{-- BUDGET --}}

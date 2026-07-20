@@ -29,17 +29,18 @@
       {{-- WORKFLOW STATUS --}}
       @php
       $budgetStatuses = [
-        ['key' => 'pending', 'label' => 'Pending', 'color' => '#9D6B0B', 'bg' => '#FFFBF3'],
-        ['key' => 'processing', 'label' => 'Processing', 'color' => '#fd7e14', 'bg' => '#FFF6EF'],
-        ['key' => 'for_obligation', 'label' => 'For Obligation', 'color' => '#271ECE', 'bg' => '#BCC3F6'],
-        ['key' => 'returned', 'label' => 'Returned to End User', 'color' => '#6f42c1', 'bg' => '#EFDFFF'],
-        ['key' => 'cancelled', 'label' => 'Cancelled', 'color' => '#C61919', 'bg' => '#FFC2C2'],
-        ['key' => 'forwarded', 'label' => 'Forwarded to Accounting', 'color' => 'var(--primary)', 'bg' => '#E5F2D7'],
-        ['key' => 'paid', 'label' => 'Paid', 'color' => 'var(--secondary)', 'bg' => '#EDFADF'],
+        ['key' => 'for_obligation', 'label' => 'For Obligation', 'color' => 'var(--violet)', 'bg' => 'var(--violet-variant)'],
+        ['key' => 'processing', 'label' => 'Processing', 'color' => 'var(--orange)', 'bg' => 'var(--orange-variant)'],
+        ['key' => 'returned', 'label' => 'Returned to End User', 'color' => 'var(--sky-blue)', 'bg' => 'var(--sky-blue-variant)'],
+        ['key' => 'returned', 'label' => 'Returned by Accounting', 'color' => 'var(--blue)', 'bg' => 'var(--blue-variant)'],
+        ['key' => 'forwarded', 'label' => 'Forwarded to Accounting', 'color' => 'var(--secondary)', 'bg' => 'var(--secondary-variant)'],
+        ['key' => 'paid', 'label' => 'Paid', 'color' => 'var(--primary)', 'bg' => 'var(--primary-variant-light)'],
+        ['key' => 'pending', 'label' => 'Pending', 'color' => 'var(--yellow-brown)', 'bg' => 'var(--yellow-brown-variant)'],
+        ['key' => 'cancelled', 'label' => 'Cancelled', 'color' => 'var(--error)', 'bg' => 'var(--error-variant)'],
       ];
       @endphp
 
-      <x-db-workflow-status :statuses="$budgetStatuses" :metrics="$metrics" :timeline-label="$timelineLabel" row-class="row g-3" col-class="col-3" />
+      <x-db-workflow-status :statuses="$budgetStatuses" :metrics="$metrics" :timeline-label="$timelineLabel" />
     </div>
 
     {{-- RIGHT-SIDE COLUMN --}}

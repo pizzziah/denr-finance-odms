@@ -2,8 +2,6 @@
   'statuses' => [],
   'metrics' => [],
   'timelineLabel' => '',
-  'rowClass' => 'row row-cols-2 row-cols-sm-3 row-cols-md-6 g-2 justify-content-center',
-  'colClass' => 'col',
   'cardMinHeight' => '110px'
 ])
 
@@ -20,7 +18,7 @@
     <small><i>{{ $timelineLabel }}</i></small>
   </p>
   
-  <div class="{{ $rowClass }} text-center">
+  <div class="row g-3 text-center">
     @foreach($statuses as $status)
     @php
       $count = $metrics['statusCounts'][$status['key']] ?? 0;
@@ -28,7 +26,7 @@
       $offset = 113 - (113 * $percentage) / 100;
     @endphp
     
-    <div class="{{ $colClass }}">
+    <div class="col-3">
       <div class="p-0 py-2 border rounded h-100 d-flex flex-column align-items-center justify-content-center" 
         style="border-color: {{ $status['color'] }} !important; background: {{ $status['bg'] }}; min-height: {{ $cardMinHeight }}; cursor: pointer;">
         <div class="position-relative mb-2" style="width: 60px; height: 60px;">

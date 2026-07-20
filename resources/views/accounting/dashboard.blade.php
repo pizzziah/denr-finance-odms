@@ -29,16 +29,17 @@
       {{-- WORKFLOW STATUS --}}
       @php
       $accountingStatuses = [
-        ['key' => 'pending', 'label' => 'Pending', 'color' => '#9D6B0B', 'bg' => '#FFFBF3'],
-        ['key' => 'processing', 'label' => 'Processing', 'color' => '#fd7e14', 'bg' => '#FFF6EF'],
-        ['key' => 'returned', 'label' => 'Returned', 'color' => '#6f42c1', 'bg' => '#EFDFFF'],
-        ['key' => 'forwarded', 'label' => 'Forwarded to Cashier', 'color' => 'var(--primary)', 'bg' => '#E5F2D7'],
-        ['key' => 'paid', 'label' => 'Paid', 'color' => 'var(--secondary)', 'bg' => '#EDFADF'],
-        ['key' => 'cancelled', 'label' => 'Cancelled', 'color' => '#dc3545', 'bg' => '#FDF2F4'],
+        ['key' => 'pending', 'label' => 'Pending', 'color' => 'var(--yellow-brown)', 'bg' => 'var(--yellow-brown-variant)'],
+        ['key' => 'processing', 'label' => 'Processing', 'color' => 'var(--orange)', 'bg' => 'var(--orange-variant)'],
+        ['key' => 'returned', 'label' => 'Returned to End User', 'color' => 'var(--sky-blue)', 'bg' => 'var(--sky-blue-variant)'],
+        ['key' => 'returned', 'label' => 'Returned to Budget', 'color' => 'var(--blue)', 'bg' => 'var(--blue-variant)'],
+        ['key' => 'forwarded', 'label' => 'Forwarded to Cashier', 'color' => 'var(--secondary)', 'bg' => 'var(--secondary-variant)'],
+        ['key' => 'paid', 'label' => 'Paid', 'color' => 'var(--primary)', 'bg' => 'var(--primary-variant-light)'],
+        ['key' => 'cancelled', 'label' => 'Cancelled', 'color' => 'var(--error)', 'bg' => 'var(--error-variant)'],
       ];
       @endphp
 
-      <x-db-workflow-status :statuses="$accountingStatuses" :metrics="$metrics" :timeline-label="$timelineLabel" />
+      <x-db-workflow-status :statuses="$accountingStatuses" :metrics="$metrics" :timeline-label="$timelineLabel"/>
     </div>
 
     {{-- RIGHT-SIDE COLUMN --}}

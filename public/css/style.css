@@ -1,14 +1,27 @@
 /** GENERAL SETTINGS**/
 :root{
     --primary:#044709;
+    --primary-variant-light: #c9e0ca80;
+
     --primary-variant: #4CAF50;
     --secondary:#75B432;
-    --secondary-variant: rgb(240, 255, 230);
+    --secondary-variant: #F0FFE6;
     --background: #FFFFFF;
     --surface: #F6F8ED;
     --light-gray: #F8F8F8;
     --text-dark: #212121;
     --error: #BE0000;
+    --error-variant: #FFC2C2;
+    --yellow-brown: #9D6B0B;
+    --yellow-brown-variant: #FFFBF3;
+    --orange: #FD7E14;
+    --orange-variant: #FFF6EF;
+    --sky-blue: #0B879D;
+    --sky-blue-variant: #EFF9FA;
+    --blue: #271ECE;
+    --blue-variant: #BCC3F6;
+    --violet: #7909FF;
+    --violet-variant: #EFDFFF;
 }
 
 body {
