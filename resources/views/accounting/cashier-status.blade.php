@@ -3,8 +3,6 @@
 @section('content')
 
 <div class="container-fluid mt-3 px-0" style="min-width: 0; overflow-x: hidden;">
-
-
   {{-- FILTER & SEARCH CARD --}}
   <div class="card p-3 mb-3 m-0 w-100">
     <div class="d-flex flex-column flex-md-row justify-content-end align-items-md-center gap-3">
@@ -137,25 +135,23 @@
                   <div class="d-flex gap-1 justify-content-center">
                       {{-- VIEW BUTTON --}}
                       <button type="button"
-                              class="btn btn-sm btn-outline-info action-btn"
-                              data-action="view"
-                              data-dv="{{ $record->dv_no }}"
+                              class="btn btn-sm btn-outline-info view-details-btn"
+                              data-id="{{ $record->transaction_id }}"
                               data-bs-toggle="modal"
-                              data-bs-target="#actionModal">
+                              data-bs-target="#detailsModal">
                           <i class="bi bi-eye"></i>
                       </button>
 
                       {{-- CHANGE STATUS FORM --}}
-                      <form action="{{ route('accounting.cashier-status.pay', $record->dv_no) }}" 
-                            method="POST" 
-                            class="m-0"
-                            onsubmit="return confirm('Are you sure you want to mark DV No. {{ $record->dv_no }} as Paid? This will shift it to Archives.');">
-                          @csrf
-                          @method('PUT')
-                          <button type="submit" class="btn btn-sm btn-success fw-bold px-2">
-                              <i class="bi bi-check2-circle"></i> Mark Paid
-                          </button>
-                      </form>
+                      <button type="button" 
+                              class="btn btn-sm btn-success fw-bold px-2 action-btn" 
+                              data-action="pay-confirm"
+                              data-dv="{{ $record->dv_no }}"
+                              data-url="{{ route('accounting.cashier-status.pay', $record->dv_no) }}"
+                              data-bs-toggle="modal"
+                              data-bs-target="#actionModal">
+                          <i class="bi bi-check2-circle"></i> Mark as Paid
+                      </button>
                   </div>
                   @else
                       <span class="text-muted">No DV No.</span>
@@ -177,7 +173,7 @@
 </div>
 
 @include('accounting.partials.action-modal')
-@include('accounting.partials.details-modal')
+@include('accounting.partials.details-modal-cashier-status')
 @include('accounting.partials.scripts')
 @endsection
 

@@ -294,19 +294,18 @@ class AccountingLogbookController extends Controller {
   /**
    * Update operational workflow flag markers to Paid.
    */
-  public function markAsPaid(Request $request, $transaction_id) {
-    // Update all matching grouped database row fields 
+  public function markAsPaid(Request $request, $dv_no) {
+    // Update all matching grouped database row fields using dv_no
     DB::table('odms_accounting')
-      ->where('transaction_id', $transaction_id)
+      ->where('dv_no', $dv_no)
       ->update([
-        'status' => 'Paid',
-        'updated_at' => Carbon::now()
+        'status' => 'Paid'
       ]);
 
     // Send a fallback global dynamic notification alert log row
     Notification::create([
       'title'       => 'Transaction Paid',
-      'message'     => "Transaction ID {$transaction_id} has been marked as fully Paid by Cashier.",
+      'message'     => "DV No. {$dv_no} has been marked as fully Paid by Cashier.",
       'target_role' => 'accounting',
       'type'        => 'transaction_paid',
       'priority'    => 'Low',
@@ -530,16 +529,20 @@ class AccountingLogbookController extends Controller {
     return 'TXN-'.str_pad($number + 1, 6, '0', STR_PAD_LEFT);
   }
 
+
   public function archives(Request $request) {
     $year = $request->year ?? 'all';
     $month = $request->month;
     $search = $request->search;
     $sort = $request->sort ?? 'latest';
 
+    // Query both Cancelled and Paid entries grouped together securely
     $query = DB::table('odms_accounting')
-        ->where(function ($q) {
-            $q->orWhere('status', 'Cancelled');
-        });
+        ->whereIn('status', ['Cancelled', 'Paid']);
+
+    if ($year !== 'all') {
+      $query->whereYear('date_received', $year);
+    }
 
     if ($month && $month != 'all') {
         $query->whereMonth('date_received', $month);
@@ -547,37 +550,51 @@ class AccountingLogbookController extends Controller {
 
     if ($search) {
       $query->where(function ($q) use ($search) {
-        $q->where('ors_no', 'like', "%{$search}%")
+        $q->where('dv_no', 'like', "%{$search}%")
+          ->orWhere('obr_no', 'like', "%{$search}%")
           ->orWhere('payee', 'like', "%{$search}%")
-          ->orWhere('issuing_office', 'like', "%{$search}%")
-          ->orWhere('classification', 'like', "%{$search}%")
-          ->orWhere('uac_codes', 'like', "%{$search}%")
           ->orWhere('particulars', 'like', "%{$search}%")
-          ->orWhere('status', 'like', "%{$search}%")
-          ->orWhere('final_remarks', 'like', "%{$search}%");
+          ->orWhere('status', 'like', "%{$search}%");
       });
     }
 
+    // Select aggregated column properties so that views compile successfully
+    $query->select(
+      'transaction_id',
+      DB::raw('MAX(date_received) as date_received'),
+      DB::raw('MAX(date_processed) as date_processed'),
+      DB::raw('MAX(obr_date) as obr_date'),
+      DB::raw('MAX(dv_no) as dv_no'),
+      DB::raw('MAX(obr_no) as obr_no'),
+      DB::raw('MAX(payee) as payee'),
+      DB::raw('MAX(particulars) as particulars'),
+      DB::raw('MAX(particulars_remark) as particulars_remark'),
+      DB::raw('MAX(status) as status'),
+      DB::raw('MAX(signed) as signed'),
+      DB::raw('MAX(date_signed) as date_signed'),
+      DB::raw('MAX(date_forwarded) as date_forwarded'),
+      DB::raw('SUM(debit) as total_debit'),
+      DB::raw('COUNT(*) as total_entries')
+    )->groupBy('transaction_id');
+
     switch ($sort) {
       case 'latest':
-        $query->orderByDesc('date_received');
+        $query->orderByDesc(DB::raw('MAX(date_received)'));
         break;
       case 'oldest':
-        $query->orderBy('date_received');
+        $query->orderBy(DB::raw('MAX(date_received)'));
         break;
-      case 'ors_asc':
-        $query->orderBy('dv_no');
+      case 'obr_asc':
+        $query->orderBy(DB::raw('MAX(dv_no)'));
         break;
-      case 'ors_desc':
-        $query->orderByDesc('dv_no');
+      case 'obr_desc':
+        $query->orderByDesc(DB::raw('MAX(dv_no)'));
         break;
       default:
-        $query->orderByDesc('date_received');
+        $query->orderByDesc(DB::raw('MAX(date_received)'));
     }
 
     $records = $query->get();
-
-    
     return view('accounting.archives', compact('records', 'year', 'month', 'search', 'sort'));
   }
 }

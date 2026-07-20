@@ -174,6 +174,7 @@
                       <option value="Returned to Budget">Returned to Budget</option>
                       <option value="Paid">Paid</option>
                       <option value="Forwarded to Cashier">Forwarded to Cashier</option>
+                      <option value="Cancelled">Cancelled</option>
                     </select>
                   </div>
                   <div class="col-md-4">

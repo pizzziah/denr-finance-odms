@@ -224,6 +224,47 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   /* ---------------------------------------------------------------- *
+   * Pay Confirmation Action: Intercept and display styled Modal layout
+   * ---------------------------------------------------------------- */
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.action-btn[data-action="pay-confirm"]');
+    if (!btn) return;
+
+    const dvCode = btn.dataset.dv;
+    const actionUrl = btn.dataset.url;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    const actionTitle  = document.getElementById('actionTitle');
+    const actionBody   = document.getElementById('actionBody');
+    const actionFooter = document.getElementById('actionFooter');
+
+    if (actionTitle) {
+      actionTitle.innerHTML = `<i class="bi bi-check2-circle text-success me-2"></i>Disbursement Confirmation`;
+    }
+    
+    if (actionBody) {
+      actionBody.innerHTML = `
+        <div class="p-2 text-center">
+          <i class="bi bi-cash-coin text-success mb-2" style="font-size: 2.5rem;"></i>
+          <p class="mb-1">Are you sure you want to mark DV No. <strong class="text-primary">${dvCode}</strong> as fully <strong>Paid</strong>?</p>
+          <p class="text-muted small">Confirming shifts this workflow pipeline record directly into the Archives registry logs.</p>
+        </div>
+      `;
+    }
+
+    if (actionFooter) {
+      actionFooter.innerHTML = `
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <form action="${actionUrl}" method="POST" class="d-inline">
+          <input type="hidden" name="_token" value="${csrfToken}">
+          <input type="hidden" name="_method" value="PUT">
+          <button type="submit" class="btn btn-success btn-sm fw-bold">Confirm Payment</button>
+        </form>
+      `;
+    }
+  });
+  
+  /* ---------------------------------------------------------------- *
    * Delete Action: Populate dynamic confirmation #actionModal
    * ---------------------------------------------------------------- */
   document.addEventListener('click', function (e) {
@@ -271,8 +312,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const btn = e.target.closest('.action-btn[data-action="view"]');
     if (!btn) return;
 
-    const dbId = btn.dataset.id;
-    const dvCode = btn.dataset.dv;
+    // Support both logbook views (data-id) and cashier status views (data-dv fallback)
+    const dbId = btn.dataset.id || btn.dataset.dv;
+    const dvCode = btn.dataset.dv || 'Record';
     if (!dbId) return;
 
     const actionTitle  = document.getElementById('actionTitle');
