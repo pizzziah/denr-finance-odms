@@ -107,6 +107,17 @@ use Illuminate\Support\Facades\DB;
         ->orderBy('new_uac')
         ->get();
 
+        $classifications = DB::table('odms_dropdowns')
+            ->whereNotNull('classifications')
+            ->where('classifications', '!=', '')
+            ->orderBy('classifications')
+            ->get();
+
+        $offices = DB::table('odms_dropdowns')
+            ->whereNotNull('issuing_office')
+            ->where('issuing_office', '!=', '')
+            ->orderBy('issuing_office')
+            ->get();
       
 
       return view('budget.logbook', compact(
@@ -120,7 +131,9 @@ use Illuminate\Support\Facades\DB;
         'issuingOffices',
         'classifications',
         'uacs',
-        'highlight'
+        'highlight',
+        'classifications',
+        'offices'
       ));
     }
 
