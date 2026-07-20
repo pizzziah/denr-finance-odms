@@ -26,15 +26,16 @@
               </x-button>
           @endif
 
-                {{--SETTINGS MODAL --}}
-      <button
-            type="button"
-            class="btn btn-secondary"
+        {{--SETTINGS MODAL --}}
+        <x-button
+            variant="header"
             data-bs-toggle="modal"
             data-bs-target="#settingsModal">
-            <i class="fas fa-cogs me-1"></i>
+
+            <i class="bi bi-gear-fill"></i>
             Settings
-        </button>
+
+        </x-button>
       </div>
 
       

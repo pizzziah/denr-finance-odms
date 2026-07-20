@@ -265,7 +265,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
       syncSelect("edit_issuing_office", row.issuing_office);
       syncSelect("edit_classifications", row.classification);
-      syncSelect("edit_uac_codes", row.uac_codes);
+      let uac = row.uac_codes ?? "";
+      uac = uac.replace(/\s+/g, "");
+      const select = document.getElementById("edit_uac_codes");
+      if (select.tomselect) {
+          const option = Object.keys(select.tomselect.options)
+              .find(v => v.replace(/\s+/g, "") === uac);
+
+          if (option) {
+              select.tomselect.setValue(option, true);
+          }
+      }
       syncSelect("edit_status", row.status); 
       
       handleStatusFieldDependencies(row.status);

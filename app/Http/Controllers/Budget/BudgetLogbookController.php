@@ -385,7 +385,7 @@ use Illuminate\Support\Facades\DB;
     $search = $request->search;
     $sort = $request->sort ?? 'latest';
 
-    $query = DB::table('odms_budget')
+    $query = DB::table('odms_budget_archive')
         ->where(function ($q) {
             $q->whereYear('date_received', 2025)
               ->orWhere('status', 'Cancelled');
@@ -701,5 +701,19 @@ use Illuminate\Support\Facades\DB;
         'display_total_time' => $this->formatWorkingTime($totalHours),
         'display_total_time_budget' => $this->formatWorkingTime($budgetHours),
       ]);
+  }
+
+  public function storeClassification(Request $request)
+  {
+      $request->validate([
+          'classification' => 'required|unique:odms_dropdowns,classifications',
+      ]);
+
+      DB::table('odms_dropdowns')->insert([
+          'classifications' => $request->classification,
+          'issuing_office' => null,
+      ]);
+
+      return back()->with('success', 'Classification added successfully.');
   }
 }

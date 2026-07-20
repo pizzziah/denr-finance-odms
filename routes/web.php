@@ -4,6 +4,7 @@ use App\Http\Controllers\Accounting\AccountingLogbookController;
 use App\Http\Controllers\Accounting\AccountingQuarterlySummaryController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Budget\BudgetSettingsController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Budget\BudgetLogbookController;
 use App\Http\Controllers\DashboardController;
