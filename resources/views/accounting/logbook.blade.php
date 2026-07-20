@@ -239,23 +239,26 @@
                           <i class="bi bi-eye"></i>
                       </button>
                       <button type="button"
-                              class="btn btn-sm btn-outline-primary action-btn"
+                              class="btn btn-sm btn-outline-primary action-btn {{ $record->status === 'Paid' ? 'disabled' : '' }}"
                               data-action="edit"
                               data-id="{{ $record->transaction_id }}"
                               data-dv="{{ $record->transaction_id }}"
                               data-status="{{ $record->status }}"
-                              data-bs-toggle="modal"
-                              data-bs-target="#editRecordModal">
+                              @if($record->status !== 'Paid')
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#editRecordModal"
+                              @endif>
                           <i class="bi bi-pencil"></i>
                       </button>
-                      
                       <button type="button"
-                              class="btn btn-sm btn-danger action-btn" 
-                              data-action="delete" 
+                              class="btn btn-sm btn-danger action-btn {{ $record->status === 'Paid' ? 'disabled' : '' }}"
+                              data-action="delete"
                               data-id="{{ $record->transaction_id }}"
                               data-dv="{{ $record->transaction_id }}"
-                              data-bs-toggle="modal" 
-                              data-bs-target="#actionModal">
+                              @if($record->status !== 'Paid')
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#actionModal"
+                              @endif>
                           <i class="bi bi-trash"></i>
                       </button>
                   </div>
