@@ -235,21 +235,35 @@
                               data-budget-id="{{ $record->budget_id }}">
                               <i class="bi bi-eye"></i>
                           </button>
+                            @php
+                                $disableActions = in_array($record->status, [
+                                    'Paid',
+                                    'Forwarded to Accounting',
+                                    'Cancelled'
+                                ]);
+                            @endphp
 
-                          <button
-                              type="button"
-                              class="btn btn-sm btn-outline-primary edit-btn"
-                              data-budget-id="{{ $record->budget_id }}">
-                              <i class="bi bi-pencil"></i>
-                          </button>
+                            {{-- EDIT BUTTON --}}
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-primary edit-btn {{ $disableActions ? 'disabled' : '' }}"
+                                data-budget-id="{{ $record->budget_id }}"
+                                {{ $disableActions ? 'disabled' : '' }}
+                                title="{{ $disableActions ? 'Editing disabled for this status' : 'Edit Record' }}">
+                                <i class="bi bi-pencil"></i>
+                            </button>
 
-                          <button
-                              type="button"
-                              class="btn btn-sm btn-outline-danger delete-btn"
-                              data-budget-id="{{ $record->budget_id}}"
-                              data-payee="{{ $record->budget_id }}">
-                              <i class="bi bi-trash"></i>
-                          </button>
+
+                            {{-- DELETE BUTTON --}}
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-danger delete-btn {{ $disableActions ? 'disabled' : '' }}"
+                                data-budget-id="{{ $record->budget_id }}"
+                                data-payee="{{ $record->payee }}"
+                                {{ $disableActions ? 'disabled' : '' }}
+                                title="{{ $disableActions ? 'Deletion disabled for this status' : 'Delete Record' }}">
+                                <i class="bi bi-trash"></i>
+                            </button>
                       @else
                           <span class="text-muted">No DV No.</span>
                       @endif
