@@ -248,79 +248,86 @@ use Illuminate\Support\Facades\DB;
         ->where('budget_id', $budget_id)
         ->first();
 
-// ================= SEND / UPDATE ACCOUNTING =================
-if ($budget->status === 'Forwarded to Accounting') {
+      // ================= SEND / UPDATE ACCOUNTING =================
+      if ($budget->status === 'Forwarded to Accounting') {
 
-    // Find ONLY the debit(parent) row
-    $existing = DB::table('odms_accounting')
-        ->where('budget_id', $budget->budget_id)
-        ->where(function ($q) {
-            $q->where('debit', '>', 0)
-              ->orWhereNull('debit');
-        })
-        ->orderBy('accounting_id')
-        ->first();
+          // Find ONLY the debit(parent) row
+          $existing = DB::table('odms_accounting')
+              ->where('budget_id', $budget->budget_id)
+              ->where(function ($q) {
+                  $q->where('debit', '>', 0)
+                    ->orWhereNull('debit');
+              })
+              ->orderBy('accounting_id')
+              ->first();
 
-    if ($existing) {
-        DB::table('odms_accounting')
-            ->where('accounting_id', $existing->accounting_id)
-            ->update([
-                'ors_no'             => $budget->ors_no,
-                'payee'              => $budget->payee,
-                'particulars'        => $budget->particulars,
-                'particulars_remark' => $budget->particulars_remark,
-                'uac_codes'          => $budget->uac_codes,
-                'debit'              => $budget->amount,
-                'status'             => 'Processing',
-                'date_received'      => $budget->date_received,
-                'budget_year'        => Carbon::parse($budget->date_received)->year,
-                'source_month'       => Carbon::parse($budget->date_received)->format('F'),
-            ]);
+          if ($existing) {    
+              // Update the parent row
+              DB::table('odms_accounting')
+                  ->where('accounting_id', $existing->accounting_id)
+                  ->update([
+                      'ors_no'             => $budget->ors_no,
+                      'payee'              => $budget->payee,
+                      'particulars'        => $budget->particulars,
+                      'particulars_remark' => $budget->particulars_remark,
+                      'uac_codes'          => $budget->uac_codes,
+                      'debit'              => $budget->amount,
+                      'status'             => 'Processing',
+                      'date_received'      => $budget->date_received,
+                      'budget_year'        => Carbon::parse($budget->date_received)->year,
+                      'source_month'       => Carbon::parse($budget->date_received)->format('F'),
+                  ]);
+              // Update ALL rows belonging to the same transaction
+              DB::table('odms_accounting')
+                  ->where('transaction_id', $existing->transaction_id)
+                  ->update([
+                      'status' => 'Processing',
+                  ]);
 
-    } else {
-        DB::table('odms_accounting')->insert([
+          } else {
+              DB::table('odms_accounting')->insert([
 
-            'transaction_id' => $this->generateTransactionId(),
-            'budget_id'      => $budget->budget_id,
-            'ors_no'         => $budget->ors_no,
-            'payee'          => $budget->payee,
-            'particulars'    => $budget->particulars,
-            'particulars_remark' => $budget->particulars_remark,
-            'uac_codes'      => $budget->uac_codes,
-            'debit'          => $budget->amount,
-            'credit'         => 0,
-            'status'         => 'Processing',
-            'budget_year'    => Carbon::parse($budget->date_received)->year,
-            'source_month'   => Carbon::parse($budget->date_received)->format('F'),
-            'date_received'  => $budget->date_received,
-            'obr_no'         => null,
-            'obr_date'       => null,
-            'dv_no'          => null,
-            'tax_percent'    => null,
-            'tax_remarks'    => null,
-            'signed'         => 'No',
-            'signed_by_accountant' => null,
-            'date_signed'    => null,
-            'date_processed' => null,
-            'date_forwarded' => null,
-            'returned_remarks' => null,
-        ]);
-    }
+                  'transaction_id' => $this->generateTransactionId(),
+                  'budget_id'      => $budget->budget_id,
+                  'ors_no'         => $budget->ors_no,
+                  'payee'          => $budget->payee,
+                  'particulars'    => $budget->particulars,
+                  'particulars_remark' => $budget->particulars_remark,
+                  'uac_codes'      => $budget->uac_codes,
+                  'debit'          => $budget->amount,
+                  'credit'         => 0,
+                  'status'         => 'Processing',
+                  'budget_year'    => Carbon::parse($budget->date_received)->year,
+                  'source_month'   => Carbon::parse($budget->date_received)->format('F'),
+                  'date_received'  => $budget->date_received,
+                  'obr_no'         => null,
+                  'obr_date'       => null,
+                  'dv_no'          => null,
+                  'tax_percent'    => null,
+                  'tax_remarks'    => null,
+                  'signed'         => 'No',
+                  'signed_by_accountant' => null,
+                  'date_signed'    => null,
+                  'date_processed' => null,
+                  'date_forwarded' => null,
+                  'returned_remarks' => null,
+              ]);
+          }
 
-    Notification::updateOrCreate(
-        [
-            'type'        => 'accounting',
-            'related_id'  => $budget->budget_id,
-            'target_role' => 'accountant',
-        ],
-        [
-            'title'    => 'New Accounting Transaction',
-            'message'  => "ORS No. {$budget->ors_no} ({$budget->payee}) has been forwarded from Budget.",
-            'priority' => 'Medium',
-            'is_read'  => 0,
-        ]
-    );
-}
+          Notification::updateOrCreate(
+              [
+                  'type'        => 'accounting',
+                  'related_id'  => $budget->budget_id,
+                  'target_role' => 'accountant',
+              ],
+              [
+                  'title'    => 'New Accounting Transaction',
+                  'message'  => "ORS No. {$budget->ors_no} ({$budget->payee}) has been forwarded from Budget.",
+                  'priority' => 'Medium',
+                  'is_read'  => 0,
+              ]
+          );
+      }
 
       // ================= RESET REVIEW HISTORY =================
       BudgetReviewProcess::where('budget_id', $budget_id)->delete();
