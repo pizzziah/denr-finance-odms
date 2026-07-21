@@ -69,15 +69,14 @@
   </div>
 
   {{-- ARCHIVED LOG ENTRIES DISPLAY --}}
-  <div class="card m-0 w-100" style="min-height: 55vh; display: grid; min-width: 0;">
+  <div class="card m-0 w-100" style="min-height: 65vh; display: grid; min-width: 0;">
     <div class="card-body p-3" style="min-width: 0;">
-      
-      <div class="table-responsive" style="max-height: 60vh; overflow-y: auto; overflow-x: auto; -webkit-overflow-scrolling: touch;">
-        <table class="table table-bordered table-hover table-sm align-middle m-0">
+      <div class="table-responsive" style="max-height: 65vh; overflow-y: auto; overflow-x: auto; -webkit-overflow-scrolling: touch;">
+        <table class="table table-bordered table-hover table-sm align-middle m-0" style="font-size: 0.85em;">
           <thead class="table-dark sticky-top" style="z-index: 5;">
             <tr>
-              <th>Date Received</th>
-              <th style="width: 80px;">
+              <th style="width: 100px;">Date Received</th>
+              <th style="width: 70px;">
                 <div class="d-flex align-items-center justify-content-between">
                   <span>DV No.</span>
                   <div class="btn-group btn-group-xs ms-2">
@@ -86,19 +85,20 @@
                   </div>
                 </div>
               </th>
-              <th>Date Processed</th>
-              <th>OBR Date</th>
-              <th style="min-width: 70px;">OBR No.</th>
-              <th style="min-width: 160px;">Payee</th>
-              <th style="min-width: 300px;">Particulars</th>
-              <th style="min-width: 160px;">Particulars Remark</th>
-              <th style="min-width:130px;">Amount</th>
-              <th style="min-width: 150px;">Status</th>
-              <th style="min-width:120px;">Accounting Entries</th>
-              <th style="min-width: 100px;">Signed</th>
-              <th>Date Signed</th>
-              <th>Date Forwarded</th>
-              <th style="min-width: 150px;">Action</th>
+              <th style="width: 100px;">Date Processed</th>
+              <th style="width: 100px;">OBR Date</th>
+              <th style="width: 70px;">OBR No.</th>
+              <th style="width: 160px;">Payee</th>
+              <th style="width: 280px;">Particulars</th>
+              <th style="width: 210px;">Particulars Remark</th>
+              <th style="width: 130px;">Amount</th>
+              <th style="width: 150px;">Status</th>
+              <th style="width: 200px;">Returned Remarks</th>
+              <th style="width: 120px;">Accounting Entries</th>
+              <th style="width: 100px;">Signed</th>
+              <th style="width: 100px;">Date Signed</th>
+              <th style="width: 100px;">Date Forwarded</th>
+              <th style="width: 150px;">Action</th>
             </tr>
           </thead>
 
@@ -113,7 +113,7 @@
                 <td><strong>{{ $record->payee ?? '-' }}</strong></td>
                 <td><strong>{{ $record->particulars ?? '-' }}</strong></td>
                 <td><i>{{ $record->particulars_remark ?? '-' }}</i></td>
-                <td class="text-end fw-bold">
+                <td class="fw-bold">
                     ₱{{ number_format((float) str_replace(',', '', $record->total_debit ?? 0), 2) }}
                 </td>
                 {{-- STATUS COLUMN --}}
@@ -130,30 +130,32 @@
                         default                => 'background-color: #F8F9FA; color: #6C757D;'
                       };
                     @endphp
-                    <span class="badge px-2 py-1 small fw-bold" style="{{ $statusStyles }}">{{ $status }}</span>
+                    <span class="badge fw-bold" style="{{ $statusStyles }}; font-size: 0.9em;">
+                      {{ $status }}
+                    </span>
                   @else
                     <span class="text-muted">-</span>
                   @endif
                 </td>
-
+                <td><i>{{ $record->returned_remarks ?? '-' }}</i></td>
                 <td class="text-center">
-                    <span class="badge bg-primary">
+                    <span class="badge bg-primary" style="font-size: 0.9em;">
                         {{ $record->total_entries }} Entries
                     </span>
                 </td>
                 
-                {{-- SIGNED COLUMN (Ready for Yes/No DB field addition) --}}
+                {{-- SIGNED COLUMN --}}
                 <td>
                   @if(isset($record->signed) && !is_null($record->signed))
                     @php
                       $signedVal = trim(strtolower($record->signed));
                     @endphp
                     @if($signedVal === 'yes' || $signedVal === '1' || $record->signed === true)
-                      <span class="badge px-2 py-1 small fw-bold" style="background-color: var(--secondary-variant); color: var(--primary);">Yes</span>
+                      <span class="badge fw-bold" style="background-color: var(--secondary-variant); color: var(--primary); font-size: 0.9em;">Yes</span>
                     @elseif($signedVal === 'no' || $signedVal === '0' || $record->signed === false)
-                      <span class="badge px-2 py-1 small fw-bold" style="background-color: #FFC2C2; color: var(--error);">No</span>
+                      <span class="badge fw-bold" style="background-color: #FFC2C2; color: var(--error); font-size: 0.9em;">No</span>
                     @else
-                      <span class="badge px-2 py-1 small bg-light text-dark fw-bold">{{ $record->signed }}</span>
+                      <span class="badge bg-light text-dark fw-bold" style="font-size: 0.9em;">{{ $record->signed }}</span>
                     @endif
                   @else
                     <span class="text-muted">-</span>
@@ -177,7 +179,7 @@
               </tr>
             @empty
               <tr>
-                <td colspan="14" class="text-center text-muted py-3">
+                <td colspan="16" class="text-center text-muted py-3">
                   No records found matching parameters.
                 </td>
               </tr>
