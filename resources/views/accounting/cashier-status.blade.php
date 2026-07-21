@@ -130,7 +130,7 @@
                         {{ $record->total_entries }} Entries
                     </span>
                 </td>
-                <td>
+                <td style="position: sticky; right: 0; background-color: var(--light-gray); z-index: 1;">
                   @if(!empty($record->dv_no))
                   <div class="d-flex gap-2 justify-content-center">
                       {{-- VIEW BUTTON --}}

@@ -246,7 +246,7 @@
                 @endif
               </td>
               <td class="text-wrap"><em>{{ $record->remarks ?? '-' }}</em></td>
-              <td>
+              <td style="position: sticky; right: 0; background-color: var(--light-gray); z-index: 1;">
                 <div class="d-flex gap-2 justify-content-center align-items-center">
                   <x-button type="button" variant="edit" data-bs-toggle="modal" data-bs-target="#editSummaryModal{{ $rowId }}" :disabled="$isLocked">
                     <i class="bi bi-pencil-square"></i>

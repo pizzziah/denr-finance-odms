@@ -163,7 +163,7 @@
                 </td>
                 <td>{{ $record->date_signed ?? '-' }}</td>
                 <td>{{ $record->date_forwarded ?? '-' }}</td>
-                <td class="text-center">
+                <td class="text-center" style="position: sticky; right: 0; background-color: var(--light-gray); z-index: 1;">
                   @if(!empty($record->dv_no))
                     <button type="button"
                             class="btn btn-sm btn-outline-info view-details-btn"

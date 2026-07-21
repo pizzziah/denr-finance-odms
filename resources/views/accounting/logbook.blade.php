@@ -124,7 +124,7 @@
               <th style="min-width: 100px;">Signed</th>
               <th style="min-width:100px;">Date Signed</th>
               <th style="min-width:100px;">Date Forwarded</th>
-              <th style="min-width: 150px;">Action</th>
+              <th style="min-width: 150px; position: sticky; right: 0; z-index: 6;" class="text-center">Action</th>
             </tr>
           </thead>
 
@@ -173,7 +173,7 @@
                 <td>
                   @if(!empty($record->status))
                     
-                    <span class="badge fw-bold" style="{{ $statusStyles }}; font-size: 1em;" >{{ $status }}</span>
+                    <span class="badge fw-bold" style="{{ $statusStyles }}; font-size: 0.9em;" >{{ $status }}</span>
                   @else
                     <span class="text-muted">-</span>
                   @endif
@@ -183,7 +183,7 @@
                 <td><i>{{ $record->returned_remarks ?? '-' }}</i></td>
 
                 <td class="text-center">
-                    <span class="badge fw-bold" style="{{ $statusStyles }}; background-color: #BCC3F6; color: #271ECE; font-size: 1em;">
+                    <span class="badge fw-bold" style="{{ $statusStyles }}; background-color: #BCC3F6; color: #271ECE; font-size: 0.9em;">
                         {{ $record->total_entries }} Entries
                     </span>
                 </td>
@@ -195,11 +195,11 @@
                       $signedVal = trim(strtolower($record->signed));
                     @endphp
                     @if($signedVal === 'yes' || $signedVal === '1' || $record->signed === true)
-                      <span class="badge px-2 py-1 small fw-bold" style="background-color: var(--secondary-variant); color: var(--primary);">Yes</span>
+                      <span class="badge fw-bold" style="background-color: var(--secondary-variant); color: var(--primary); font-size: 0.9em;">Yes</span>
                     @elseif($signedVal === 'no' || $signedVal === '0' || $record->signed === false)
-                      <span class="badge px-2 py-1 small fw-bold" style="background-color: #FFC2C2; color: var(--error);">No</span>
+                      <span class="badge fw-bold" style="background-color: #FFC2C2; color: var(--error); font-size: 0.9em;">No</span>
                     @else
-                      <span class="badge px-2 py-1 small bg-light text-dark fw-bold">{{ $record->signed }}</span>
+                      <span class="badge bg-light text-dark fw-bold" style="font-size: 0.9em;">{{ $record->signed }}</span>
                     @endif
                   @else
                     <span class="text-muted">-</span>
@@ -222,7 +222,7 @@
                     -
                   @endif
                 </td>
-                <td>
+                <td style="position: sticky; right: 0; background-color: var(--light-gray); z-index: 1;">
                   @if(!empty($record->transaction_id))
                   <div class="d-flex gap-1 justify-content-center">
                       <button type="button"
