@@ -239,7 +239,7 @@
                           <i class="bi bi-eye"></i>
                       </button>
                       <button type="button"
-                              class="btn btn-sm btn-outline-primary action-btn {{ $record->status === 'Paid' ? 'disabled' : '' }}"
+                              class="btn btn-sm btn-outline-primary action-btn {{ in_array($record->status, ['Paid', 'Returned to Budget','Cancelled']) ? 'disabled' : '' }}"
                               data-action="edit"
                               data-id="{{ $record->transaction_id }}"
                               data-dv="{{ $record->transaction_id }}"
@@ -251,7 +251,7 @@
                           <i class="bi bi-pencil"></i>
                       </button>
                       <button type="button"
-                              class="btn btn-sm btn-danger action-btn {{ $record->status === 'Paid' ? 'disabled' : '' }}"
+                              class="btn btn-sm btn-danger action-btn {{ in_array($record->status, ['Paid', 'Returned to Budget','Cancelled']) ? 'disabled' : '' }}"
                               data-action="delete"
                               data-id="{{ $record->transaction_id }}"
                               data-dv="{{ $record->transaction_id }}"
