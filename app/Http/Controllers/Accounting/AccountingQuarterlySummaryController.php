@@ -38,21 +38,32 @@ class AccountingQuarterlySummaryController extends Controller {
     }
 
     if ($now->greaterThan($autoLockDate)) {
-      if (!$lockRecord) {
-        DB::table('odms_admin_quarter_locks')->insert([
-          'year'       => $year,
-          'quarter'    => $quarter,
-          'status'     => 'locked',
-          'created_at' => $now,
-          'updated_at' => $now,
-        ]);
-      } else {
-        DB::table('odms_admin_quarter_locks')
-          ->where('id', $lockRecord->id)
-          ->update(['status' => 'locked', 'updated_at' => $now]);
-      }
 
-      return ['is_locked' => true, 'reason' => 'Automatic 2-week grace period expired.'];
+        // Create the first automatic lock only once.
+        if (!$lockRecord) {
+
+            DB::table('odms_admin_quarter_locks')->insert([
+                'year'       => $year,
+                'quarter'    => $quarter,
+                'status'     => 'locked',
+                'requires_admin_unlock' => false,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+
+            return [
+                'is_locked' => true,
+                'reason' => 'Automatic 2-week grace period expired.'
+            ];
+        }
+
+        // Existing record: respect whatever status the admin chose.
+        return [
+            'is_locked' => $lockRecord->status === 'locked',
+            'reason' => $lockRecord->status === 'locked'
+                ? 'Quarter is locked.'
+                : 'Quarter is unlocked by administrator.'
+        ];
     }
 
     return ['is_locked' => false, 'reason' => 'Quarter is open for entries.'];
