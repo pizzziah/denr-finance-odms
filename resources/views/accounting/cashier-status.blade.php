@@ -48,7 +48,7 @@
         <table class="table table-bordered table-hover table-sm align-middle m-0">
           <thead class="table-dark sticky-top" style="z-index: 5;">
             <tr>
-              <th style="width: 120px;">
+              <th style="width: 100px;">
                 <div class="d-flex align-items-center justify-content-between">
                   <span>Date Forwarded</span>
                   <div class="btn-group btn-group-xs ms-2">
@@ -61,10 +61,10 @@
               <th style="min-width: 80px;">OBR No.</th>
               <th style="min-width: 160px;">Payee</th>
               <th style="min-width: 300px;">Particulars</th>
-              <th style="min-width:130px;">Amount</th>
+              <th style="min-width: 220px;">Amount</th>
               <th style="min-width: 150px;">Status</th>
-              <th style="min-width: 100px;">Signed</th>
-              <th style="width: 120px;">
+              <th style="min-width: 80px;">Signed</th>
+              <th style="width: 100px;">
                 <div class="d-flex align-items-center justify-content-between">
                   <span>Date Signed</span>
                   <div class="btn-group btn-group-xs ms-2">
@@ -73,8 +73,8 @@
                   </div>
                 </div>
               </th>
-              <th style="min-width:120px;">Accounting Entries</th>
-              <th style="min-width: 150px;" class="text-center">Action</th>
+              <th style="min-width:100px;">Accounting Entries</th>
+              <th style="min-width: 200px;" class="text-center">Action</th>
             </tr>
           </thead>
 
@@ -82,11 +82,11 @@
             @forelse($records as $record)
               <tr>
                 <td>{{ $record->date_forwarded ?? '-' }}</td>
-                <td style="color: var(--primary); background-color:var(--secondary-variant)"><strong>{{ $record->dv_no ?? '-' }}</strong></td>
+                <td style="color: #9D6B0B; background-color:#FFEECC"><strong>{{ $record->dv_no ?? '-' }}</strong></td>
                 <td style="color: var(--primary); background-color:var(--secondary-variant)"><strong>{{ $record->obr_no ?? '-' }}</strong></td>
                 <td><strong>{{ $record->payee ?? '-' }}</strong></td>
                 <td><strong>{{ $record->particulars ?? '-' }}</strong></td>
-                <td class="text-end fw-bold">
+                <td class="fw-bold">
                     ₱{{ number_format((float) str_replace(',', '', $record->total_debit ?? 0), 2) }}
                 </td>
                 <td>
@@ -102,7 +102,7 @@
                         default                => 'background-color: #F8F9FA; color: #6C757D;'
                       };
                     @endphp
-                    <span class="badge px-2 py-1 small fw-bold" style="{{ $statusStyles }}">{{ $status }}</span>
+                    <span class="badge fw-bold" style="{{ $statusStyles }}; font-size: 0.9em;">{{ $status }}</span>
                   @else
                     <span class="text-muted">-</span>
                   @endif
@@ -114,11 +114,11 @@
                       $signedVal = trim(strtolower($record->signed));
                     @endphp
                     @if($signedVal === 'yes' || $signedVal === '1' || $record->signed === true)
-                      <span class="badge px-2 py-1 small fw-bold" style="background-color: var(--secondary-variant); color: var(--primary);">Yes</span>
+                      <span class="badge fw-bold" style="background-color: var(--secondary-variant); color: var(--primary); font-size: 0.9em;">Yes</span>
                     @elseif($signedVal === 'no' || $signedVal === '0' || $record->signed === false)
-                      <span class="badge px-2 py-1 small fw-bold" style="background-color: #FFC2C2; color: var(--error);">No</span>
+                      <span class="badge fw-bold;" style="background-color: #FFC2C2; color: var(--error); font-size: 0.9em;">No</span>
                     @else
-                      <span class="badge px-2 py-1 small bg-light text-dark fw-bold">{{ $record->signed }}</span>
+                      <span class="badge bg-light text-dark fw-bold" style="font-size: 0.9em;">{{ $record->signed }}</span>
                     @endif
                   @else
                     <span class="text-muted">-</span>
@@ -126,13 +126,13 @@
                 </td>
                 <td>{{ $record->date_signed ?? '-' }}</td>
                 <td class="text-center">
-                    <span class="badge bg-primary">
+                    <span class="badge bg-primary" style="font-size: 0.9em;">
                         {{ $record->total_entries }} Entries
                     </span>
                 </td>
                 <td>
                   @if(!empty($record->dv_no))
-                  <div class="d-flex gap-1 justify-content-center">
+                  <div class="d-flex gap-2 justify-content-center">
                       {{-- VIEW BUTTON --}}
                       <button type="button"
                               class="btn btn-sm btn-outline-info view-details-btn"

@@ -72,7 +72,7 @@
               <div class="col-md-10 ps-md-4">
                 <div class="row g-2">
                   <div class="col-md-3">
-                    <label class="form-label small fw-semibold">Date Processed</label>
+                    <label class="form-label small fw-semibold">Date Processed </label>
                     <input type="datetime-local" name="date_processed" id="edit_date_processed" class="form-control form-control-sm">
                   </div>
                   <div class="col-md-3">
@@ -80,8 +80,8 @@
                     <input type="text" name="dv_no" id="edit_dv_no" class="form-control form-control-sm">
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label small fw-semibold">UACS Code</label>
-                    <select id="edit_uac_codes" name="uac_codes" class="form-select searchable-select">
+                    <label class="form-label small fw-semibold">UACS Code <span class="text-danger">*</span></label>
+                    <select id="edit_uac_codes" name="uac_codes" class="form-select searchable-select" required>
                       <option value="">Select UACS Code</option>
                         @foreach($uacs as $u)
                             <option value="{{ $u->uac_codes }}">
