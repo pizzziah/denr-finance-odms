@@ -67,8 +67,10 @@ class AccountingLogbookController extends Controller {
     if ($day && $day !== 'all') {
       $query->whereDay('date_received', $day);
     }
+    $query->groupBy('transaction_id');
+
     if ($statusText) {
-      $query->where('status', $statusText);
+        $query->havingRaw('MAX(status) = ?', [$statusText]);
     }
 
     if ($search) {
