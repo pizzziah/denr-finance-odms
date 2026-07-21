@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 21, 2026 at 08:03 AM
+-- Generation Time: Jul 21, 2026 at 08:19 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -155,12 +155,12 @@ CREATE TABLE `odms_accounting_2026_q3` (
   `q3_id` bigint(20) UNSIGNED NOT NULL,
   `emds_date` varchar(100) DEFAULT NULL,
   `date_processed` varchar(100) DEFAULT NULL,
+  `dv_no` varchar(100) DEFAULT NULL,
   `particulars` varchar(255) DEFAULT NULL,
-  `amount` varchar(50) DEFAULT NULL,
-  `nca_nta_received` varchar(100) DEFAULT NULL,
-  `nca_nta_downloaded` varchar(100) DEFAULT NULL,
-  `balance` varchar(50) DEFAULT NULL,
-  `ada_no` varchar(50) DEFAULT NULL,
+  `transaction_type` enum('Adjustment','Signed DV','NCA/NTA Received','NCA/NTA Downloaded') DEFAULT NULL,
+  `amount` double DEFAULT NULL,
+  `balance` double DEFAULT NULL,
+  `ada_no` varchar(100) DEFAULT NULL,
   `remarks` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -547,7 +547,7 @@ ALTER TABLE `odms_accounting`
 -- AUTO_INCREMENT for table `odms_accounting_2026_q3`
 --
 ALTER TABLE `odms_accounting_2026_q3`
-  MODIFY `q3_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `q3_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `odms_admin_quarter_locks`
