@@ -106,7 +106,7 @@
             @forelse($records as $record)
               <tr>
                 <td>{{ $record->date_received ?? '-' }}</td>
-                <td style="color: var(--primary); background-color:var(--secondary-variant)"><strong>{{ $record->dv_no ?? '-' }}</strong></td>
+                <td style="color: #9D6B0B; background-color:#FFEECC"><strong>{{ $record->dv_no ?? '-' }}</strong></td>
                 <td>{{ $record->date_processed ?? '-' }}</td>
                 <td>{{ $record->obr_date ?? '-' }}</td>
                 <td style="color: var(--primary); background-color:var(--secondary-variant)"><strong>{{ $record->obr_no ?? '-' }}</strong></td>
