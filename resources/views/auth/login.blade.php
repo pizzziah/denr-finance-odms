@@ -19,7 +19,7 @@
     {{-- HEADER --}}
     <div class="d-flex flex-column align-items-center lh-1 gap-0 p-0" style="color:var(--primary);">
       <img src="{{ asset('images/DENR-logo.png') }}" style="width: 15%;">
-      <h3 class="text-center mt-4 fw-bold">Obligation Disbursement Monitoring System </h3>
+      <h3 class="text-center mt-4 fw-bold">Obligation Disbursement Management System</h3>
       <h4 class="text-center mb-4"><i>DENR CAR Finance Division</i></h4>
     </div>
 

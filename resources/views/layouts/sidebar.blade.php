@@ -15,7 +15,7 @@
 
     <div class="sidebar-text d-flex flex-column gap-2" style="color: var(--primary)">
       <h5 class="mb-0 fw-bold lh-1">
-        Obligation Disbursement Monitoring System
+        Obligation Disbursement Management System
       </h5>
       <p class="lh-1">
         <small><i>DENR CAR Finance Division</i></small>
