@@ -64,6 +64,23 @@
 
             <hr class="my-4">
 
+            {{-- SECTION REVIEW ENTRY --}}
+            <div class="row section-review-processing">
+              <div class="col-2 fw-bold fs-5">Review<br>Processing</div>
+              <div class="col-10">
+                <div class="row g-2">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="fw-semibold text-muted">Review Transactions</div>
+                    <button type="button" class="btn btn-sm btn-outline-dark" id="btnAddReview">+ Add Review</button>
+                  </div>
+
+                  <div id="additionalReviews"></div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
             {{-- SECTION 2: DEBIT ENTRY --}}
             <div class="row py-1">
               <div class="col-md-2 fw-bold fs-5 border-end-md pe-md-4 mb-3 mb-md-0" style="color: var(--primary);">

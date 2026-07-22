@@ -82,6 +82,16 @@
             </div>
 
             <hr>
+            {{-- ================= REVIEW PROCESS ================= --}}
+            <div class="row">
+              <div class="col-2 fw-bold fs-4">Review<br>Processing</div>
+                <div class="col-5">
+                    <div id="reviewHistoryContainer"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr>
 
             {{-- ================= DEBIT ENTRY ================= --}}
             <div class="row py-1">

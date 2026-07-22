@@ -236,6 +236,7 @@ document.getElementById('actionMethod').innerHTML =
       document.getElementById('editRecordForm').action = finalUpdateUrl;
 
       const record = data.record || data || {};
+      document.getElementById('additionalReviews').innerHTML = '';
       const isBudgetSourced = (record.budget_id !== null && record.budget_id !== undefined && record.budget_id !== '');
       const fieldsToLock = ['edit_payee', 'edit_debit', 'edit_obr_no'];
 
@@ -297,11 +298,21 @@ document.getElementById('actionMethod').innerHTML =
       }
 
       safelySet('edit_date_forwarded', formatDateTimeLocal(record.date_forwarded));
-      safelySet('edit_returned_remarks', record.returned_remarks);
+      safelySet('edit_returned_remarks', record.returned_remarks);  
 
       const creditEntries = data.credit_entries || record.credit_entries || [];
       creditEntries.forEach(entry => addCreditRow('editCreditRows', entry));
       recalcEditCreditTotal();
+
+      const reviews = data.reviews || [];
+
+      reviews.forEach(review => {
+          addReviewRow({
+              date_returned: formatDateTimeLocal(review.date_returned),
+              date_received: formatDateTimeLocal(review.date_received),
+              remarks: review.remarks
+          });
+      });
 
       if (loading) loading.style.display  = 'none';
       if (formBody) formBody.style.display = '';
@@ -371,7 +382,7 @@ document.getElementById('actionMethod').innerHTML =
       const dvNo  = record.dv_no || '-';
       const obrNo = record.obr_no || record.ors_no || '-';
 
-      safelyText('transactionTitle', `DV No: ${dvNo} | TXN ID: ${txnId}`);
+      safelyText('transactionTitle', `DV No: ${dvNo} | TXN ID: ${txnId}`);  
       safelyText('transactionSubtitle', `OBR/ORS No: ${obrNo}`);
 
       // Basic Information
@@ -445,6 +456,9 @@ document.getElementById('actionMethod').innerHTML =
       // Status & Forwarding Information
       safelyText('view_status', record.status);
       safelyText('view_date_forwarded', record.date_forwarded);
+      safelyText('view_date_returned_1', record.date_returned_1);
+      safelyText('view_date_received_1', record.date_received_1);
+      safelyText('view_returned_remarks_1', record.returned_remarks_1);
 
       // Handle returned remarks display toggle
       const returnedWrap = document.getElementById('view_returned_remarks_wrap');
@@ -457,6 +471,39 @@ document.getElementById('actionMethod').innerHTML =
         }
       }
 
+      const reviewHistoryContainer = document.getElementById('reviewHistoryContainer');
+      reviewHistoryContainer.innerHTML = '';
+      (data.reviews || []).forEach((review) => {
+          reviewHistoryContainer.insertAdjacentHTML(
+              'beforeend',
+              `
+              <div class="card mb-2 shadow-sm">
+                  <div class="card-header py-2 px-3">
+                      <strong class="small">Review</strong>
+                  </div>
+                  <div class="card-body py-2 px-3">
+                      <div class="row g-2">
+                          <div class="col-md-4">
+                              <div class="small fw-semibold text-muted">Date Returned</div>
+                              <div class="small">${review.date_returned ?? '-'}</div>
+                          </div>
+
+                          <div class="col-md-4">
+                              <div class="small fw-semibold text-muted">Date Received</div>
+                              <div class="small">${review.date_received ?? '-'}</div>
+                          </div>
+
+                          <div class="col-md-4">
+                              <div class="small fw-semibold text-muted">Remarks</div>
+                              <div class="small text-break">${review.remarks ?? '-'}</div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              `
+          );
+      });
+      
       // Action buttons inside Details Modal configuration
       const editBtn = document.getElementById('detailsEditBtn');
       if (editBtn) {
@@ -511,5 +558,73 @@ document.getElementById('actionMethod').innerHTML =
       }, 500);
     }
   }
+
+  function addReviewRow(review = {}) {
+    const html = `
+    <div class="card review-card mb-2 shadow-sm">
+        <div class="card-header py-2 px-3 d-flex justify-content-between align-items-center">
+            <strong class="small">Review</strong>
+            <button
+                type="button"
+                class="btn btn-danger btn-sm remove-review py-0 px-2">
+                Remove
+            </button>
+        </div>
+
+        <div class="card-body py-2 px-3">
+            <div class="row g-2">
+
+                <div class="col-md-4">
+                    <label class="form-label small mb-1">Date Returned</label>
+                    <input
+                        type="datetime-local"
+                        class="form-control form-control-sm"
+                        name="review_date_returned[]"
+                        value="${review.date_returned ?? ''}">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label small mb-1">Date Received</label>
+                    <input
+                        type="datetime-local"
+                        class="form-control form-control-sm"
+                        name="review_date_received[]"
+                        value="${review.date_received ?? ''}">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label small mb-1">Remarks</label>
+                    <textarea
+                        rows="1"
+                        class="form-control form-control-sm"
+                        name="review_remarks[]">${review.remarks ?? ''}</textarea>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    `;
+
+    document
+        .getElementById('additionalReviews')
+        .insertAdjacentHTML('beforeend', html);
+}
+  document
+  .getElementById('btnAddReview')
+  .addEventListener('click', function () {
+
+      addReviewRow();
+
+  }); 
+  document.addEventListener('click', function(e){
+
+      if(e.target.classList.contains('remove-review')){
+
+          e.target.closest('.review-card').remove();
+
+          renumberReviews();
+      }
+
+  });
 });
 </script>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Accounting;
 
 use App\Http\Controllers\Controller;
+use App\Models\AccountingReviewProcess;
 use App\Models\Notification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -161,10 +162,15 @@ class AccountingLogbookController extends Controller {
 
     $debitRow = $entries->first(fn ($e) => (float) $e->debit > 0) ?? $entries->first();
 
+    $reviews = AccountingReviewProcess::where('accounting_id', $debitRow->accounting_id)
+      ->orderBy('review_id')
+      ->get();
+
     return response()->json([
       'transaction_id' => $transaction_id,
       'record'         => $debitRow,
       'entries'        => $entries,
+      'reviews'        => $reviews,
       'credit_entries' => $entries->filter(fn ($e) => (float) $e->debit == 0 && $e->accounting_id !== $debitRow->accounting_id)->values(),
       'total_debit'    => $entries->sum('debit'),
       'total_credit'   => $entries->sum('credit'),
@@ -465,6 +471,13 @@ class AccountingLogbookController extends Controller {
       'status'               => 'required|string|max:255',
       'date_forwarded'       => 'nullable|date',
       'returned_remarks'     => 'nullable|string',
+      'date_returned_1'      => 'nullable|date',
+      'date_received_1'      => 'nullable|date',
+      'returned_remarks_1'   => 'nullable|string',
+
+      'review_date_returned' => 'nullable|array',
+      'review_date_received' => 'nullable|array',
+      'review_remarks'       => 'nullable|array',
     ]);
 
     // Validate that Debit equals the sum of all Credits
@@ -513,6 +526,9 @@ class AccountingLogbookController extends Controller {
         'date_signed'           => $request->signed === 'Yes' ? $request->date_signed : null,
         'status'                => $request->status,
         'date_forwarded'        => $request->date_forwarded,
+        'date_returned_1'    => $request->date_returned_1,
+        'date_received_1'    => $request->date_received_1,
+        'returned_remarks_1' => $request->returned_remarks_1,
       ];
 
       $shared['uac_codes']   = $request->uac_codes;
@@ -609,6 +625,28 @@ class AccountingLogbookController extends Controller {
               ]
           );
       }
+
+      AccountingReviewProcess::where('accounting_id', $debitRow->accounting_id)->delete();
+      if ($request->filled('review_date_returned')) {
+            foreach ($request->review_date_returned as $i => $returned) {
+                $received = $request->review_date_received[$i] ?? null;
+                $remarks  = $request->review_remarks[$i] ?? null;
+                // Skip completely empty rows
+                if (
+                    empty($returned) &&
+                    empty($received) &&
+                    empty($remarks)
+                ) {
+                    continue;
+                }
+                AccountingReviewProcess::create([
+                    'accounting_id' => $debitRow->accounting_id,
+                    'date_returned' => $returned,
+                    'date_received' => $received,
+                    'remarks'        => $remarks,
+                ]);
+            }
+        }
 
       DB::commit();
 
