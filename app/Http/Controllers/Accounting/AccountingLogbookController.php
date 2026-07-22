@@ -166,6 +166,10 @@ class AccountingLogbookController extends Controller {
       ->orderBy('review_id')
       ->get();
 
+    $additionalDebits = DB::table('odms_accounting_debits')
+        ->where('transaction_id', $transaction_id)
+        ->get();
+
     return response()->json([
       'transaction_id' => $transaction_id,
       'record'         => $debitRow,
@@ -174,6 +178,7 @@ class AccountingLogbookController extends Controller {
       'credit_entries' => $entries->filter(fn ($e) => (float) $e->debit == 0 && $e->accounting_id !== $debitRow->accounting_id)->values(),
       'total_debit'    => $entries->sum('debit'),
       'total_credit'   => $entries->sum('credit'),
+      'additional_debits' => $additionalDebits,
     ]);
   }
 
@@ -213,15 +218,30 @@ class AccountingLogbookController extends Controller {
 
     // Validate that Debit equals the sum of all Credits
     $totalCredit = collect($request->credit_amounts ?? [])
-        ->sum(fn($amount) => (float) $amount);
+        ->sum(fn($amount) => (float)$amount);
 
-    $debit = (float) ($request->debit ?? 0);
+    // Original debit from Budget
+    $originalDebit = (float) DB::table('odms_accounting')
+        ->where('transaction_id', $transaction_id)
+        ->where('debit', '>', 0)
+        ->value('debit');
 
-    if (round($debit, 2) !== round($totalCredit, 2)) {
+    // Additional debit rows
+    $additionalDebitTotal = collect($request->debit_amounts ?? [])
+        ->sum(fn($amount) => (float)$amount);
+
+    // Decide which debit amount to compare
+    $compareDebit = $additionalDebitTotal > 0
+        ? $additionalDebitTotal
+        : $originalDebit;
+
+
+    if (round($compareDebit,2) !== round($totalCredit,2)) {
         return back()
             ->withInput()
             ->withErrors([
-                'credit_amounts' => 'The total Credit amount must be equal to the Debit amount.'
+                'credit_amounts' =>
+                'Debit and Credit totals must be equal.'
             ]);
     }
 
@@ -478,6 +498,10 @@ class AccountingLogbookController extends Controller {
       'review_date_returned' => 'nullable|array',
       'review_date_received' => 'nullable|array',
       'review_remarks'       => 'nullable|array',
+      'debit_uac_codes.*' => 'nullable|string|max:255',
+
+      'debit_amounts' => 'nullable|array',
+      'debit_amounts.*' => 'nullable|numeric',
     ]);
 
     // Validate that Debit equals the sum of all Credits
@@ -502,6 +526,27 @@ class AccountingLogbookController extends Controller {
         return response()->json(['success' => false, 'message' => $message], 404);
       }
       return back()->withInput()->with('error', $message);
+    }
+
+    $originalDebit = (float) DB::table('odms_accounting')
+        ->where('transaction_id', $transaction_id)
+        ->where('debit', '>', 0)
+        ->value('debit');
+
+    $additionalDebitTotal = collect($request->debit_amounts ?? [])
+        ->sum(fn($amount) => (float)$amount);
+
+    if ($additionalDebitTotal > 0) {
+
+        if (round($additionalDebitTotal, 2) !== round($originalDebit, 2)) {
+
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'debit_amounts' =>
+                    'Additional debit rows must equal the original debit amount.'
+                ]);
+        }
     }
 
     DB::beginTransaction();
@@ -577,6 +622,28 @@ class AccountingLogbookController extends Controller {
             'tax_remarks' => $request->credit_tax_remarks[$i] ?? null,
           ]));
         }
+      }
+
+      // Save additional debit rows
+      DB::table('odms_accounting_debits')
+          ->where('transaction_id', $transaction_id)
+          ->delete();
+
+      if ($request->filled('debit_uac_codes')) {
+          foreach ($request->debit_uac_codes as $i => $uac) {
+              $amount = $request->debit_amounts[$i] ?? 0;
+              if (empty($uac) && empty($amount)) {
+                  continue;
+              }
+
+              DB::table('odms_accounting_debits')->insert([
+                  'transaction_id' => $transaction_id,
+                  'uac_codes' => $uac,
+                  'amount' => $amount,
+                  'created_at' => now(),
+                  'updated_at' => now(),
+              ]);
+          }
       }
 
       // Example downstream notification when routed onward.

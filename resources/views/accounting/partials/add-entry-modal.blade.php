@@ -172,3 +172,49 @@
     </div>
   </div>
 </template>
+
+<template id="debitRowTemplate">
+  <div class="row g-2 align-items-end debit-row mb-2 border-bottom pb-2">
+
+    <div class="col-md-6">
+      <label class="form-label small mb-1">UACS Code</label>
+
+      <select
+        name="debit_uac_codes[]"
+        class="form-select form-select-sm add-debit-uacs">
+
+        <option value="">Select UACS Code</option>
+
+        @foreach($uacs as $u)
+          <option value="{{ $u->uac_codes }}">
+            {{ $u->uac_codes }} - {{ $u->classification }}
+          </option>
+        @endforeach
+
+      </select>
+    </div>
+
+    <div class="col-md-5">
+      <label class="form-label small mb-1">Amount</label>
+
+      <input
+        type="number"
+        step="0.01"
+        name="debit_amounts[]"
+        class="form-control form-control-sm"
+        placeholder="0.00">
+    </div>
+
+    <div class="col-md-1">
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-danger remove-debit-row"
+        title="Remove">
+
+        <i class="bi bi-trash"></i>
+
+      </button>
+    </div>
+
+  </div>
+</template>

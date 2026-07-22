@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const updateUrlBase = "{{ url('/accounting/logbook') }}"; 
   const deleteUrlBase = "{{ url('/accounting/logbook') }}"; 
   const rowTemplate   = document.getElementById('creditRowTemplate');
+  const debitRowTemplate = document.getElementById('debitRowTemplate');
 
   const RETURN_STATUSES = ['Returned to End User', 'Returned to Budget'];
 
@@ -47,8 +48,35 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  function addDebitRow(containerId, prefill) {
+      const container = document.getElementById(containerId);
+      if (!container || !debitRowTemplate) return;
+      const clone = debitRowTemplate.content.cloneNode(true);
+      const wrap = clone.querySelector('.debit-row');
+
+      if (prefill) {
+          wrap.querySelector('[name="debit_uac_codes[]"]').value =
+              prefill.uac_codes ?? '';
+          wrap.querySelector('[name="debit_amounts[]"]').value =
+              prefill.amount ?? '';
+      }
+
+      container.appendChild(clone)
+      const newRow = container.lastElementChild;
+      const select =
+          newRow.querySelector('[name="debit_uac_codes[]"]');
+      if (select && !select.tomselect) {
+          new TomSelect(select, {
+              create: false,
+              searchField: ['text'],
+              placeholder: 'Search UACS...'
+          });
+      }
+  }
+
   document.getElementById('addUacsBtn-add')?.addEventListener('click', () => addCreditRow('addCreditRows'));
   document.getElementById('addUacsBtn-edit')?.addEventListener('click', () => addCreditRow('editCreditRows'));
+  document.getElementById('addDebitBtn-edit')?.addEventListener('click', () => addDebitRow('editDebitRows'));
 
   document.addEventListener('click', function (e) {
     const btn = e.target.closest('.remove-credit-row');
@@ -57,8 +85,21 @@ document.addEventListener('DOMContentLoaded', function () {
     recalcEditCreditTotal();
   });
 
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.remove-debit-row');
+    if (!btn) return;
+    btn.closest('.debit-row')?.remove();
+    recalcEditDebitTotal();
+  });
+
   document.addEventListener('input', function (e) {
     if (e.target.name === 'credit_amounts[]') recalcEditCreditTotal();
+  });
+
+  document.addEventListener('input', function (e) {
+    if (e.target.name === 'debit_amounts[]') {
+        recalcEditDebitTotal();
+    }
   });
 
   function recalcEditCreditTotal() {
@@ -66,6 +107,23 @@ document.addEventListener('DOMContentLoaded', function () {
       .reduce((sum, input) => sum + (parseFloat(input.value) || 0), 0);
     const el = document.getElementById('editCreditTotal');
     if (el) el.textContent = total.toFixed(2);
+  }
+
+  function recalcEditDebitTotal() {
+    const total = Array.from(
+        document.querySelectorAll(
+            '#editDebitRows [name="debit_amounts[]"]'
+        )
+    ).reduce((sum, input) => {
+        return sum + (parseFloat(input.value) || 0);
+    }, 0);
+
+    const totalElement =
+        document.getElementById('editDebitRowsTotal');
+
+    if (totalElement) {
+        totalElement.textContent = total.toFixed(2);
+    }
   }
 
   /* ---------------------------------------------------------------- *
@@ -201,6 +259,7 @@ document.getElementById('actionMethod').innerHTML =
     const loading  = document.getElementById('editLoading');
     const formBody = document.getElementById('editFormBody');
     const editCreditRows = document.getElementById('editCreditRows');
+    const editDebitRows = document.getElementById('editDebitRows');
 
     if (loading) {
       loading.style.display  = '';
@@ -211,6 +270,7 @@ document.getElementById('actionMethod').innerHTML =
     }
     if (formBody) formBody.style.display = 'none';
     if (editCreditRows) editCreditRows.innerHTML = '';
+    if (editDebitRows) editDebitRows.innerHTML = '';
 
     document.getElementById('editTransactionId').value = dbId;
     document.getElementById('editTransactionLabel').textContent = dvCode;
@@ -304,6 +364,10 @@ document.getElementById('actionMethod').innerHTML =
       creditEntries.forEach(entry => addCreditRow('editCreditRows', entry));
       recalcEditCreditTotal();
 
+      const debitEntries = data.additional_debits || [];
+      debitEntries.forEach(entry => addDebitRow('editDebitRows', entry));
+      recalcEditDebitTotal();
+
       const reviews = data.reviews || [];
 
       reviews.forEach(review => {
@@ -342,11 +406,13 @@ document.getElementById('actionMethod').innerHTML =
     const content = document.getElementById('detailsContent') || document.getElementById('modalContent');
     const errorMsg = document.getElementById('modalError');
     const creditContainer = document.getElementById('view-credit-entries');
+    const debitContainer = document.getElementById('view-debit-entries');
 
     if (loading) loading.classList.remove('d-none');
     if (content) content.classList.add('d-none');
     if (errorMsg) errorMsg.classList.add('d-none');
     if (creditContainer) creditContainer.innerHTML = '';
+    if (debitContainer) debitContainer.innerHTML = '';
 
     const restfulUrl = `${showUrlBase}/${dbId}`;
     const customUrl  = `${showUrlBase}/${dbId}/show`;
@@ -366,6 +432,8 @@ document.getElementById('actionMethod').innerHTML =
     .then(data => {
       const record = data.record || data || {};
       const creditEntries = data.credit_entries || record.credit_entries || [];
+      const additionalDebits = data.additional_debits || [];
+      let additionalDebitTotal = 0;
 
       window.currentPrintRecord = {
         record,
@@ -398,7 +466,7 @@ document.getElementById('actionMethod').innerHTML =
       safelyText('view_dv_no', dvNo);
       safelyText('view_uac_codes', record.uac_codes);
 
-      const numericDebit = parseFloat(data.total_debit || record.debit || 0);
+      const numericDebit = additionalDebitTotal > 0 ? additionalDebitTotal: parseFloat(record.debit || 0);
       const formattedDebit = numericDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       
       safelyText('view_debit', formattedDebit);
@@ -413,28 +481,45 @@ document.getElementById('actionMethod').innerHTML =
             totalCreditSum += entryCredit;
 
             return `
-              <div class="col-md-6 col-12">
-                <div class="card border border-light-subtle shadow-sm h-100">
-                  <div class="card-header bg-light py-1 px-3 d-flex justify-content-between align-items-center">
-                    <span class="fw-bold text-secondary small">Entry #${index + 1}</span>
-                    <code class="fw-bold text-dark">${entry.uac_codes ?? '-'}</code>
-                  </div>
-                  <div class="card-body p-3">
-                    <div class="row mb-2">
-                      <div class="col-5 fw-bold text-muted small">Credit Amount:</div>
-                      <div class="col-7 fw-bold text-success">₱${entryCredit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+            <div class="col-md-4 col-sm-6 col-12">
+                <div class="card border shadow-sm h-100">
+                    <div class="card-header bg-light py-1 px-2 d-flex justify-content-between align-items-center">
+                        <span class="fw-bold text-secondary small">
+                            Entry ${index + 1}
+                        </span>
+                        <code class="small">${entry.uac_codes ?? '-'}</code>
                     </div>
-                    <div class="row mb-2">
-                      <div class="col-5 fw-bold text-muted small">Tax Percent:</div>
-                      <div class="col-7 small">${entry.tax_percent ? entry.tax_percent + '%' : '-'}</div>
+                    <div class="card-body p-2">
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span class="fw-bold text-muted">
+                                Credit:
+                            </span>
+                            <span class="fw-bold text-success">
+                                ₱${entryCredit.toLocaleString('en-US',{
+                                    minimumFractionDigits:2,
+                                    maximumFractionDigits:2
+                                })}
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span class="fw-bold text-muted">
+                                Tax:
+                            </span>
+                            <span>
+                                ${entry.tax_percent ? entry.tax_percent+'%' : '-'}
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between small">
+                            <span class="fw-bold text-muted">
+                                Remarks:
+                            </span>
+                            <span class="text-break text-end">
+                                ${entry.tax_remarks || '-'}
+                            </span>
+                        </div>
                     </div>
-                    <div class="row">
-                      <div class="col-5 fw-bold text-muted small">Tax Remarks:</div>
-                      <div class="col-7 small text-break">${entry.tax_remarks && entry.tax_remarks !== '' ? entry.tax_remarks : '-'}</div>
-                    </div>
-                  </div>
                 </div>
-              </div>
+            </div>
             `;
           }).join('');
         } else {
@@ -444,6 +529,56 @@ document.getElementById('actionMethod').innerHTML =
             </div>
           `;
         }
+      }
+
+      if (debitContainer) {
+          if (additionalDebits.length > 0) {
+              debitContainer.innerHTML =
+              additionalDebits.map((entry,index)=>{
+                  const amount =
+                      parseFloat(entry.amount || 0);
+
+                  additionalDebitTotal += amount;
+
+                  return `
+                  <div class="col-md-4 col-sm-6 col-12">
+                      <div class="card shadow-sm">
+                          <div class="card-header py-1 px-2">
+                              <strong class="small">
+                                  Debit
+                              </strong>
+                              <code class="float-end small">
+                                  ${entry.uac_codes ?? '-'}
+                              </code>
+                          </div>
+                          <div class="card-body p-2">
+                              <div class="d-flex justify-content-between">
+                                  <span class="small fw-bold text-muted ">
+                                      Amount:
+                                  </span>
+                                  <span class="small fw-bold text-primary">
+                                      ₱${amount.toLocaleString(
+                                          'en-US',
+                                          {
+                                              minimumFractionDigits:2,
+                                              maximumFractionDigits:2
+                                          }
+                                      )}
+                                  </span>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  `;
+              }).join('');
+          } else {
+              debitContainer.innerHTML =
+              `
+              <div class="text-muted">
+                  No additional debit entries.
+              </div>
+              `;
+          }
       }
 
       safelyText('viewCreditTotal', totalCreditSum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));

@@ -82,15 +82,15 @@
             </div>
 
             <hr>
+
             {{-- ================= REVIEW PROCESS ================= --}}
             <div class="row">
               <div class="col-2 fw-bold fs-4">Review<br>Processing</div>
                 <div class="col-5">
                     <div id="reviewHistoryContainer"></div>
-                  </div>
                 </div>
-              </div>
             </div>
+            
             <hr>
 
             {{-- ================= DEBIT ENTRY ================= --}}
@@ -116,6 +116,14 @@
                 <div class="row">
                   <div class="col-5 fw-bold">Debit Amount:</div>
                   <div class="col-7">₱<span id="view_debit">0.00</span></div>
+                </div>
+                <div class="mt-3">
+                    <h6 class="fw-bold text-success">
+                        Additional Debit Entries
+                    </h6>
+                    <div id="view-debit-entries"
+                        class="row g-2">
+                    </div>
                 </div>
               </div>
             </div>
@@ -192,7 +200,7 @@
           </div>
         </div>
       </div>
-
+    
       {{-- FOOTER --}}
       <div class="modal-footer">
         <button class="btn btn-primary" id="printDetailsBtn">

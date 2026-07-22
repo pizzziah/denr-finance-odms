@@ -108,12 +108,33 @@
                     </select>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label small fw-semibold">Debit Amount <span class="text-danger">*</span></label>
+                    <label class="form-label small fw-semibold">Debit Amount</label>
                     <div class="input-group input-group-sm">
                       <span class="input-group-text">₱</span>
-                      <input type="number" step="0.01" name="debit" id="edit_debit" class="form-control form-control-sm" required>
+                      <input type="number" class="form-control" id="edit_debit" name="debit" readonly>
+
+                      <small class="text-muted">
+                          Original debit from Budget cannot be modified.
+                      </small>
                     </div>
                   </div>
+
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+
+                    <h6 class="mb-0 fw-bold">
+                        Additional Debit Entries
+                    </h6>
+
+                    <button type="button" id="addDebitBtn-edit" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-plus-circle"></i>
+                      Add Debit
+                    </button>
+
+                </div>
+
+                <div id="editDebitRows"></div>
+                <div class="d-flex justify-content-between align-items-center bg-light p-2 border rounded mt-2">
+                  <span class="small fw-bold text-muted">Total Debit: ₱<span id="editDebitRowsTotal">0.00</span></span>
                 </div>
               </div>
             </div>
