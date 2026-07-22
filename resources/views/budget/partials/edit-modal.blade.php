@@ -83,11 +83,6 @@
                     <label class="form-label small fw-semibold">Particulars <span class="text-danger">*</span></label>
                     <textarea id="edit_particulars" name="particulars" rows="2" class="form-control form-control-sm" required></textarea>
                   </div>
-
-                  <div class="col-md-6">
-                    <label class="form-label small fw-semibold">Particulars Remark</label>
-                    <textarea id="edit_particulars_remark" name="particulars_remark" rows="2" class="form-control form-control-sm"></textarea>
-                  </div>
                 </div>
               </div>
             </div>

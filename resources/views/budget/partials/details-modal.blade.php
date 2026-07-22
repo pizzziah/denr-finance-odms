@@ -72,11 +72,6 @@
                                 </div>
 
                                 <div class="row mb-2">
-                                    <div class="col-5 fw-bold">Remark:</div>
-                                    <div class="col-7" id="view_particulars_remark">-</div>
-                                </div>
-
-                                <div class="row mb-2">
                                     <div class="col-5 fw-bold">Due Date:</div>
                                     <div class="col-7" id="view_due_date">-</div>
                                 </div>

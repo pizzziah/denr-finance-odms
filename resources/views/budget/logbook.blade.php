@@ -105,7 +105,6 @@
              <th rowspan="2" style="min-width:180px;">Payee</th> 
              <th rowspan="2" style="min-width:80px;">Classification</th>                         
              <th rowspan="2" style="min-width:230px;">Particulars</th> 
-             <th rowspan="2" style="min-width:230px;">Particulars Remark</th> 
              <th rowspan="2">Amount</th>
              <th rowspan="2" style="min-width:120px;">UACS Codes</th> 
             @if($showStatusColumn)
@@ -181,7 +180,6 @@
                   <td><strong>{{ $record->payee ?? '-' }}</strong></td>
                   <td>{{ $record->classification ?? '-' }}</td>
                   <td><strong>{{ $record->particulars ?? '-' }}</strong></td>
-                  <td>{{ $record->particulars_remark ?? '-' }}</td>
                   <td style="color:var(--primary);"><strong>₱{{ number_format((float) str_replace(',', '', $record->amount ?? 0), 2) }}</strong></td>
                   <td>{{ $record->uac_codes ?? '-' }}</td>
                   

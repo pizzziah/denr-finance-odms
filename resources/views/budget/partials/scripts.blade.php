@@ -181,7 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
       $('view_classification').textContent = row.classification ?? '-';
       $('view_ors_no').textContent = row.ors_no ?? '-';
       $('view_particulars').textContent = row.particulars ?? '-';
-      $('view_particulars_remark').textContent = row.particulars_remark ?? '-';
       $('view_due_date').textContent = row.due_date ?? '-';
       $('view_amount').textContent = Number(row.amount ?? 0).toLocaleString(undefined, {
         minimumFractionDigits: 2,
@@ -216,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
       $('editForm').action = `/budget/logbook/${encodeURIComponent(id)}/update`;
 
       const fields = [
-        'ors_no','date_received','payee','particulars','particulars_remark','amount','due_date',
+        'ors_no','date_received','payee','particulars','amount','due_date',
         'date_returned_1','date_received_1','remarks_1',
         'date_forwarded_1','date_ors_received','remarks_2',
         'date_returned_2','date_received_2',
@@ -348,7 +347,6 @@ document.addEventListener('DOMContentLoaded', () => {
       $('edit_uac_codes'),
       $('edit_amount'),
       $('edit_particulars'),
-      $('edit_particulars_remark')
     ];
 
     const statusFields = [

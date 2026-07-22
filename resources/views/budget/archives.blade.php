@@ -92,7 +92,6 @@
               <th style="min-width: 140px;">Payee</th>
               <th style="min-width: 130px;">Classification</th>
               <th style="min-width: 250px;">Particulars</th>
-              <th style="min-width: 150px;">Particulars Remark</th>
               <th style="min-width: 110px;">UAC Codes</th>
               <th style="min-width: 120px;">Amount</th>
               <th style="min-width: 150px;">Status</th>
@@ -112,7 +111,6 @@
                 <td><strong>{{ $record->payee ?? '-' }}</strong></td>
                 <td><span class="badge bg-secondary text-light">{{ $record->classification ?? '-' }}</span></td>
                 <td><strong>{{ $record->particulars ?? '-' }}</strong></td>
-                <td><i>{{ $record->particulars_remark ?? '-' }}</i></td>
                 <td><code>{{ $record->uac_codes ?? '-' }}</code></td>
                 <td class="text-end fw-bold">
                     ₱{{ number_format((float)($record->amount ?? 0), 2) }}
