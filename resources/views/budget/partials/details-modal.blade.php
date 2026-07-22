@@ -203,3 +203,118 @@
         </div>
     </div>
 </div>
+
+<script>
+function printDetails() {
+  const getText = (id) => document.getElementById(id)?.textContent?.trim() || '-';
+
+  const issuingOffice = getText('view_issuing_office');
+  const payee = getText('view_payee');
+  const classification = getText('view_classification');
+  const particulars = getText('view_particulars');
+  const dueDate = getText('view_due_date');
+  const amount = getText('view_amount');
+
+  const reviewHistory = document.getElementById('view_review_history')?.innerHTML || '<div>-</div>';
+
+  const finalRemarks = getText('view_final_remarks');
+  const returnedRemarks = getText('detailReturnedRemarks');
+
+  const printWindow = window.open('', '_blank', 'width=800,height=700');
+
+  printWindow.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Budget Record</title>
+  <style>
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      margin: 30px;
+      color: #000;
+      line-height: 1.4;
+    }
+    .header {
+      text-align: center;
+      border-bottom: 2px dashed #000;
+      padding-bottom: 10px;
+      margin-bottom: 25px;
+    }
+    .header h2 {
+      margin: 0;
+      letter-spacing: 2px;
+    }
+    .section {
+      margin-bottom: 25px;
+    }
+    .section-title {
+      font-weight: bold;
+      font-size: 11pt;
+      border-bottom: 1px dashed #000;
+      padding-bottom: 4px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .row {
+      display: flex;
+      margin-bottom: 6px;
+      font-size: 10pt;
+    }
+    .label {
+      width: 200px;
+      font-weight: bold;
+    }
+    .value {
+      flex: 1;
+    }
+    .review-content {
+      font-size: 10pt;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>BUDGET RECORD</h2>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Request Information</div>
+    <div class="row"><div class="label">Issuing Office :</div><div class="value">${issuingOffice}</div></div>
+    <div class="row"><div class="label">Payee          :</div><div class="value">${payee}</div></div>
+    <div class="row"><div class="label">Classification :</div><div class="value">${classification}</div></div>
+    <div class="row"><div class="label">Particulars    :</div><div class="value">${particulars}</div></div>
+    <div class="row"><div class="label">Due Date       :</div><div class="value">${dueDate}</div></div>
+    <div class="row"><div class="label">Amount         :</div><div class="value">₱${amount}</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Review History</div>
+    <div class="review-content">
+      ${reviewHistory}
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Forwarded to Accounting</div>
+    <div class="row"><div class="label">Remarks          :</div><div class="value">${finalRemarks}</div></div>
+    <div class="row"><div class="label">Returned Remarks :</div><div class="value">${returnedRemarks}</div></div>
+  </div>
+</body>
+</html>
+  `);
+
+  printWindow.document.close();
+
+  printWindow.onload = () => {
+    setTimeout(() => {
+      printWindow.focus();
+      printWindow.print();
+    }, 300);
+  };
+
+  printWindow.onafterprint = () => {
+    printWindow.close();
+  };
+}
+</script>
