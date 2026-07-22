@@ -29,16 +29,15 @@
       {{-- WORKFLOW STATUS --}}
       @php
       $accountingStatuses = [
-        ['key' => 'pending', 'label' => 'Pending', 'color' => 'var(--yellow-brown)', 'bg' => 'var(--yellow-brown-variant)'],
-        ['key' => 'processing', 'label' => 'Processing', 'color' => 'var(--orange)', 'bg' => 'var(--orange-variant)'],
-        ['key' => 'returned', 'label' => 'Returned to End User', 'color' => 'var(--sky-blue)', 'bg' => 'var(--sky-blue-variant)'],
-        ['key' => 'returned', 'label' => 'Returned to Budget', 'color' => 'var(--blue)', 'bg' => 'var(--blue-variant)'],
-        ['key' => 'forwarded', 'label' => 'Forwarded to Cashier', 'color' => 'var(--secondary)', 'bg' => 'var(--secondary-variant)'],
-        ['key' => 'paid', 'label' => 'Paid', 'color' => 'var(--primary)', 'bg' => 'var(--primary-variant-light)'],
-        ['key' => 'cancelled', 'label' => 'Cancelled', 'color' => 'var(--error)', 'bg' => 'var(--error-variant)'],
+        ['key' => 'pending', 'label' => 'Pending', 'color' => 'var(--yellow-brown)', 'bg' => 'var(--yellow-brown-variant)', 'redirect' => 'Pending'],
+        ['key' => 'processing', 'label' => 'Processing', 'color' => 'var(--orange)', 'bg' => 'var(--orange-variant)', 'redirect' => 'Processing'],
+        ['key' => 'returned', 'label' => 'Returned to End User', 'color' => 'var(--sky-blue)', 'bg' => 'var(--sky-blue-variant)', 'redirect' => 'Returned to End User'],
+        ['key' => 'returned', 'label' => 'Returned to Budget', 'color' => 'var(--blue)', 'bg' => 'var(--blue-variant)', 'redirect' => 'Returned to Budget'],
+        ['key' => 'forwarded', 'label' => 'Forwarded to Cashier', 'color' => 'var(--secondary)', 'bg' => 'var(--secondary-variant)', 'redirect' => 'Forwarded to Cashier'],
+        ['key' => 'paid', 'label' => 'Paid', 'color' => 'var(--primary)', 'bg' => 'var(--primary-variant-light)', 'redirect' => 'Paid'],
+        ['key' => 'cancelled', 'label' => 'Cancelled', 'color' => 'var(--error)', 'bg' => 'var(--error-variant)', 'redirect' => 'Cancelled'],
       ];
       @endphp
-
       <x-db-workflow-status :statuses="$accountingStatuses" :metrics="$metrics" :timeline-label="$timelineLabel"/>
     </div>
 

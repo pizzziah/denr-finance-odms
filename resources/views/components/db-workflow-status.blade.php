@@ -6,6 +6,18 @@
 ])
 
 @php
+  $role = strtolower(Auth::user()->role);
+
+  if (in_array($role, ['accountant', 'bookkeeper'])) {
+    $logbookRoute = 'accounting.logbook';
+  } elseif ($role == 'budget') {
+    $logbookRoute = 'budget.logbook';
+  } else {
+    $logbookRoute = '#';
+  }
+@endphp
+
+@php
   $totalSum = array_sum($metrics['statusCounts'] ?? []);
   $totalSum = $totalSum > 0 ? $totalSum : 1;
 @endphp
@@ -27,7 +39,9 @@
     @endphp
     
     <div class="col-3">
-      <div class="p-0 py-2 border rounded h-100 d-flex flex-column align-items-center justify-content-center" 
+      <a href="{{ $logbookRoute != '#'  ? route($logbookRoute, array_merge(request()->query(), ['status' => $status['redirect']])) : '#' }}"
+      class="text-decoration-none">
+        <div class="p-0 py-2 border rounded h-100 d-flex flex-column align-items-center justify-content-center" 
         style="border-color: {{ $status['color'] }} !important; background: {{ $status['bg'] }}; min-height: {{ $cardMinHeight }}; cursor: pointer;">
         <div class="position-relative mb-2" style="width: 60px; height: 60px;">
           <svg class="w-100 h-100" viewBox="0 0 40 40" style="transform: rotate(-90deg);">
@@ -43,8 +57,9 @@
         
         <span class="small text-muted d-block fw-semibold text-center px-1" style="font-size: 0.70rem; color: {{ $status['color'] }} !important; line-height: 1.1;">
           {{ $status['label'] }}
-        </span>
-      </div>
+          </span>
+        </div>
+      </a>
     </div>
     @endforeach
   </div>
