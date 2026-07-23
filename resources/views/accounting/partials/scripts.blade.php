@@ -450,7 +450,7 @@ document.getElementById('actionMethod').innerHTML =
       const dvNo  = record.dv_no || '-';
       const obrNo = record.obr_no || record.ors_no || '-';
 
-      safelyText('transactionTitle', `DV No: ${dvNo} | TXN ID: ${txnId}`);  
+      safelyText('transactionTitle', `DV No: ${dvNo}`);  
       safelyText('transactionSubtitle', `OBR/ORS No: ${obrNo}`);
 
       // Basic Information
